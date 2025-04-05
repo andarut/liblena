@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/local/opt/llvm@16/bin/clang-16",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "macos-clang-x64",
+            "compileCommands": [
+                "${workspaceFolder}/build/Release/compile_commands.json",
+                "${workspaceFolder}/build/Debug/compile_commands.json"
+            ]
+        }
+    ],
+    "version": 4
+}

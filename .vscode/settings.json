@@ -1,0 +1,4 @@
+{
+    "C_Cpp.errorSquiggles": "enabled",
+    "C_Cpp.default.compilerPath": "/usr/local/opt/llvm@16/bin/clang-16"
+}

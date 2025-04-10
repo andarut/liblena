@@ -15,6 +15,10 @@ class LibLenaRecipe(ConanFile):
 
 	def generate(self):
 		tc = CMakeToolchain(self, generator="Ninja")
+		if self.settings.build_type == "Debug":
+			# TODO: ASAN_OPTIONS="detect_leaks=1"
+			tc.variables["CMAKE_C_FLAGS"] = "-fsanitize=address -fno-omit-frame-pointer"
+			tc.variables["CMAKE_CXX_FLAGS"] = "-fsanitize=address -fno-omit-frame-pointer"
 		tc.generate()
 		deps = CMakeDeps(self)
 		deps.generate()

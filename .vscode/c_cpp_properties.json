@@ -6,8 +6,11 @@
                 "${workspaceFolder}/**"
             ],
             "defines": [],
+            "macFrameworkPath": [
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            ],
             "compilerPath": "/usr/local/opt/llvm@16/bin/clang-16",
-            "cStandard": "c11",
+            "cStandard": "c17",
             "cppStandard": "c++17",
             "intelliSenseMode": "macos-clang-x64",
             "compileCommands": [

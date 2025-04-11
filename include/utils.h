@@ -5,6 +5,7 @@
 #include <chrono>
 #include <fstream>
 #include <cassert>
+#include <algorithm>
 
 #include "logging.h"
 

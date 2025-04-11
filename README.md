@@ -18,7 +18,7 @@ Example:
 
 This script will install `cmake` and other dependencies.
 
-## Build
+## Configure
 FIRST SEE [Requirements](Requirements) !
 
 From now on you can build with **cmake configs** (required `cmake>=3.23`). `conan-build` or `conan-release` depending on your build type.
@@ -31,7 +31,7 @@ or
 cmake --preset 'conan-release'
 ```
 
-### Special build cases
+### Special cases
 If you have `cmake<3.23` (and can't install version `>=3.23`):
 ```
 cmake <PATH> -G Ninja -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.cmake  -DCMAKE_POLICY_DEFAULT_CMP0091=NEW -DCMAKE_BUILD_TYPE=<BUILD_TYPE>
@@ -43,10 +43,19 @@ cmake/<CMAKE_VERSION>: Appending PATH environment variable: <CMAKE_BIN_PATH>
 ```
 You can find `cmake` executable of version `<CMAKE_VERSION>` in `<CMAKE_BIN_PATH>` directory. You can "pin" it with your code editor/IDE and run **cmake present**.
 
+## Build
+```
+ninja -j$(nproc) -C build/Debug
+```
+or
+```
+ninja -j$(nproc) -C build/Release
+```
+
 ## Run tests
 Only in **debug** build:
 ```
-ninja test -C build/Debug
+ninja test -j$(nproc) -C build/Debug
 ```
 
 ## Goal for v1.0

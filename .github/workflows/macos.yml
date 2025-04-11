@@ -13,9 +13,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Build Debug
         run: |
-          .$GITHUB_WORKSPACE/build_macos_x64_debug.sh
+          $GITHUB_WORKSPACE/./build_macos_x64_debug.sh
       - name: Run tests
         run: |
-          ninja test -C ./$GITHUB_WORKSPACE/build/Debug/
+          ninja test -C $GITHUB_WORKSPACE/build/Debug/
   # macos-arm:
   #   runs-on: macos-latest

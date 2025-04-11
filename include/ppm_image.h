@@ -29,10 +29,11 @@ struct RawImage {
 ///
 
 struct PPMImage : RawImage {
+    std::string magicNumber;
     u16 maxVal;
 
-    PPMImage(u64 _width, u64 _height, u8 _numberOfChannels, u16 maxVal) : \
-        RawImage(_width, _height, _numberOfChannels), maxVal(maxVal) {};
+    PPMImage(std::string _magicNumber, u64 _width, u64 _height, u8 _numberOfChannels, u16 _maxVal) : \
+        RawImage(_width, _height, _numberOfChannels), magicNumber(_magicNumber), maxVal(_maxVal) {};
 };
 
 PPMImage read_ppm_image(std::ifstream &ppm_file);

@@ -27,7 +27,7 @@ PPMImage read_ppm_image(std::ifstream &ppm_file) {
     Logger::log_info("maxVal = %d", maxVal);
     assert(maxVal > 0);
     
-    PPMImage ppm_image(width, height, 3, maxVal);
+    PPMImage ppm_image(magic_number, width, height, 3, maxVal);
 
     // Read data
     // TODO: optimize (test_perfomance takes aroung 1.8 seconds)

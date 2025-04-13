@@ -5,13 +5,15 @@
 Currently library building with `conan==2.15.0` inside **virtualenv**, the only requirements are `Python (>= 3.6)`.
 
 Run script for your system to **first time** building `<BUILD_TYPE>` version of library.
+
+**IMPORTANT! Run with `source` command, so virtualenv can be kept opened.**
 ```
-./scripts/prepare_<OS>_<ARCH>_<BUILD_TYPE>.sh
+source ./scripts/prepare_<OS>_<ARCH>_<BUILD_TYPE>.sh
 ```
 
 Example:
 ```
-./scripts/prepare_macos_x64_debug.sh
+source ./scripts/prepare_macos_x64_debug.sh
 ```
 
 This script will install dependencies and link installed `cmake` into `.venv/bin/cmake`.

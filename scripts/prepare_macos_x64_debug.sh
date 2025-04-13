@@ -24,7 +24,4 @@ CMAKE_EXECUTABLE="${ROOT_DIR}/.venv/bin/cmake"
 echo "Linking $CMAKE_PATH -> $CMAKE_EXECUTABLE"
 
 rm -f $CMAKE_EXECUTABLE && \
-ln -s $CMAKE_PATH $CMAKE_EXECUTABLE && \
-
-# TODO: keep activated after script
-source ${ROOT_DIR}/.venv/bin/activate
+ln -s $CMAKE_PATH $CMAKE_EXECUTABLE

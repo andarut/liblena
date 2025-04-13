@@ -1,8 +1,10 @@
 # liblena
 
+[![macos](https://github.com/andarut/liblena/actions/workflows/macos.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/macos.yml)
+
 ## Requirements
 
-Currently library building with `conan==2.15.0` inside **virtualenv**, the only requirements are `Python (>= 3.6)`.
+Currently library building with `conan` inside **virtualenv**, the only requirements are `Python (>= 3.6)` and C++ compiler.
 
 Run script for your system to **first time** building `<BUILD_TYPE>` version of library.
 

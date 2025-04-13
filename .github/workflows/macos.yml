@@ -24,7 +24,7 @@ jobs:
           cmake --preset 'conan-debug'
       - name: Build
         run: |
-          ninja -j$(sysctl -n hw.ncpu)-C $GITHUB_WORKSPACE/build/Debug/
+          ninja -j$(sysctl -n hw.ncpu) -C $GITHUB_WORKSPACE/build/Debug/
       - name: Run tests
         run: |
           ninja -j$(sysctl -n hw.ncpu) test -C $GITHUB_WORKSPACE/build/Debug/

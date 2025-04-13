@@ -32,6 +32,7 @@ cmake --preset 'conan-release'
 ```
 
 ## Build
+On macos `nproc` can be installed with `brew install coreutils`.
 ```
 ninja -j$(nproc) -C build/Debug
 ```

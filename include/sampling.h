@@ -1,5 +1,5 @@
-#ifndef SUBSAMPLING_H
-#define SUBSAMPLING_H
+#ifndef SAMPLING_H
+#define SAMPLING_H
 
 #include "utils.h"
 #include "types.h"
@@ -46,8 +46,19 @@ struct SamplingMode {
         : w(_w), h(_h), channels_count(_channels_count) {
         rates.resize(_channels_count * _h);
     }
+
+    u64& operator[](u64 rate_i) {
+        Logger::log_info("set rate %d", rate_i);
+        return rates[rate_i];
+    }
+
+    const u64& operator[](u64 rate_i) const {
+        Logger::log_info("set rate %d", rate_i);
+        return rates[rate_i];
+    }
+
 };
 
 RawImageData sampling(const RawImageData &data, const SamplingMode &mode);
 
-#endif // SUBSAMPLING_H
+#endif // SAMPLING_H

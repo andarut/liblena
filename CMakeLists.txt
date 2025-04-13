@@ -9,8 +9,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # liblena
 add_library(liblena STATIC
-    src/ppm_image.cpp
-    src/ycbcr.cpp
+    # src/ppm_image.cpp
+    # src/ycbcr.cpp
     src/sampling.cpp
 )
 target_compile_features(liblena PRIVATE cxx_std_17)
@@ -23,8 +23,8 @@ include(GoogleTest)
 enable_testing()
 
 add_executable(liblena_tests 
-    tests/ppm_image_tests.cpp
-    tests/ycbcr_tests.cpp
+    # tests/ppm_image_tests.cpp
+    # tests/ycbcr_tests.cpp
     tests/sampling_tests.cpp
 )
 

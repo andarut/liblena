@@ -53,6 +53,11 @@
         "forward_list": "cpp",
         "list": "cpp",
         "span": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "charconv": "cpp",
+        "cinttypes": "cpp",
+        "complex": "cpp",
+        "execution": "cpp",
+        "iostream": "cpp"
     }
 }

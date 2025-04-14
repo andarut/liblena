@@ -1,21 +1,60 @@
 # liblena
 
-## Build
+[![macos](https://github.com/andarut/liblena/actions/workflows/macos.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/macos.yml)
+
+## Requirements
+
+Currently library building with `conan` inside **virtualenv**, the only requirements are `Python (>= 3.6)` and C++ compiler.
+
+Run script for your system to **first time** building `<BUILD_TYPE>` version of library.
+
+**IMPORTANT! Run with `source` command, so virtualenv can be kept opened.**
+```
+source ./scripts/prepare_<OS>_<ARCH>_<BUILD_TYPE>.sh
+```
+
+Example:
+```
+source ./scripts/prepare_macos_x64_debug.sh
+```
+
+This script will install dependencies and link installed `cmake` into `.venv/bin/cmake`.
+
+## Configure
+FIRST SEE [Requirements](Requirements) !
+
+From now on you can build with **cmake configs**. `conan-debug` or `conan-release` depending on your build type.
 
 ```
-./build_<OS>_<ARCH>_<BUILD_TYPE>.sh
+cmake --preset 'conan-debug'
+```
+or
+```
+cmake --preset 'conan-release'
+```
+
+## Build
+```
+ninja -j$(nproc) -C build/Debug
+```
+or
+```
+ninja -j$(nproc) -C build/Release
+```
+
+On macos you can use `sysctl -n hw.ncpu` instead of `nproc`. `nproc` can be installed with `brew install coreutils`. 
+```
+ninja -j$(sysctl -n hw.ncpu) -C build/Debug
+```
+or
+```
+ninja -j$(sysctl -n hw.ncpu) -C build/Release
 ```
 
 ## Run tests
-Inside `liblena/build/Release` or `liblena/build/Debug` depending on your build.
+Only in **debug** build:
 ```
-ninja test
-```
-
-### Example (macos):
-Thid will configure Python virtual environment, install conan there and build the library.
-```
-./build_macos_x64_debug.sh 
+ninja test -j$(nproc) -C build/Debug
 ```
 
 ## Goal for v1.0

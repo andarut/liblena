@@ -9,8 +9,7 @@ RawImageData sampling(const RawImageData &data, const SamplingMode &mode) {
 
     RawImageData sampled_data(data.width, data.height, data.numberOfChannels);
 
-    /* Step 1: Get block sized w x h from every channel */
-    // block have same channels count !!!
+    /* Step 1: Get blocks sized w x h from every channel */
     std::vector<RawImageData> blocks((data.width * data.height) / (mode.w * mode.h));
 
     u64 block_i = 0, block_j = 0;
@@ -49,7 +48,7 @@ RawImageData sampling(const RawImageData &data, const SamplingMode &mode) {
             /* Copy row if rate is zero */
             if (rate == 0) {
                 for (u64 i = 0; i < mode.w; i++) {
-                    block(row_i, i, ch_i) = block(row_i-1, i, ch_i);
+                    block[ch_i](row_i, i) = block[ch_i](row_i-1, i);
                 }
                 break;
             }
@@ -61,7 +60,7 @@ RawImageData sampling(const RawImageData &data, const SamplingMode &mode) {
             u64 j = 0;
             for (u64 i = 0; i < mode.w; i++) {
                 if (i != 0 && i % step == 0) j += step;
-                block(row_i, i, ch_i) = block(row_i, j, ch_i);
+                block[ch_i](row_i, i) = block[ch_i](row_i, j);
                 
             }
         }
@@ -71,6 +70,7 @@ RawImageData sampling(const RawImageData &data, const SamplingMode &mode) {
     /* Step 3: Set new blocks */
     u64 set_i = 0, set_j = 0;
     for (auto& block : blocks) {
+        
         sampled_data.set_block(set_i, set_j, block);
         set_j += mode.w;
         if (set_j > data.width) {
@@ -78,6 +78,9 @@ RawImageData sampling(const RawImageData &data, const SamplingMode &mode) {
             set_i++;
         }
     }
+
+    /* compress samplied data if needed */
+    
 
     return sampled_data;
 }

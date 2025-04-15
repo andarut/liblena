@@ -54,7 +54,7 @@ struct RawChannelData {
 
     void set_block(u64 set_i, u64 set_j, RawChannelData &block) {
         Logger::log_info("set_block %lld %lld %lld %lld", set_i, set_j, block.width, block.height);
-        for (u64 i = set_i; i < set_j + block.height; i++)
+        for (u64 i = set_i; i < set_i + block.height; i++)
             for (u64 j = set_j; j < set_j + block.width; j++)
                 (*this)(i, j) = block(i-set_i, j-set_j);
     }

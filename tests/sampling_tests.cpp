@@ -61,11 +61,11 @@ TEST(test_sampling, sampling_422) {
     EXPECT_EQ(sampled_data[0], data[0]);
     EXPECT_EQ(sampled_data[1], RawChannelData(2, 2, {
         102, 204,
-        102, 153,
+        102, 153
     }));
     EXPECT_EQ(sampled_data[2], RawChannelData(2, 2, {
         205, 102,
-        153, 102,
+        153, 102
     }));
 }
 
@@ -249,4 +249,41 @@ TEST(test_sampling, sampling_421) {
             sampled_data = sampling(data, mode);
     }, ::testing::ExitedWithCode(1), ".*");
 
+}
+
+TEST(test_sampling, sampling_211) {
+    RawImageData data = test_data();
+    RawChannelData data_R = data[0], data_G = data[1], data_B = data[2];
+    printf("R = \n");
+    data_R.print();
+    printf("G = \n");
+    data_G.print();
+    printf("B = \n");
+    data_B.print();
+
+    SamplingMode mode(2, 1, 1);
+
+    RawImageData 
+        sampled_data = sampling(data, mode);
+    RawChannelData
+        sampled_data_R = sampled_data[0],
+        sampled_data_G = sampled_data[1], 
+        sampled_data_B = sampled_data[2];
+
+    printf("R = \n");
+    sampled_data_R.print();
+    printf("G = \n");
+    sampled_data_G.print();
+    printf("B = \n");
+    sampled_data_B.print();
+
+    EXPECT_EQ(sampled_data[0], data[0]);
+    EXPECT_EQ(sampled_data[1], RawChannelData(2, 2, {
+        102, 204,
+        102, 153
+    }));
+    EXPECT_EQ(sampled_data[2], RawChannelData(2, 2, {
+        205, 102,
+        153, 102
+    }));
 }

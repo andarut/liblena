@@ -52,7 +52,10 @@ RawChannelData channel_sampling(const RawChannelData &data, const SamplingMode &
                 else
                     sampled_data.set_block(block_i-block_h+1, block_j, new_block);
             else
-                sampled_data.set_block(block_i, block_j, new_block);
+                if (block_j > 1)
+                    sampled_data.set_block(block_i, block_j-block_w+1, new_block);
+                else
+                    sampled_data.set_block(block_i, block_j, new_block);
         }
     }
 

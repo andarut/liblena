@@ -5,60 +5,33 @@
 #include "types.h"
 
 /*
-1. block sized w x h from every color channel
-2. rates = {rate_<COLOR_1>, rate_<COLOR_2>, rate_<COLOR_3>, ...}
+Supported mods are:
+- 4:4:4
+- 4:2:2
+- 4:1:1
+- 4:4:0
+- 4:2:0
+- 4:1:0
 
-Example from chrome submpling 4:4:4
-----
-input:
-w = 4
-h = 2
-
-rates size = number of colors * height of block = 3 * 2 = 6
-rates = {4, 4, 4, 4, 4, 4};
-that means that for row of w pixels (there are h of those) - get
-
-row 1 (h = 2):
-    - 4 pixels of <CHANNEL_1>
-    - 4 pixels of <CHANNEL_2>
-    - 4 pixels of <CHANNEL_3>
-row 2 (h = 2):
-    - 4 pixels of <CHANNEL_1>
-    - 4 pixels of <CHANNEL_2>
-    - 4 pixels of <CHANNEL_3>
-
-
-if rate is 0, then copy last row
-
-    +-
-Y = | y1
-
-
-
+Unsupported mods are:
+- 4:4:1
+- 4:2:1
 */
 struct SamplingMode {
-    u64 w, h;
-    u64 channels_count;
+    u64 J, a, b;    
+    SamplingMode(u64 _J, u64 _a, u64 _b) : J(_J), a(_a), b(_b) {}
 
-    std::vector<u64> rates;
-
-    SamplingMode(u64 _w, u64 _h, u64 _channels_count) \
-        : w(_w), h(_h), channels_count(_channels_count) {
-        rates.resize(_channels_count * _h);
+    friend bool operator==(const SamplingMode& mode1, const SamplingMode& mode2) {
+        return (mode1.J == mode2.J && \
+                mode1.a == mode2.a && \
+                mode1.b == mode2.b);
     }
-
-    u64& operator[](u64 rate_i) {
-        Logger::log_info("set rate %d", rate_i);
-        return rates[rate_i];
-    }
-
-    const u64& operator[](u64 rate_i) const {
-        Logger::log_info("set rate %d", rate_i);
-        return rates[rate_i];
-    }
-
 };
 
+// sampling channel
+RawChannelData sampling(const RawChannelData &data, const SamplingMode &mode);
+
+// sampling channels
 RawImageData sampling(const RawImageData &data, const SamplingMode &mode);
 
 #endif // SAMPLING_H

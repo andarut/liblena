@@ -1,86 +1,69 @@
 #include "sampling.h"
 
-RawImageData sampling(const RawImageData &data, const SamplingMode &mode) {
-    assert(data.numberOfChannels == mode.channels_count);
+RawChannelData channel_sampling(const RawChannelData &data, const SamplingMode &mode) {
+    if (mode == SamplingMode(4, 4, 4)) return data;
 
-    /* Can't copy first row from nothing */
-    for (int k = 0; k < mode.channels_count; k++)
-        assert(mode[k] != 0);
+    u64 block_w = mode.J;
+    u64 block_h = 2;
 
-    RawImageData sampled_data(data.width, data.height, data.numberOfChannels);
-
-    /* Step 1: Get blocks sized w x h from every channel */
-    std::vector<RawImageData> blocks((data.width * data.height) / (mode.w * mode.h));
-
-    u64 block_i = 0, block_j = 0;
-    for (u64 i = 0; i < blocks.size(); i++) {
-        blocks[i] = data.get_block(block_i, block_j, mode.w, mode.h);
-        block_j += mode.w;
-        if (block_j >= data.width) {
-
-            // TODO: take care about borders
-            // if (block_j > data.width)   
-
-            block_j = 0;
-            block_i += mode.h;
-        }
-    }
-
-    /* Step 2: For each block run sampling */
-    Logger::log_info("=== SAMPLING START ===");
-    u64 k = 0;
-    for (auto& block : blocks) {
-        u64 end_k = mode.rates.size() + k;
-        Logger::log_info("k = %lld", k);
-        Logger::log_info("end_k = %lld", end_k);
-        
-        for (; k < end_k; k++) {
-            Logger::log_info("k = %lld", k);
-            auto rate = mode.rates[k];
-            Logger::log_info("rate = %lld", rate);
-
-            u64 row_i = (k / mode.channels_count);
-            Logger::log_info("row_i = %lld", row_i);
-
-            u64 ch_i = (k % mode.channels_count);
-            Logger::log_info("ch_i = %lld", ch_i);
-
-            /* Copy row if rate is zero */
-            if (rate == 0) {
-                for (u64 i = 0; i < mode.w; i++) {
-                    block[ch_i](row_i, i) = block[ch_i](row_i-1, i);
-                }
-                break;
-            }
-
-            u64 step = (mode.w / rate);
-            Logger::log_info("step = %lld", step);
-           
-            
-            u64 j = 0;
-            for (u64 i = 0; i < mode.w; i++) {
-                if (i != 0 && i % step == 0) j += step;
-                block[ch_i](row_i, i) = block[ch_i](row_i, j);
-                
-            }
-        }
-    }
-    Logger::log_info("=== SAMPLING END ===");
-
-    /* Step 3: Set new blocks */
-    u64 set_i = 0, set_j = 0;
-    for (auto& block : blocks) {
-        
-        sampled_data.set_block(set_i, set_j, block);
-        set_j += mode.w;
-        if (set_j > data.width) {
-            set_j = 0;
-            set_i++;
-        }
-    }
-
-    /* compress samplied data if needed */
+    u64 new_block_w = std::max(mode.a, mode.b);
+    u64 new_block_h = (mode.b == 0) ? 1 : 2;
     
+    u64 sampled_data_width = (data.width / block_w) * new_block_w;
+    u64 sampled_data_height = (data.height / block_h) * new_block_h;
+
+    Logger::log_info("mode = %lld:%lld:%lld", mode.J, mode.a, mode.b);
+
+    Logger::log_info("block_w = %lld", block_w);
+    Logger::log_info("block_h = %lld", block_h);
+
+    Logger::log_info("new_block_w = %lld", new_block_w);
+    Logger::log_info("new_block_h = %lld", new_block_h);
+
+    Logger::log_info("sampled_data_width = %lld", sampled_data_width);
+    Logger::log_info("sampled_data_height = %lld", sampled_data_height);
+
+    RawChannelData sampled_data(sampled_data_width, sampled_data_height);
+
+    for (u64 block_i = 0; block_i < data.height; block_i+=block_h) {
+        for (u64 block_j = 0; block_j < data.width; block_j+=block_w) {
+            auto block = data.get_block(block_i, block_j, block_w, block_h);
+            auto new_block = RawChannelData(new_block_w, new_block_h);
+            for (u64 i = 0; i < block_h; i++) {
+                if (i % 2 != 0 && mode.b == 0) break;
+                u64 step = (i % 2 == 0) ? (mode.J / mode.a) : (mode.J / mode.b);
+                if (i % 2 != 0) { // b
+                    if (mode.b != mode.a && mode.b != 0) {
+                        // TODO: Think about support and change this behavior
+                        Logger::log_warning("mode = %lld:%lld:%lld not supported yet", mode.J, mode.a, mode.b);
+                        exit(1);
+                    }
+                }
+                for (u64 j = 0; j < block_w; j+=step) {
+                    if (j > 1)
+                        new_block(i, j-step+1) = block(i, j);
+                    else
+                        new_block(i, j) = block(i, j);
+                }
+            }
+            if (block_i > 1)
+                if (block_j > 1)
+                    sampled_data.set_block(block_i-block_h+1, block_j-block_w+1, new_block);
+                else
+                    sampled_data.set_block(block_i-block_h+1, block_j, new_block);
+            else
+                sampled_data.set_block(block_i, block_j, new_block);
+        }
+    }
 
     return sampled_data;
+}
+
+RawImageData sampling(const RawImageData &data, const SamplingMode &mode) {
+    if (mode == SamplingMode(4, 4, 4)) return data;
+    return RawImageData(data.width, data.height, std::vector<RawChannelData>({
+        channel_sampling(data[0], SamplingMode(4, 4, 4)),
+        channel_sampling(data[1], mode),
+        channel_sampling(data[2], mode)
+    }));
 }

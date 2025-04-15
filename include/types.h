@@ -43,6 +43,27 @@ struct RawChannelData {
         return data[width * i + j];
     }
 
+    RawChannelData get_block(u64 block_i, u64 block_j, u64 block_width, u64 block_height) const {
+        Logger::log_info("get_block %lld %lld %lld %lld", block_i, block_j, block_width, block_height);
+        RawChannelData block(block_width, block_height);
+        for (u64 i = block_i; i < block_i + block_height; i++)
+            for (u64 j = block_j; j < block_j + block_width; j++)
+                block(i-block_i, j-block_j) = (*this)(i, j);
+        return block;
+    }
+
+    void set_block(u64 set_i, u64 set_j, RawChannelData &block) {
+        Logger::log_info("set_block %lld %lld %lld %lld", set_i, set_j, block.width, block.height);
+        for (u64 i = set_i; i < set_j + block.height; i++)
+            for (u64 j = set_j; j < set_j + block.width; j++)
+                (*this)(i, j) = block(i-set_i, j-set_j);
+    }
+
+    void remove(u64 i, u64 j) {
+        Logger::log_info("remove %lld %lld\n", i, j);
+        data.erase(data.begin() + (i * width + j));
+    }
+
 };
 
 struct RawImageData {
@@ -63,7 +84,7 @@ struct RawImageData {
     }
 
     RawChannelData& operator[](u64 ch_i) {
-        Logger::log_info("get channel data [%d]", ch_i);
+        Logger::log_info("set channel data [%d]", ch_i);
         return data[ch_i];
     }
 

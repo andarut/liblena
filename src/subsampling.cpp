@@ -1,7 +1,7 @@
-#include "sampling.h"
+#include "subsampling.h"
 
-RawChannelData channel_sampling(const RawChannelData &data, const SamplingMode &mode) {
-    if (mode == SamplingMode(4, 4, 4)) return data;
+RawChannelData subsampling(const RawChannelData &data, const SubsamplingMode &mode) {
+    if (mode == SubsamplingMode(4, 4, 4)) return data;
 
     u64 block_w = mode.J;
     u64 block_h = 2;
@@ -9,8 +9,8 @@ RawChannelData channel_sampling(const RawChannelData &data, const SamplingMode &
     u64 new_block_w = std::max(mode.a, mode.b);
     u64 new_block_h = (mode.b == 0) ? 1 : 2;
     
-    u64 sampled_data_width = (data.width / block_w) * new_block_w;
-    u64 sampled_data_height = (data.height / block_h) * new_block_h;
+    u64 subsampled_data_width = (data.width / block_w) * new_block_w;
+    u64 subsampled_data_height = (data.height / block_h) * new_block_h;
 
     Logger::log_info("mode = %lld:%lld:%lld", mode.J, mode.a, mode.b);
 
@@ -20,10 +20,10 @@ RawChannelData channel_sampling(const RawChannelData &data, const SamplingMode &
     Logger::log_info("new_block_w = %lld", new_block_w);
     Logger::log_info("new_block_h = %lld", new_block_h);
 
-    Logger::log_info("sampled_data_width = %lld", sampled_data_width);
-    Logger::log_info("sampled_data_height = %lld", sampled_data_height);
+    Logger::log_info("subsampled_data_width = %lld", subsampled_data_width);
+    Logger::log_info("subsampled_data_height = %lld", subsampled_data_height);
 
-    RawChannelData sampled_data(sampled_data_width, sampled_data_height);
+    RawChannelData subsampled_data(subsampled_data_width, subsampled_data_height);
 
     for (u64 block_i = 0; block_i < data.height; block_i+=block_h) {
         for (u64 block_j = 0; block_j < data.width; block_j+=block_w) {
@@ -35,7 +35,8 @@ RawChannelData channel_sampling(const RawChannelData &data, const SamplingMode &
                 if (i % 2 != 0) { // b
                     if (mode.b != mode.a && mode.b != 0) {
                         // TODO: Think about support and change this behavior
-                        Logger::log_warning("mode = %lld:%lld:%lld not supported yet", mode.J, mode.a, mode.b);
+                        Logger::log_warning("mode = %lld:%lld:%lld not supported yet",
+                            mode.J, mode.a, mode.b);
                         exit(1);
                     }
                 }
@@ -46,27 +47,19 @@ RawChannelData channel_sampling(const RawChannelData &data, const SamplingMode &
                         new_block(i, j) = block(i, j);
                 }
             }
-            if (block_i > 1)
-                if (block_j > 1)
-                    sampled_data.set_block(block_i-block_h+1, block_j-block_w+1, new_block);
-                else
-                    sampled_data.set_block(block_i-block_h+1, block_j, new_block);
-            else
-                if (block_j > 1)
-                    sampled_data.set_block(block_i, block_j-block_w+1, new_block);
-                else
-                    sampled_data.set_block(block_i, block_j, new_block);
+            subsampled_data.set_block((block_i > 1) ? block_i-block_h+1 : block_i, 
+                                   (block_j > 1) ? block_j-block_w+1 : block_j, new_block);
         }
     }
 
-    return sampled_data;
+    return subsampled_data;
 }
 
-RawImageData sampling(const RawImageData &data, const SamplingMode &mode) {
-    if (mode == SamplingMode(4, 4, 4)) return data;
+RawImageData subsampling(const RawImageData &data, const SubsamplingMode &mode) {
+    if (mode == SubsamplingMode(4, 4, 4)) return data;
     return RawImageData(data.width, data.height, std::vector<RawChannelData>({
-        channel_sampling(data[0], SamplingMode(4, 4, 4)),
-        channel_sampling(data[1], mode),
-        channel_sampling(data[2], mode)
+        subsampling(data[0], SubsamplingMode(4, 4, 4)),
+        subsampling(data[1], mode),
+        subsampling(data[2], mode)
     }));
 }

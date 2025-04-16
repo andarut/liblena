@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "sampling.h"
+#include "subsampling.h"
 
 const RawImageData test_data() {
     RawImageData data(4, 2, std::vector<RawChannelData>({
@@ -25,11 +25,11 @@ const RawImageData test_data() {
 TEST(test_sampling, sampling_444) {
     RawImageData data = test_data();
 
-    SamplingMode mode(4, 4, 4);
+    SubsamplingMode mode(4, 4, 4);
 
-    RawImageData sampled_data = sampling(data, mode);
+    RawImageData subsampled_data = subsampling(data, mode);
 
-    EXPECT_EQ(sampled_data.data, data.data);
+    EXPECT_EQ(subsampled_data.data, data.data);
 }
 
 TEST(test_sampling, sampling_422) {
@@ -42,28 +42,28 @@ TEST(test_sampling, sampling_422) {
     printf("B = \n");
     data_B.print();
 
-    SamplingMode mode(4, 2, 2);
+    SubsamplingMode mode(4, 2, 2);
 
     RawImageData 
-        sampled_data = sampling(data, mode);
+        subsampled_data = subsampling(data, mode);
     RawChannelData
-        sampled_data_R = sampled_data[0],
-        sampled_data_G = sampled_data[1], 
-        sampled_data_B = sampled_data[2];
+        subsampled_data_R = subsampled_data[0],
+        subsampled_data_G = subsampled_data[1], 
+        subsampled_data_B = subsampled_data[2];
 
     printf("R = \n");
-    sampled_data_R.print();
+    subsampled_data_R.print();
     printf("G = \n");
-    sampled_data_G.print();
+    subsampled_data_G.print();
     printf("B = \n");
-    sampled_data_B.print();
+    subsampled_data_B.print();
 
-    EXPECT_EQ(sampled_data[0], data[0]);
-    EXPECT_EQ(sampled_data[1], RawChannelData(2, 2, {
+    EXPECT_EQ(subsampled_data[0], data[0]);
+    EXPECT_EQ(subsampled_data[1], RawChannelData(2, 2, {
         102, 204,
         102, 153
     }));
-    EXPECT_EQ(sampled_data[2], RawChannelData(2, 2, {
+    EXPECT_EQ(subsampled_data[2], RawChannelData(2, 2, {
         205, 102,
         153, 102
     }));
@@ -79,28 +79,28 @@ TEST(test_sampling, sampling_411) {
     printf("B = \n");
     data_B.print();
 
-    SamplingMode mode(4, 1, 1);
+    SubsamplingMode mode(4, 1, 1);
 
     RawImageData 
-        sampled_data = sampling(data, mode);
+        subsampled_data = subsampling(data, mode);
     RawChannelData
-        sampled_data_R = sampled_data[0],
-        sampled_data_G = sampled_data[1], 
-        sampled_data_B = sampled_data[2];
+        subsampled_data_R = subsampled_data[0],
+        subsampled_data_G = subsampled_data[1], 
+        subsampled_data_B = subsampled_data[2];
 
     printf("R = \n");
-    sampled_data_R.print();
+    subsampled_data_R.print();
     printf("G = \n");
-    sampled_data_G.print();
+    subsampled_data_G.print();
     printf("B = \n");
-    sampled_data_B.print();
+    subsampled_data_B.print();
 
-    EXPECT_EQ(sampled_data[0], data[0]);
-    EXPECT_EQ(sampled_data[1], RawChannelData(1, 2, {
+    EXPECT_EQ(subsampled_data[0], data[0]);
+    EXPECT_EQ(subsampled_data[1], RawChannelData(1, 2, {
         102,
         102,
     }));
-    EXPECT_EQ(sampled_data[2], RawChannelData(1, 2, {
+    EXPECT_EQ(subsampled_data[2], RawChannelData(1, 2, {
         205,
         153,
     }));
@@ -116,27 +116,27 @@ TEST(test_sampling, sampling_440) {
     printf("B = \n");
     data_B.print();
 
-    SamplingMode mode(4, 4, 0);
+    SubsamplingMode mode(4, 4, 0);
 
     RawImageData 
-        sampled_data = sampling(data, mode);
+        subsampled_data = subsampling(data, mode);
     RawChannelData
-        sampled_data_R = sampled_data[0],
-        sampled_data_G = sampled_data[1], 
-        sampled_data_B = sampled_data[2];
+        subsampled_data_R = subsampled_data[0],
+        subsampled_data_G = subsampled_data[1], 
+        subsampled_data_B = subsampled_data[2];
 
     printf("R = \n");
-    sampled_data_R.print();
+    subsampled_data_R.print();
     printf("G = \n");
-    sampled_data_G.print();
+    subsampled_data_G.print();
     printf("B = \n");
-    sampled_data_B.print();
+    subsampled_data_B.print();
 
-    EXPECT_EQ(sampled_data[0], data[0]);
-    EXPECT_EQ(sampled_data[1], RawChannelData(4, 1, {
+    EXPECT_EQ(subsampled_data[0], data[0]);
+    EXPECT_EQ(subsampled_data[1], RawChannelData(4, 1, {
         102, 153, 204, 102,
     }));
-    EXPECT_EQ(sampled_data[2], RawChannelData(4, 1, {
+    EXPECT_EQ(subsampled_data[2], RawChannelData(4, 1, {
         205, 154, 102, 102,
     }));
 }
@@ -151,27 +151,27 @@ TEST(test_sampling, sampling_420) {
     printf("B = \n");
     data_B.print();
 
-    SamplingMode mode(4, 2, 0);
+    SubsamplingMode mode(4, 2, 0);
 
     RawImageData 
-        sampled_data = sampling(data, mode);
+        subsampled_data = subsampling(data, mode);
     RawChannelData
-        sampled_data_R = sampled_data[0],
-        sampled_data_G = sampled_data[1], 
-        sampled_data_B = sampled_data[2];
+        subsampled_data_R = subsampled_data[0],
+        subsampled_data_G = subsampled_data[1], 
+        subsampled_data_B = subsampled_data[2];
 
     printf("R = \n");
-    sampled_data_R.print();
+    subsampled_data_R.print();
     printf("G = \n");
-    sampled_data_G.print();
+    subsampled_data_G.print();
     printf("B = \n");
-    sampled_data_B.print();
+    subsampled_data_B.print();
 
-    EXPECT_EQ(sampled_data[0], data[0]);
-    EXPECT_EQ(sampled_data[1], RawChannelData(2, 1, {
+    EXPECT_EQ(subsampled_data[0], data[0]);
+    EXPECT_EQ(subsampled_data[1], RawChannelData(2, 1, {
         102, 204,
     }));
-    EXPECT_EQ(sampled_data[2], RawChannelData(2, 1, {
+    EXPECT_EQ(subsampled_data[2], RawChannelData(2, 1, {
         205, 102, 
     }));
 }
@@ -186,27 +186,27 @@ TEST(test_sampling, sampling_410) {
     printf("B = \n");
     data_B.print();
 
-    SamplingMode mode(4, 1, 0);
+    SubsamplingMode mode(4, 1, 0);
 
     RawImageData 
-        sampled_data = sampling(data, mode);
+        subsampled_data = subsampling(data, mode);
     RawChannelData
-        sampled_data_R = sampled_data[0],
-        sampled_data_G = sampled_data[1], 
-        sampled_data_B = sampled_data[2];
+        subsampled_data_R = subsampled_data[0],
+        subsampled_data_G = subsampled_data[1], 
+        subsampled_data_B = subsampled_data[2];
 
     printf("R = \n");
-    sampled_data_R.print();
+    subsampled_data_R.print();
     printf("G = \n");
-    sampled_data_G.print();
+    subsampled_data_G.print();
     printf("B = \n");
-    sampled_data_B.print();
+    subsampled_data_B.print();
 
-    EXPECT_EQ(sampled_data[0], data[0]);
-    EXPECT_EQ(sampled_data[1], RawChannelData(1, 1, {
+    EXPECT_EQ(subsampled_data[0], data[0]);
+    EXPECT_EQ(subsampled_data[1], RawChannelData(1, 1, {
         102
     }));
-    EXPECT_EQ(sampled_data[2], RawChannelData(1, 1, {
+    EXPECT_EQ(subsampled_data[2], RawChannelData(1, 1, {
         205
     }));
 }
@@ -221,12 +221,12 @@ TEST(test_sampling, sampling_441) {
     printf("B = \n");
     data_B.print();
 
-    SamplingMode mode(4, 4, 1);
+    SubsamplingMode mode(4, 4, 1);
 
     // 4:4:1 mode is not currently supported
     EXPECT_EXIT({
         RawImageData 
-            sampled_data = sampling(data, mode);
+            subsampled_data = subsampling(data, mode);
     }, ::testing::ExitedWithCode(1), ".*");
 
 }
@@ -241,12 +241,12 @@ TEST(test_sampling, sampling_421) {
     printf("B = \n");
     data_B.print();
 
-    SamplingMode mode(4, 2, 1);
+    SubsamplingMode mode(4, 2, 1);
 
     // 4:2:1 mode is not currently supported
     EXPECT_EXIT({
         RawImageData 
-            sampled_data = sampling(data, mode);
+            subsampled_data = subsampling(data, mode);
     }, ::testing::ExitedWithCode(1), ".*");
 
 }
@@ -261,28 +261,28 @@ TEST(test_sampling, sampling_211) {
     printf("B = \n");
     data_B.print();
 
-    SamplingMode mode(2, 1, 1);
+    SubsamplingMode mode(2, 1, 1);
 
     RawImageData 
-        sampled_data = sampling(data, mode);
+        subsampled_data = subsampling(data, mode);
     RawChannelData
-        sampled_data_R = sampled_data[0],
-        sampled_data_G = sampled_data[1], 
-        sampled_data_B = sampled_data[2];
+        subsampled_data_R = subsampled_data[0],
+        subsampled_data_G = subsampled_data[1], 
+        subsampled_data_B = subsampled_data[2];
 
     printf("R = \n");
-    sampled_data_R.print();
+    subsampled_data_R.print();
     printf("G = \n");
-    sampled_data_G.print();
+    subsampled_data_G.print();
     printf("B = \n");
-    sampled_data_B.print();
+    subsampled_data_B.print();
 
-    EXPECT_EQ(sampled_data[0], data[0]);
-    EXPECT_EQ(sampled_data[1], RawChannelData(2, 2, {
+    EXPECT_EQ(subsampled_data[0], data[0]);
+    EXPECT_EQ(subsampled_data[1], RawChannelData(2, 2, {
         102, 204,
         102, 153
     }));
-    EXPECT_EQ(sampled_data[2], RawChannelData(2, 2, {
+    EXPECT_EQ(subsampled_data[2], RawChannelData(2, 2, {
         205, 102,
         153, 102
     }));

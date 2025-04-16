@@ -4,20 +4,20 @@
 const RawImageData test_data() {
     RawImageData data(4, 2, std::vector<RawChannelData>({
         // R
-        RawChannelData(4, 2, std::vector<u64>({
+        RawChannelData(4, 2, {
             102, 102, 102, 102,
             154, 204, 153, 204
-        })),
+        }),
         // G
-        RawChannelData(4, 2, std::vector<u64>({
+        RawChannelData(4, 2, {
             102, 153, 204, 102,
             102, 204, 153, 103
-        })),
+        }),
         // B
-        RawChannelData(4, 2, std::vector<u64>({
+        RawChannelData(4, 2, {
             205, 154, 102, 102,
             153, 204, 102, 102
-        }))
+        })
     }));
     return data;
 }

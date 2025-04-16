@@ -4,6 +4,10 @@
 #include "utils.h"
 #include "logging.h"
 
+/* 
+TODO: incapsulate data to avoid messing up data.size() and .size()
+*/
+
 struct RawChannelData {
     u64 width, height;
     std::vector<u64> data;
@@ -24,7 +28,7 @@ struct RawChannelData {
                (data1.data == data2.data);
     }
 
-    void print() {
+    void print() const {
         for (u64 i = 0; i < height; i++) {
             for (u64 j = 0; j < width; j++) {
                 printf("%02lld ", data[width * i + j]);
@@ -34,7 +38,7 @@ struct RawChannelData {
     }
 
     u64& operator()(u64 i, u64 j) {
-        Logger::log_info("set data (%d, %d)", i, j);
+        // Logger::log_info("set data (%d, %d)", i, j);
         return data[width * i + j];
     }
 
@@ -64,6 +68,14 @@ struct RawChannelData {
         data.erase(data.begin() + (i * width + j));
     }
 
+    u64 size() const {
+        return data.size();
+    }
+
+    bool empty() const {
+        return data.empty();
+    }
+
 };
 
 struct RawImageData {
@@ -81,6 +93,17 @@ struct RawImageData {
         data.resize(_numberOfChannels);
         for (u64 k = 0; k < _numberOfChannels; k++)
             data[k] = RawChannelData(_width, _height);
+    }
+
+    RawImageData(const std::initializer_list<u64> _data) : \
+        width(1), height(1), numberOfChannels(_data.size()) {
+        if (_data.size() == 0) {
+            width = 0;
+            height = 0;
+        }
+        data.reserve(_data.size());
+        for (auto& d : _data)
+            data.push_back(RawChannelData(1, 1, {d}));
     }
 
     RawChannelData& operator[](u64 ch_i) {
@@ -113,6 +136,27 @@ struct RawImageData {
                 for (u64 j = set_j; j < set_j + block.width; j++)
                     (*this)[k](i, j) = block[k](i-set_i, j-set_j);
         }
+    }
+
+    friend bool operator==(const RawImageData& data1, const RawImageData& data2) {
+        return (data1.width == data2.width) && \
+               (data1.height == data2.height) && \
+               (data1.numberOfChannels == data2.numberOfChannels) && \
+               (data1.data == data2.data);
+    }
+
+    u64 size() const {
+        u64 _size = 0;
+        for (u64 k = 0; k < numberOfChannels; k++)
+            _size += (*this)[k].size();
+        return _size;
+    }
+
+    bool empty() const {
+        bool _empty = true;
+        for (u64 k = 0; k < numberOfChannels; k++)
+            _empty &= (*this)[k].empty();
+        return _empty; 
     }
 
 };

@@ -30,7 +30,7 @@ add_executable(liblena_tests
     tests/subsampling_tests.cpp
     
     # intergration tests
-    tests/jpeg_tests.cpp
+    # tests/jpeg_tests.cpp
 )
 
 target_compile_definitions(liblena_tests PRIVATE

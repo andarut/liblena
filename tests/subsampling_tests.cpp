@@ -68,6 +68,7 @@ TEST(test_sampling, sampling_440) {
     RawImageData  subsampled_data = subsampling(data, SubsamplingMode(4, 4, 0));
 
     EXPECT_EQ(subsampled_data[0], data[0]);
+    
     EXPECT_EQ(subsampled_data[1], RawChannelData(4, 1, {
         102, 153, 204, 102,
     }));
@@ -127,11 +128,10 @@ TEST(test_sampling, sampling_421) {
 TEST(test_sampling, sampling_211) {
     RawImageData data = test_data();
 
-    SubsamplingMode mode(2, 1, 1);
-
     RawImageData subsampled_data = subsampling(data, SubsamplingMode(2, 1, 1));
 
     EXPECT_EQ(subsampled_data[0], data[0]);
+
     EXPECT_EQ(subsampled_data[1], RawChannelData(2, 2, {
         102, 204,
         102, 153
@@ -140,4 +140,14 @@ TEST(test_sampling, sampling_211) {
         205, 102,
         153, 102
     }));
+}
+
+TEST(test_sampling, sampling_111) {
+    RawImageData data = test_data();
+    
+    RawImageData subsampled_data = subsampling(data, SubsamplingMode(1, 1, 1));
+    
+    EXPECT_EQ(subsampled_data[0], data[0]);
+    EXPECT_EQ(subsampled_data[1], data[1]);
+    EXPECT_EQ(subsampled_data[2], data[2]);
 }

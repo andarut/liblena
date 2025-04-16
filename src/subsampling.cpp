@@ -3,6 +3,8 @@
 RawChannelData subsampling(const RawChannelData &data, const SubsamplingMode &mode) {
     if (mode == SubsamplingMode(4, 4, 4)) return data;
 
+    if (mode.b != mode.a && mode.b != 0) exit(1);
+
     u64 block_w = mode.J;
     u64 block_h = 2;
 
@@ -14,43 +16,29 @@ RawChannelData subsampling(const RawChannelData &data, const SubsamplingMode &mo
 
     Logger::log_info("mode = %lld:%lld:%lld", mode.J, mode.a, mode.b);
 
-    Logger::log_info("block_w = %lld", block_w);
-    Logger::log_info("block_h = %lld", block_h);
-
-    Logger::log_info("new_block_w = %lld", new_block_w);
-    Logger::log_info("new_block_h = %lld", new_block_h);
+    Logger::log_info("width = %lld", data.width);
+    Logger::log_info("height = %lld", data.height);
 
     Logger::log_info("subsampled_data_width = %lld", subsampled_data_width);
     Logger::log_info("subsampled_data_height = %lld", subsampled_data_height);
 
     RawChannelData subsampled_data(subsampled_data_width, subsampled_data_height);
 
-    for (u64 block_i = 0; block_i < data.height; block_i+=block_h) {
-        for (u64 block_j = 0; block_j < data.width; block_j+=block_w) {
-            auto block = data.get_block(block_i, block_j, block_w, block_h);
-            auto new_block = RawChannelData(new_block_w, new_block_h);
-            for (u64 i = 0; i < block_h; i++) {
-                if (i % 2 != 0 && mode.b == 0) break;
-                u64 step = (i % 2 == 0) ? (mode.J / mode.a) : (mode.J / mode.b);
-                if (i % 2 != 0) { // b
-                    if (mode.b != mode.a && mode.b != 0) {
-                        // TODO: Think about support and change this behavior
-                        Logger::log_warning("mode = %lld:%lld:%lld not supported yet",
-                            mode.J, mode.a, mode.b);
-                        exit(1);
-                    }
-                }
-                for (u64 j = 0; j < block_w; j+=step) {
-                    if (j > 1)
-                        new_block(i, j-step+1) = block(i, j);
-                    else
-                        new_block(i, j) = block(i, j);
-                }
-            }
-            subsampled_data.set_block(
-                block_i / (block_h / new_block_h), 
-                block_j / (block_w / new_block_w), new_block);
+    u64 write_i = 0;
+    for (u64 read_i = 0; read_i < data.height; read_i++) {
+        u64 write_j = 0;
+        u64 samples_count = (read_i % 2 == 0) ? mode.a : mode.b;
+        if (read_i % 2 != 0 && mode.b == 0) {
+            write_i++;
+            continue;
         }
+        for (u64 read_j = 0; read_j < data.width; read_j++) {
+            if ((read_j % mode.J) % samples_count != 0 && samples_count != mode.J) continue;
+            subsampled_data(write_i, write_j) = data(read_i, read_j);
+            write_j++;
+            if (samples_count == 1) read_j+=block_w-1;
+        }
+        write_i++;
     }
 
     return subsampled_data;

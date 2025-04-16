@@ -29,6 +29,6 @@ RawImageData rgb_to_ycbcr(const RawImageData &rgb_data) {
             ycbcr_data[2](i, j) = Cr;
         }
     }
-    
+
     return ycbcr_data;
 }

@@ -65,10 +65,6 @@ TEST(test_jpeg, test_ppm_ycbcr_subsampling_blocks) {
 
 	RawImageData ycbcr_data = rgb_to_ycbcr(ppm_image);
 
-	ppm_image[0].print();
-	ppm_image[1].print();
-	ppm_image[2].print();
-
 	EXPECT_EQ(ycbcr_data[0], RawChannelData(8, 4, {
 		29, 29, 150, 150, 76, 76, 226, 226,
 		29, 29, 150, 150, 76, 76, 226, 226,
@@ -95,7 +91,6 @@ TEST(test_jpeg, test_ppm_ycbcr_subsampling_blocks) {
 
 	EXPECT_EQ(subsampled_ycbcr_data[0], ycbcr_data[0]);
 	
-	subsampled_ycbcr_data[1].print();
 	EXPECT_EQ(subsampled_ycbcr_data[1], RawChannelData(4, 4, {
 		255, 44, 85, 0,
 		255, 44, 85, 0,

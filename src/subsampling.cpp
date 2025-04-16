@@ -47,7 +47,6 @@ RawChannelData subsampling(const RawChannelData &data, const SubsamplingMode &mo
                         new_block(i, j) = block(i, j);
                 }
             }
-            new_block.print();
             subsampled_data.set_block(
                 block_i / (block_h / new_block_h), 
                 block_j / (block_w / new_block_w), new_block);

@@ -8,7 +8,6 @@
 TEST(test_jpeg, test_ppm_ycbcr_subsampling) {
 	std::filesystem::path resDir(RESOURCE_DIR);
 	std::ifstream ppm_file(resDir / "4x2.ppm");
-	Logger::log_info("path = %s/4x2.ppm", resDir.c_str());
 	EXPECT_TRUE(ppm_file.is_open());
 
 	PPMImage ppm_image = read_ppm_image(ppm_file);
@@ -54,7 +53,6 @@ TEST(test_jpeg, test_ppm_ycbcr_subsampling) {
 TEST(test_jpeg, test_ppm_ycbcr_subsampling_blocks) {
 	std::filesystem::path resDir(RESOURCE_DIR);
 	std::ifstream ppm_file(resDir / "8x4.ppm");
-	Logger::log_info("path = %s/8x4.ppm", resDir.c_str());
 	EXPECT_TRUE(ppm_file.is_open());
 
 	PPMImage ppm_image = read_ppm_image(ppm_file);

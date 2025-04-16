@@ -4,6 +4,8 @@
 #include <cstdio>
 #include <cstdarg>
 
+/* TODO: add DEBUG levels (or types of logging) */
+
 #ifndef NDEBUG
 namespace Logger {
 

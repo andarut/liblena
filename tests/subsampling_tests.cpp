@@ -25,25 +25,15 @@ const RawImageData test_data() {
 TEST(test_sampling, sampling_444) {
     RawImageData data = test_data();
 
-    SubsamplingMode mode(4, 4, 4);
-
-    RawImageData subsampled_data = subsampling(data, mode);
+    RawImageData subsampled_data = subsampling(data, SubsamplingMode(4, 4, 4));
 
     EXPECT_EQ(subsampled_data.data, data.data);
 }
 
 TEST(test_sampling, sampling_422) {
     RawImageData data = test_data();
-    RawChannelData data_R = data[0], data_G = data[1], data_B = data[2];
 
-    SubsamplingMode mode(4, 2, 2);
-
-    RawImageData 
-        subsampled_data = subsampling(data, mode);
-    RawChannelData
-        subsampled_data_R = subsampled_data[0],
-        subsampled_data_G = subsampled_data[1], 
-        subsampled_data_B = subsampled_data[2];
+    RawImageData subsampled_data = subsampling(data, SubsamplingMode(4, 2, 2));
 
     EXPECT_EQ(subsampled_data[0], data[0]);
     EXPECT_EQ(subsampled_data[1], RawChannelData(2, 2, {
@@ -58,16 +48,8 @@ TEST(test_sampling, sampling_422) {
 
 TEST(test_sampling, sampling_411) {
     RawImageData data = test_data();
-    RawChannelData data_R = data[0], data_G = data[1], data_B = data[2];
 
-    SubsamplingMode mode(4, 1, 1);
-
-    RawImageData 
-        subsampled_data = subsampling(data, mode);
-    RawChannelData
-        subsampled_data_R = subsampled_data[0],
-        subsampled_data_G = subsampled_data[1], 
-        subsampled_data_B = subsampled_data[2];
+    RawImageData  subsampled_data = subsampling(data, SubsamplingMode(4, 1, 1));
 
     EXPECT_EQ(subsampled_data[0], data[0]);
     EXPECT_EQ(subsampled_data[1], RawChannelData(1, 2, {
@@ -82,16 +64,8 @@ TEST(test_sampling, sampling_411) {
 
 TEST(test_sampling, sampling_440) {
     RawImageData data = test_data();
-    RawChannelData data_R = data[0], data_G = data[1], data_B = data[2];
 
-    SubsamplingMode mode(4, 4, 0);
-
-    RawImageData 
-        subsampled_data = subsampling(data, mode);
-    RawChannelData
-        subsampled_data_R = subsampled_data[0],
-        subsampled_data_G = subsampled_data[1], 
-        subsampled_data_B = subsampled_data[2];
+    RawImageData  subsampled_data = subsampling(data, SubsamplingMode(4, 4, 0));
 
     EXPECT_EQ(subsampled_data[0], data[0]);
     EXPECT_EQ(subsampled_data[1], RawChannelData(4, 1, {
@@ -104,16 +78,8 @@ TEST(test_sampling, sampling_440) {
 
 TEST(test_sampling, sampling_420) {
     RawImageData data = test_data();
-    RawChannelData data_R = data[0], data_G = data[1], data_B = data[2];
 
-    SubsamplingMode mode(4, 2, 0);
-
-    RawImageData 
-        subsampled_data = subsampling(data, mode);
-    RawChannelData
-        subsampled_data_R = subsampled_data[0],
-        subsampled_data_G = subsampled_data[1], 
-        subsampled_data_B = subsampled_data[2];
+    RawImageData  subsampled_data = subsampling(data, SubsamplingMode(4, 2, 0));
 
     EXPECT_EQ(subsampled_data[0], data[0]);
     EXPECT_EQ(subsampled_data[1], RawChannelData(2, 1, {
@@ -126,16 +92,8 @@ TEST(test_sampling, sampling_420) {
 
 TEST(test_sampling, sampling_410) {
     RawImageData data = test_data();
-    RawChannelData data_R = data[0], data_G = data[1], data_B = data[2];
 
-    SubsamplingMode mode(4, 1, 0);
-
-    RawImageData 
-        subsampled_data = subsampling(data, mode);
-    RawChannelData
-        subsampled_data_R = subsampled_data[0],
-        subsampled_data_G = subsampled_data[1], 
-        subsampled_data_B = subsampled_data[2];
+    RawImageData subsampled_data = subsampling(data, SubsamplingMode(4, 1, 0));
 
     EXPECT_EQ(subsampled_data[0], data[0]);
     EXPECT_EQ(subsampled_data[1], RawChannelData(1, 1, {
@@ -148,44 +106,30 @@ TEST(test_sampling, sampling_410) {
 
 TEST(test_sampling, sampling_441) {
     RawImageData data = test_data();
-    RawChannelData data_R = data[0], data_G = data[1], data_B = data[2];
-
-    SubsamplingMode mode(4, 4, 1);
 
     // 4:4:1 mode is not currently supported
     EXPECT_EXIT({
-        RawImageData 
-            subsampled_data = subsampling(data, mode);
+        subsampling(data, SubsamplingMode(4, 4, 1));
     }, ::testing::ExitedWithCode(1), ".*");
 
 }
 
 TEST(test_sampling, sampling_421) {
     RawImageData data = test_data();
-    RawChannelData data_R = data[0], data_G = data[1], data_B = data[2];
-
-    SubsamplingMode mode(4, 2, 1);
 
     // 4:2:1 mode is not currently supported
     EXPECT_EXIT({
-        RawImageData 
-            subsampled_data = subsampling(data, mode);
+        subsampling(data, SubsamplingMode(4, 2, 1));
     }, ::testing::ExitedWithCode(1), ".*");
 
 }
 
 TEST(test_sampling, sampling_211) {
     RawImageData data = test_data();
-    RawChannelData data_R = data[0], data_G = data[1], data_B = data[2];
 
     SubsamplingMode mode(2, 1, 1);
 
-    RawImageData 
-        subsampled_data = subsampling(data, mode);
-    RawChannelData
-        subsampled_data_R = subsampled_data[0],
-        subsampled_data_G = subsampled_data[1], 
-        subsampled_data_B = subsampled_data[2];
+    RawImageData subsampled_data = subsampling(data, SubsamplingMode(2, 1, 1));
 
     EXPECT_EQ(subsampled_data[0], data[0]);
     EXPECT_EQ(subsampled_data[1], RawChannelData(2, 2, {

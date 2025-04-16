@@ -1,6 +1,23 @@
-# liblena
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="/docs/liblena_logo_light.svg">
+  <img alt="liblena logo" src="/docs/liblena_logo_dark.svg" width="50%" height="50%">
+</picture>
+
+for experiments with data compression techniques
+
+<h3>
+</h3>
 
 [![macos](https://github.com/andarut/liblena/actions/workflows/macos.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/macos.yml)
+
+</div>
+
+---
+
+## Features
+TOOD: describe
 
 ## Requirements
 

@@ -160,3 +160,21 @@ TEST(test_jpeg, test_ppm_ycbcr_subsampling_blocks_411) {
 
 	ppm_file.close();
 }
+
+TEST(test_jpeg, test_ppm_ycbcr_subsampling_perfomance) {
+	std::filesystem::path resDir(RESOURCE_DIR);
+	std::ifstream ppm_file(resDir / "ppm_image_4K.ppm");
+	EXPECT_TRUE(ppm_file.is_open());
+
+	PPMImage ppm_image = read_ppm_image(ppm_file);
+	EXPECT_EQ(ppm_image.magicNumber, "P6");
+	EXPECT_EQ(ppm_image.maxVal, 255);
+
+	RawImageData ycbcr_data = rgb_to_ycbcr(ppm_image);
+
+	RawImageData subsampled_ycbcr_data = subsampling(ycbcr_data, SubsamplingMode(4, 2, 2));
+
+	EXPECT_EQ(subsampled_ycbcr_data[0], ycbcr_data[0]);
+
+	ppm_file.close();
+}

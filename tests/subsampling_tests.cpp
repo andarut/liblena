@@ -2,152 +2,383 @@
 #include "subsampling.h"
 
 const RawImageData test_data() {
-    RawImageData data(4, 2, std::vector<RawChannelData>({
-        // R
-        RawChannelData(4, 2, {
-            102, 102, 102, 102,
-            154, 204, 153, 204
-        }),
-        // G
-        RawChannelData(4, 2, {
-            102, 153, 204, 102,
-            102, 204, 153, 103
-        }),
-        // B
-        RawChannelData(4, 2, {
-            205, 154, 102, 102,
-            153, 204, 102, 102
-        })
-    }));
-    return data;
+	RawImageData data(4, 2, std::vector<RawChannelData>({
+		// R
+		RawChannelData(4, 2, {
+			102, 102, 102, 102,
+			154, 204, 153, 204
+		}),
+		// G
+		RawChannelData(4, 2, {
+			102, 153, 204, 102,
+			102, 204, 153, 103
+		}),
+		// B
+		RawChannelData(4, 2, {
+			205, 154, 102, 102,
+			153, 204, 102, 102
+		})
+	}));
+	return data;
 }
 
 TEST(test_sampling, sampling_444) {
-    RawImageData data = test_data();
+	RawImageData data = test_data();
 
-    RawImageData subsampled_data = subsampling(data, SubsamplingMode(4, 4, 4));
+	RawImageData subsampled_data = subsampling(data, SubsamplingMode(4, 4, 4));
 
-    EXPECT_EQ(subsampled_data.data, data.data);
+	EXPECT_EQ(subsampled_data.data, data.data);
 }
 
 TEST(test_sampling, sampling_422) {
-    RawImageData data = test_data();
+	RawImageData data = test_data();
 
-    RawImageData subsampled_data = subsampling(data, SubsamplingMode(4, 2, 2));
+	RawImageData subsampled_data = subsampling(data, SubsamplingMode(4, 2, 2));
 
-    EXPECT_EQ(subsampled_data[0], data[0]);
-    EXPECT_EQ(subsampled_data[1], RawChannelData(2, 2, {
-        102, 204,
-        102, 153
-    }));
-    EXPECT_EQ(subsampled_data[2], RawChannelData(2, 2, {
-        205, 102,
-        153, 102
-    }));
+	EXPECT_EQ(subsampled_data[0], data[0]);
+	EXPECT_EQ(subsampled_data[1], RawChannelData(2, 2, {
+		102, 204,
+		102, 153
+	}));
+	EXPECT_EQ(subsampled_data[2], RawChannelData(2, 2, {
+		205, 102,
+		153, 102
+	}));
 }
 
 TEST(test_sampling, sampling_411) {
-    RawImageData data = test_data();
+	RawImageData data = test_data();
 
-    RawImageData  subsampled_data = subsampling(data, SubsamplingMode(4, 1, 1));
+	RawImageData  subsampled_data = subsampling(data, SubsamplingMode(4, 1, 1));
 
-    EXPECT_EQ(subsampled_data[0], data[0]);
-    EXPECT_EQ(subsampled_data[1], RawChannelData(1, 2, {
-        102,
-        102,
-    }));
-    EXPECT_EQ(subsampled_data[2], RawChannelData(1, 2, {
-        205,
-        153,
-    }));
+	EXPECT_EQ(subsampled_data[0], data[0]);
+	EXPECT_EQ(subsampled_data[1], RawChannelData(1, 2, {
+		102,
+		102,
+	}));
+	EXPECT_EQ(subsampled_data[2], RawChannelData(1, 2, {
+		205,
+		153,
+	}));
 }
 
 TEST(test_sampling, sampling_440) {
-    RawImageData data = test_data();
+	RawImageData data = test_data();
 
-    RawImageData  subsampled_data = subsampling(data, SubsamplingMode(4, 4, 0));
+	RawImageData  subsampled_data = subsampling(data, SubsamplingMode(4, 4, 0));
 
-    EXPECT_EQ(subsampled_data[0], data[0]);
-    
-    EXPECT_EQ(subsampled_data[1], RawChannelData(4, 1, {
-        102, 153, 204, 102,
-    }));
-    EXPECT_EQ(subsampled_data[2], RawChannelData(4, 1, {
-        205, 154, 102, 102,
-    }));
+	EXPECT_EQ(subsampled_data[0], data[0]);
+
+	EXPECT_EQ(subsampled_data[1], RawChannelData(4, 1, {
+		102, 153, 204, 102,
+	}));
+	EXPECT_EQ(subsampled_data[2], RawChannelData(4, 1, {
+		205, 154, 102, 102,
+	}));
 }
 
 TEST(test_sampling, sampling_420) {
-    RawImageData data = test_data();
+	RawImageData data = test_data();
 
-    RawImageData  subsampled_data = subsampling(data, SubsamplingMode(4, 2, 0));
+	RawImageData  subsampled_data = subsampling(data, SubsamplingMode(4, 2, 0));
 
-    EXPECT_EQ(subsampled_data[0], data[0]);
-    EXPECT_EQ(subsampled_data[1], RawChannelData(2, 1, {
-        102, 204,
-    }));
-    EXPECT_EQ(subsampled_data[2], RawChannelData(2, 1, {
-        205, 102, 
-    }));
+	EXPECT_EQ(subsampled_data[0], data[0]);
+	EXPECT_EQ(subsampled_data[1], RawChannelData(2, 1, {
+		102, 204,
+	}));
+	EXPECT_EQ(subsampled_data[2], RawChannelData(2, 1, {
+		205, 102, 
+	}));
 }
 
 TEST(test_sampling, sampling_410) {
-    RawImageData data = test_data();
+	RawImageData data = test_data();
 
-    RawImageData subsampled_data = subsampling(data, SubsamplingMode(4, 1, 0));
+	RawImageData subsampled_data = subsampling(data, SubsamplingMode(4, 1, 0));
 
-    EXPECT_EQ(subsampled_data[0], data[0]);
-    EXPECT_EQ(subsampled_data[1], RawChannelData(1, 1, {
-        102
-    }));
-    EXPECT_EQ(subsampled_data[2], RawChannelData(1, 1, {
-        205
-    }));
+	EXPECT_EQ(subsampled_data[0], data[0]);
+	EXPECT_EQ(subsampled_data[1], RawChannelData(1, 1, {
+		102
+	}));
+	EXPECT_EQ(subsampled_data[2], RawChannelData(1, 1, {
+		205
+	}));
 }
 
 TEST(test_sampling, sampling_441) {
-    RawImageData data = test_data();
+	RawImageData data = test_data();
 
-    // 4:4:1 mode is not currently supported
-    EXPECT_EXIT({
-        subsampling(data, SubsamplingMode(4, 4, 1));
-    }, ::testing::ExitedWithCode(1), ".*");
+	// 4:4:1 mode is not currently supported
+	EXPECT_EXIT({
+		subsampling(data, SubsamplingMode(4, 4, 1));
+	}, ::testing::ExitedWithCode(1), ".*");
 
 }
 
 TEST(test_sampling, sampling_421) {
-    RawImageData data = test_data();
+	RawImageData data = test_data();
 
-    // 4:2:1 mode is not currently supported
-    EXPECT_EXIT({
-        subsampling(data, SubsamplingMode(4, 2, 1));
-    }, ::testing::ExitedWithCode(1), ".*");
+	// 4:2:1 mode is not currently supported
+	EXPECT_EXIT({
+		subsampling(data, SubsamplingMode(4, 2, 1));
+	}, ::testing::ExitedWithCode(1), ".*");
 
 }
 
 TEST(test_sampling, sampling_211) {
-    RawImageData data = test_data();
+	RawImageData data = test_data();
 
-    RawImageData subsampled_data = subsampling(data, SubsamplingMode(2, 1, 1));
+	RawImageData subsampled_data = subsampling(data, SubsamplingMode(2, 1, 1));
 
-    EXPECT_EQ(subsampled_data[0], data[0]);
+	EXPECT_EQ(subsampled_data[0], data[0]);
 
-    EXPECT_EQ(subsampled_data[1], RawChannelData(2, 2, {
-        102, 204,
-        102, 153
-    }));
-    EXPECT_EQ(subsampled_data[2], RawChannelData(2, 2, {
-        205, 102,
-        153, 102
-    }));
+	EXPECT_EQ(subsampled_data[1], RawChannelData(2, 2, {
+		102, 204,
+		102, 153
+	}));
+	EXPECT_EQ(subsampled_data[2], RawChannelData(2, 2, {
+		205, 102,
+		153, 102
+	}));
 }
 
 TEST(test_sampling, sampling_111) {
-    RawImageData data = test_data();
-    
-    RawImageData subsampled_data = subsampling(data, SubsamplingMode(1, 1, 1));
-    
-    EXPECT_EQ(subsampled_data[0], data[0]);
-    EXPECT_EQ(subsampled_data[1], data[1]);
-    EXPECT_EQ(subsampled_data[2], data[2]);
+	RawImageData data = test_data();
+	
+	RawImageData subsampled_data = subsampling(data, SubsamplingMode(1, 1, 1));
+	
+	EXPECT_EQ(subsampled_data[0], data[0]);
+	EXPECT_EQ(subsampled_data[1], data[1]);
+	EXPECT_EQ(subsampled_data[2], data[2]);
+}
+
+TEST(test_sampling, sampling_5x3) {
+	RawImageData data(5, 3, std::vector<RawChannelData>({
+		// R
+		RawChannelData(5, 3, {
+			255, 255, 255, 255, 255,
+			128, 128, 128, 128, 128,
+			  0,   0,   0,   0,   0
+		}),
+		// G
+		RawChannelData(5, 3, {
+			  0,   0,   0,   0,   0,
+			128, 128, 128, 128, 128,
+			255, 255, 255, 255, 255
+		}),
+		// B
+		RawChannelData(5, 3, {
+			255, 128,   0, 128, 255,
+			255, 128,   0, 128, 255,
+			255, 128,   0, 128, 255
+		})
+	}));
+
+	RawImageData subsampled_data = subsampling(data, SubsamplingMode(4, 2, 2));
+
+	EXPECT_EQ(subsampled_data[0], data[0]);
+	
+	EXPECT_EQ(subsampled_data[1], RawChannelData(3, 3, {
+		  0,   0,   0,
+		128, 128, 128,
+		255, 255, 255
+	}));
+	EXPECT_EQ(subsampled_data[2], RawChannelData(3, 3, {
+		255,   0, 255,
+		255,   0, 255,
+		255,   0, 255
+	}));
+}
+
+TEST(test_sampling, sampling_3x5) {
+	RawImageData data(3, 5, std::vector<RawChannelData>({
+		// R
+		RawChannelData(3, 5, {
+			255, 128,   0,
+			128, 255, 128,
+			  0, 128, 255,
+			128,   0, 128,
+			255, 128,   0
+		}),
+		// G
+		RawChannelData(3, 5, {
+			  0, 128, 255,
+			128,   0, 128,
+			255, 128,   0,
+			128, 255, 128,
+			  0, 128, 255
+		}),
+		// B
+		RawChannelData(3, 5, {
+			128, 128, 128,
+			255, 255, 255,
+			  0,   0,   0,
+			255, 255, 255,
+			128, 128, 128
+		})
+	}));
+
+	RawImageData subsampled_data = subsampling(data, SubsamplingMode(4, 2, 2));
+
+	EXPECT_EQ(subsampled_data[0], data[0]);
+
+	EXPECT_EQ(subsampled_data[1], RawChannelData(2, 5, {
+		  0, 255,
+		128, 128,
+		255,   0,
+		128, 128,
+		  0, 255
+	}));
+
+	EXPECT_EQ(subsampled_data[2], RawChannelData(2, 5, {
+		128, 128,
+		255, 255,
+		  0,   0,
+		255, 255,
+		128, 128
+	}));
+}
+
+TEST(test_sampling, sampling_6x3) {
+	RawImageData data(6, 3, std::vector<RawChannelData>({
+		// R
+		RawChannelData(6, 3, {
+			255, 255, 255, 255, 255, 255,
+			128, 128, 128, 128, 128, 128,
+			  0,   0,   0,   0,   0,   0
+		}),
+		// G
+		RawChannelData(6, 3, {
+			  0,   0,   0,   0,   0,   0,
+			128, 128, 128, 128, 128, 128,
+			255, 255, 255, 255, 255, 255
+		}),
+		// B
+		RawChannelData(6, 3, {
+			255, 128,   0, 128, 255, 128,
+			255, 128,   0, 128, 255, 128,
+			255, 128,   0, 128, 255, 128
+		})
+	}));
+
+	RawImageData subsampled_data = subsampling(data, SubsamplingMode(4, 2, 2));
+
+	EXPECT_EQ(subsampled_data[0], data[0]);
+
+	EXPECT_EQ(subsampled_data[1], RawChannelData(3, 3, {
+		  0,   0,   0,
+		128, 128, 128,
+		255, 255, 255
+	}));
+
+	EXPECT_EQ(subsampled_data[2], RawChannelData(3, 3, {
+		255,   0, 255,
+		255,   0, 255,
+		255,   0, 255
+	}));
+}
+
+TEST(test_sampling, sampling_7x4) {
+	RawImageData data(7, 4, std::vector<RawChannelData>({
+		// R
+		RawChannelData(7, 4, {
+			255, 255, 255, 255, 255, 255, 255,
+			128, 128, 128, 128, 128, 128, 128,
+			  0,   0,   0,   0,   0,   0,   0,
+			255, 255, 255, 255, 255, 255, 255
+		}),
+		// G
+		RawChannelData(7, 4, {
+			  0,   0,   0,   0,   0,   0,   0,
+			128, 128, 128, 128, 128, 128, 128,
+			255, 255, 255, 255, 255, 255, 255,
+			  0,   0,   0,   0,   0,   0,   0
+		}),
+		// B
+		RawChannelData(7, 4, {
+			255, 128,   0, 128, 255, 128,   0,
+			255, 128,   0, 128, 255, 128,   0,
+			255, 128,   0, 128, 255, 128,   0,
+			255, 128,   0, 128, 255, 128,   0
+		})
+	}));
+
+	RawImageData subsampled_data = subsampling(data, SubsamplingMode(4, 2, 2));
+
+	EXPECT_EQ(subsampled_data[0], data[0]);
+
+	EXPECT_EQ(subsampled_data[1], RawChannelData(4, 4, {
+		  0,   0,   0,   0,
+		128, 128, 128, 128,
+		255, 255, 255, 255,
+		  0,   0,   0,   0
+	}));
+
+	EXPECT_EQ(subsampled_data[2], RawChannelData(4, 4, {
+		255,   0, 255,   0,
+		255,   0, 255,   0,
+		255,   0, 255,   0,
+		255,   0, 255,   0
+	}));
+}
+
+TEST(test_sampling, sampling_4x4) {
+	RawImageData data(4, 4, std::vector<RawChannelData>({
+		// R
+		RawChannelData(4, 4, {
+			255, 255, 255, 255,
+			128, 128, 128, 128,
+			  0,   0,   0,   0,
+			255, 255, 255, 255
+		}),
+		// G
+		RawChannelData(4, 4, {
+			  0,   0,   0,   0,
+			128, 128, 128, 128,
+			255, 255, 255, 255,
+			  0,   0,   0,   0
+		}),
+		// B
+		RawChannelData(4, 4, {
+			255, 128,   0, 128,
+			255, 128,   0, 128,
+			255, 128,   0, 128,
+			255, 128,   0, 128
+		})
+	}));
+
+	RawImageData subsampled_data = subsampling(data, SubsamplingMode(4, 2, 2));
+
+	EXPECT_EQ(subsampled_data[0], data[0]);
+
+	EXPECT_EQ(subsampled_data[1], RawChannelData(2, 4, {
+		  0,   0,
+		128, 128,
+		255, 255,
+		  0,   0
+	}));
+
+	EXPECT_EQ(subsampled_data[2], RawChannelData(2, 4, {
+		255,   0,
+		255,   0,
+		255,   0,
+		255,   0
+	}));
+}
+
+TEST(test_sampling, sampling_1x1) {
+	RawImageData data(1, 1, std::vector<RawChannelData>({
+		// R
+		RawChannelData(1, 1, {255}),
+		// G
+		RawChannelData(1, 1, {128}),
+		// B
+		RawChannelData(1, 1, {0})
+	}));
+
+	RawImageData subsampled_data = subsampling(data, SubsamplingMode(4, 2, 2));
+
+	EXPECT_EQ(subsampled_data[0], data[0]);
+	EXPECT_EQ(subsampled_data[1], data[1]);
+	EXPECT_EQ(subsampled_data[2], data[2]);
 }

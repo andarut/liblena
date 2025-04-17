@@ -11,6 +11,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_library(liblena STATIC
     src/ppm_image.cpp
     src/ycbcr.cpp
+    src/subsampling.cpp
 )
 target_compile_features(liblena PRIVATE cxx_std_17)
 target_include_directories(liblena PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -22,8 +23,14 @@ include(GoogleTest)
 enable_testing()
 
 add_executable(liblena_tests 
+    
+    # unit tests
     tests/ppm_image_tests.cpp
     tests/ycbcr_tests.cpp
+    tests/subsampling_tests.cpp
+    
+    # intergration tests
+    tests/jpeg_tests.cpp
 )
 
 target_compile_definitions(liblena_tests PRIVATE

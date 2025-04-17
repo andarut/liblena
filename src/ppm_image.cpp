@@ -29,15 +29,36 @@ PPMImage read_ppm_image(std::ifstream &ppm_file) {
     
     PPMImage ppm_image(magic_number, width, height, 3, maxVal);
 
-    // Read data
-    // TODO: optimize (test_perfomance takes aroung 1.8 seconds)
-    for (u16 i = 0; i < height; i++)
-        for (u16 j = 0; j < width; j++)
-            for (u8 k = 0; k < 3; k++)
-                ppm_file >> ppm_image(i, j, k);
+    RawChannelData *R = &ppm_image[0];
+    RawChannelData *G = &ppm_image[1];
+    RawChannelData *B = &ppm_image[2];
 
-    Logger::log_info("data size = %d", ppm_image.data.size());
-    assert(ppm_image.data.size() == width*height*3);
+    for (u16 i = 0; i < height; i++) {
+        for (u16 j = 0; j < width; j++) {
+            /* (maxVal <= 255) ? u8 : u16 */
+            if (maxVal <= 255) {
+                u8 r, g, b;
+                ppm_file >> r >> g >> b;
+                (*R)(i, j) = static_cast<u64>(r);
+                (*G)(i, j) = static_cast<u64>(g);
+                (*B)(i, j) = static_cast<u64>(b);
+            } else {
+                u16 r, g, b;
+                ppm_file >> r >> g >> b;
+                (*R)(i, j) = static_cast<u64>(r);
+                (*G)(i, j) = static_cast<u64>(g);
+                (*B)(i, j) = static_cast<u64>(b);
+            }
+        }
+    }
+
+    Logger::log_info("size = %d", ppm_image.size());
+
+    assert(ppm_image.size() == width*height*3);
+
+    assert(ppm_image[0].size() == width*height);
+    assert(ppm_image[1].size() == width*height);
+    assert(ppm_image[2].size() == width*height);
 
     return ppm_image;
 }

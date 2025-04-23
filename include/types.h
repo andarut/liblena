@@ -33,7 +33,7 @@ struct RawChannelData {
     void print() const {
         printf("print width = %lld\n", width);
         printf("print height = %lld\n", height);
-        printf("print data size = %lld\n", data.size());
+        printf("print data size = %zu\n", data.size());
         if (data.size() != width * height) {
             for (u64 i = 0; i < data.size(); i++)
                 printf("%hhu ", data[i]);
@@ -53,7 +53,7 @@ struct RawChannelData {
     }
 
     const T& operator()(u64 i, u64 j) const {
-        Logger::log_info("get data (%d, %d)", i, j);
+        // Logger::log_info("get data (%d, %d)", i, j);
         return data[width * i + j];
     }
 
@@ -106,7 +106,7 @@ struct RawImageData {
             data[k] = RawChannelData<T>(_width, _height);
     }
 
-    RawImageData(const std::initializer_list<u64> _data) : \
+    RawImageData(const std::initializer_list<T> _data) : \
         width(1), height(1), numberOfChannels(_data.size()) {
         if (_data.size() == 0) {
             width = 0;
@@ -115,6 +115,18 @@ struct RawImageData {
         data.reserve(_data.size());
         for (auto& d : _data)
             data.push_back(RawChannelData<T>(1, 1, {d}));
+    }
+
+    void print() const {
+        printf("print width = %lld\n", width);
+        printf("print height = %lld\n", height);
+        printf("print data size = %zu\n", data.size());
+        for (u64 i = 0; i < height; i++) {
+            for (u64 j = 0; j < width; j++) {
+                printf("(%03hhu %03hhu %03hhu) ", data[0](i, j), data[1](i, j), data[2](i, j));
+            }
+            printf("\n");
+        }
     }
 
     RawChannelData<T>& operator[](u64 ch_i) {

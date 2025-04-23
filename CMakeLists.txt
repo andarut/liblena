@@ -25,12 +25,12 @@ enable_testing()
 add_executable(liblena_tests 
     
     # unit tests
-    # tests/ppm_image_tests.cpp
-    # tests/ycbcr_tests.cpp
+    tests/ppm_image_tests.cpp
+    tests/ycbcr_tests.cpp
     tests/subsampling_tests.cpp
     
     # intergration tests
-    # tests/jpeg_tests.cpp
+    tests/jpeg_tests.cpp
 )
 
 target_compile_definitions(liblena_tests PRIVATE

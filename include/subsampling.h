@@ -40,6 +40,9 @@ struct SubsampledChannelData : public RawChannelData<T> {
     }
 
     void print() const {
+        printf("print width = %lld\n", this->width);
+        printf("print height = %lld\n", this->height);
+        printf("print data size = %zu\n", data.size());
         if (data.size() != this->width * this->height) {
             for (u64 i = 0; i < data.size(); i++)
                 printf("%hhu ", data[i]);
@@ -53,6 +56,18 @@ struct SubsampledChannelData : public RawChannelData<T> {
         }
     }
 };
+
+template<typename T>
+bool operator==(const RawChannelData<T> &lhs, const SubsampledChannelData<T> &rhs) {
+    return (lhs.width == rhs.width) && \
+            (lhs.height == rhs.height) && \
+            (lhs.data == rhs.data);
+}
+
+template<typename T>
+bool operator==(const SubsampledChannelData<T> &lhs, const RawChannelData<T> &rhs) {
+    return rhs == lhs;
+}
 
 template <typename T>
 struct SubsampledImageData : RawImageData<T> {
@@ -104,11 +119,12 @@ SubsampledChannelData<T> encode_subsampling(const RawChannelData<T> &data, const
 
     g_timers.end("encoding");
 
-    printf("subsampled_data.data.size() = %lld\n", subsampled_data.data.size());
+    printf("subsampled_data.data.size() = %zu\n", subsampled_data.data.size());
 
     printf("encoding duration = %lld\n", g_timers.duration("encoding"));
 
     printf("=== ENCODED ===\n");
+    printf("width = %lld\n", subsampled_data.width);
     subsampled_data.print();
 
     subsampled_data.original_width = data.width;

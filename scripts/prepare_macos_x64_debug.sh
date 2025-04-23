@@ -14,6 +14,9 @@ source ${SCRIPT_DIR}/macos/install_conan.sh
 # Activate venv
 source ${ROOT_DIR}/.venv/bin/activate
 
+# Enable LeakSanitizer
+export ASAN_OPTIONS="detect_leaks=1"
+
 # Install with conan
 conan install ${ROOT_DIR} --build=missing \
   --profile:host=$PROFILE_PATH \

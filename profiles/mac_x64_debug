@@ -4,5 +4,9 @@ build_type=Debug
 compiler=clang
 compiler.cppstd=gnu17
 compiler.libcxx=libc++
-compiler.version=16
+compiler.version=19
 os=Macos
+
+[buildenv]
+CC=/usr/local/opt/llvm/bin/clang
+CXX=/usr/local/opt/llvm/bin/clang++

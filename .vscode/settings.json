@@ -1,6 +1,6 @@
 {
     "C_Cpp.errorSquiggles": "enabled",
-    "C_Cpp.default.compilerPath": "/usr/local/opt/llvm@16/bin/clang-16",
+    "C_Cpp.default.compilerPath": "/usr/local/bin/clang++",
     "files.associations": {
         "*.cpp": "cpp",
         "__bit_reference": "cpp",
@@ -58,6 +58,7 @@
         "cinttypes": "cpp",
         "complex": "cpp",
         "execution": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "algorithm": "cpp"
     }
 }

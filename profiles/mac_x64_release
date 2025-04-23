@@ -6,3 +6,7 @@ compiler.cppstd=gnu17
 compiler.libcxx=libc++
 compiler.version=16
 os=Macos
+
+[buildenv]
+CC=/usr/local/bin/clang
+CXX=/usr/local/bin/clang++

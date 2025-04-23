@@ -3,16 +3,22 @@ if [ -n "$BASH_VERSION" ]; then
 elif [ -n "$ZSH_VERSION" ]; then
   SCRIPT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
 fi
+
 ROOT_DIR="${SCRIPT_DIR}/.."
 PROFILES_DIR="${ROOT_DIR}/profiles"
-
 PROFILE_PATH="${PROFILES_DIR}/mac_x64_debug"
+
+VENV_DIR="${ROOT_DIR}/.venv"
+VENV_BIN_DIR="${VENV_DIR}/bin"
 
 # Create venv and install conan
 source ${SCRIPT_DIR}/macos/install_conan.sh
 
 # Activate venv
 source ${ROOT_DIR}/.venv/bin/activate
+
+# Enable LeakSanitizer
+export ASAN_OPTIONS="detect_leaks=1"
 
 # Install with conan
 conan install ${ROOT_DIR} --build=missing \

@@ -23,7 +23,7 @@ jobs:
       - name: Check installed clang
         run: |
           which clang++ && clang++ -v
-          which /usr/local/bin/clang && /usr/local/bin/clang++ -v
+          /usr/local/bin/clang++ -v
       - name: Prepare
         run: |
           source $GITHUB_WORKSPACE/scripts/prepare_macos_x64_debug.sh

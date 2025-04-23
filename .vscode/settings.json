@@ -1,6 +1,6 @@
 {
     "C_Cpp.errorSquiggles": "enabled",
-    "C_Cpp.default.compilerPath": "/usr/local/opt/llvm/bin/clang++",
+    "C_Cpp.default.compilerPath": "/usr/local/bin/clang++",
     "files.associations": {
         "*.cpp": "cpp",
         "__bit_reference": "cpp",

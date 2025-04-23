@@ -8,7 +8,7 @@ template <typename T>
 struct PPMImage : RawImageData<T> {
     std::string magicNumber;
     u16 maxVal;
-    
+
     PPMImage(std::string _magicNumber, u64 _width, u64 _height, u8 _numberOfChannels, u16 _maxVal) : \
         RawImageData<T>(_width, _height, _numberOfChannels), magicNumber(_magicNumber), maxVal(_maxVal) {};
 };
@@ -76,6 +76,5 @@ PPMImage<T> read_ppm_image(std::ifstream &ppm_file) {
 
     return ppm_image;
 }
-
 
 #endif // PPM_IMAGE_H

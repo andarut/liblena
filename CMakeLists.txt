@@ -9,13 +9,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # liblena
 add_library(liblena STATIC
-    # src/ppm_image.cpp
-    # src/ycbcr.cpp
+    src/ppm_image.cpp
+    src/ycbcr.cpp
     src/subsampling.cpp
 )
 target_compile_features(liblena PRIVATE cxx_std_17)
 target_include_directories(liblena PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+# liblena visualization?
 
 # liblena_tests
 find_package(GTest)

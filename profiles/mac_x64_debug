@@ -8,5 +8,5 @@ compiler.version=19
 os=Macos
 
 [buildenv]
-CC=/usr/local/opt/llvm/bin/clang
-CXX=/usr/local/opt/llvm/bin/clang++
+CC=/usr/local/bin/clang
+CXX=/usr/local/bin/clang++

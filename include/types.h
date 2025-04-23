@@ -8,9 +8,10 @@
 TODO: incapsulate data to avoid messing up data.size() and .size()
 */
 
+template <typename T>
 struct RawChannelData {
     u64 width, height;
-    std::vector<u64> data;
+    std::vector<T> data;
 
     RawChannelData() = default;
 
@@ -19,44 +20,53 @@ struct RawChannelData {
         data.resize(_width * _height);
     }
 
-    RawChannelData(u64 _width, u64 _height, std::vector<u64> _data) : \
-        width(_width), height(_height), data(_data) {}
+    RawChannelData(u64 _width, u64 _height, std::vector<T> _data) : \
+        width(_width), height(_height), data(_data) {
+        }
 
-    friend bool operator==(const RawChannelData& data1, const RawChannelData& data2) {
+    friend bool operator==(const RawChannelData<T>& data1, const RawChannelData<T>& data2) {
         return (data1.width == data2.width) && \
                (data1.height == data2.height) && \
                (data1.data == data2.data);
     }
 
     void print() const {
+        printf("print width = %lld\n", width);
+        printf("print height = %lld\n", height);
+        printf("print data size = %lld\n", data.size());
+        if (data.size() != width * height) {
+            for (u64 i = 0; i < data.size(); i++)
+                printf("%hhu ", data[i]);
+            return;
+        }
         for (u64 i = 0; i < height; i++) {
             for (u64 j = 0; j < width; j++) {
-                printf("%02lld ", data[width * i + j]);
+                printf("%hhu ", data[width * i + j]);
             }
             printf("\n");
         }
     }
-
-    u64& operator()(u64 i, u64 j) {
+    
+    T& operator()(u64 i, u64 j) {
         // Logger::log_info("set data (%d, %d)", i, j);
         return data[width * i + j];
     }
 
-    const u64& operator()(u64 i, u64 j) const {
+    const T& operator()(u64 i, u64 j) const {
         Logger::log_info("get data (%d, %d)", i, j);
         return data[width * i + j];
     }
 
-    RawChannelData get_block(u64 block_i, u64 block_j, u64 block_width, u64 block_height) const {
+    RawChannelData<T> get_block(u64 block_i, u64 block_j, u64 block_width, u64 block_height) const {
         Logger::log_info("get_block %lld %lld %lld %lld", block_i, block_j, block_width, block_height);
-        RawChannelData block(block_width, block_height);
+        RawChannelData<T> block(block_width, block_height);
         for (u64 i = block_i; i < block_i + block_height; i++)
             for (u64 j = block_j; j < block_j + block_width; j++)
                 block(i-block_i, j-block_j) = (*this)(i, j);
         return block;
     }
 
-    void set_block(u64 set_i, u64 set_j, RawChannelData &block) {
+    void set_block(u64 set_i, u64 set_j, RawChannelData<T> &block) {
         Logger::log_info("set_block %lld %lld %lld %lld", set_i, set_j, block.width, block.height);
         for (u64 i = set_i; i < set_i + block.height; i++)
             for (u64 j = set_j; j < set_j + block.width; j++)
@@ -78,21 +88,22 @@ struct RawChannelData {
 
 };
 
+template <typename T>
 struct RawImageData {
     u64 width, height;
     u8 numberOfChannels;
-    std::vector<RawChannelData> data;
+    std::vector<RawChannelData<T>> data;
 
     RawImageData() = default;
 
-    RawImageData(u64 _width, u64 _height, std::vector<RawChannelData> _data) : \
+    RawImageData(u64 _width, u64 _height, std::vector<RawChannelData<T>> _data) : \
         width(_width), height(_height), numberOfChannels(_data.size()), data(_data) {}
 
     RawImageData(u64 _width, u64 _height, u8 _numberOfChannels) : \
         width(_width), height(_height), numberOfChannels(_numberOfChannels) {
         data.resize(_numberOfChannels);
         for (u64 k = 0; k < _numberOfChannels; k++)
-            data[k] = RawChannelData(_width, _height);
+            data[k] = RawChannelData<T>(_width, _height);
     }
 
     RawImageData(const std::initializer_list<u64> _data) : \
@@ -103,24 +114,24 @@ struct RawImageData {
         }
         data.reserve(_data.size());
         for (auto& d : _data)
-            data.push_back(RawChannelData(1, 1, {d}));
+            data.push_back(RawChannelData<T>(1, 1, {d}));
     }
 
-    RawChannelData& operator[](u64 ch_i) {
+    RawChannelData<T>& operator[](u64 ch_i) {
         Logger::log_info("set channel data [%d]", ch_i);
         return data[ch_i];
     }
 
-    const RawChannelData& operator[](u64 ch_i) const {
+    const RawChannelData<T>& operator[](u64 ch_i) const {
         Logger::log_info("get channel data [%d]", ch_i);
         return data[ch_i];
     }
 
-    RawImageData get_block(u64 block_i, u64 block_j, u64 block_width, u64 block_height) const {
+    RawImageData<T> get_block(u64 block_i, u64 block_j, u64 block_width, u64 block_height) const {
         Logger::log_info("get_block %lld %lld %lld %lld", block_i, block_j, block_width, block_height);
-        RawImageData block(block_width, block_height, numberOfChannels);
+        RawImageData<T> block(block_width, block_height, numberOfChannels);
         for (u64 k = 0; k < numberOfChannels; k++) {
-            RawChannelData block_ch(block_width, block_height);
+            RawChannelData<T> block_ch(block_width, block_height);
             for (u64 i = block_i; i < block_i + block_height; i++)
                 for (u64 j = block_j; j < block_j + block_width; j++)
                     block_ch(i-block_i, j-block_j) = (*this)[k](i, j);
@@ -129,7 +140,7 @@ struct RawImageData {
         return block;
     }
 
-    void set_block(u64 set_i, u64 set_j, RawImageData &block) {
+    void set_block(u64 set_i, u64 set_j, RawImageData<T> &block) {
         Logger::log_info("set_block %lld %lld %lld %lld", set_i, set_j, block.width, block.height);
         for (u64 k = 0; k < numberOfChannels; k++) {
             for (u64 i = set_i; i < set_j + block.height; i++)
@@ -138,7 +149,7 @@ struct RawImageData {
         }
     }
 
-    friend bool operator==(const RawImageData& data1, const RawImageData& data2) {
+    friend bool operator==(const RawImageData<T>& data1, const RawImageData<T>& data2) {
         return (data1.width == data2.width) && \
                (data1.height == data2.height) && \
                (data1.numberOfChannels == data2.numberOfChannels) && \
@@ -160,7 +171,5 @@ struct RawImageData {
     }
 
 };
-
-typedef RawImageData RawImage;
 
 #endif // TYPES_H

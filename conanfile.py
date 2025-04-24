@@ -12,6 +12,9 @@ class LibLenaRecipe(ConanFile):
 	def build_requirements(self):
 		self.tool_requires("cmake/3.23.5")
 		self.test_requires("gtest/1.13.0")
+		self.test_requires("opengl/system")
+		self.test_requires("glfw/3.4")
+		self.test_requires("stb/cci.20240531")
 
 	def generate(self):
 		tc = CMakeToolchain(self, generator="Ninja")

@@ -80,6 +80,13 @@ struct SubsampledImageData : RawImageData<T> {
         std::vector<SubsampledChannelData<T>> _data) : width(_width), height(_height), mode(_mode), \
         data(_data) {}
 
+    u64 size() const {
+        u64 _size = 0;
+        for (u64 k = 0; k < data.size(); k++)
+            _size += data[k].data.size();
+        return _size;
+    }
+
     const SubsampledChannelData<T>& operator[](u64 ch_i) const {
         return data[ch_i];
     } 
@@ -158,7 +165,7 @@ RawChannelData<T> decode_subsampling(const SubsampledChannelData<T> &subsampled_
     printf("height = %lld\n",  subsampled_data.original_height);
 
     printf("=== TO BE DECODED ===\n");
-    subsampled_data.print();
+    // subsampled_data.print();
 
     printf("=== START DECODING ===\n");
     u64 read_i = 0, read_j = 0;
@@ -193,7 +200,7 @@ RawChannelData<T> decode_subsampling(const SubsampledChannelData<T> &subsampled_
     }
     
     printf("=== DECODED ===\n");
-    decoded_data.print();
+    // decoded_data.print();
 
     return decoded_data;
 }

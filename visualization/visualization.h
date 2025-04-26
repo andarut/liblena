@@ -247,16 +247,37 @@ int main() {
 	// std::ifstream ppm_file("/Users/andarut/dev/liblena/tests/tests_data/4x2.ppm");
 	// std::ifstream ppm_file("/Users/andarut/dev/liblena/tests/tests_data/8x4.ppm");
 
-    PPMImage ppm_image = read_ppm_image<u8>(ppm_file);
+	auto ppm_image = read_ppm_image<u8>(ppm_file);
+	auto ycbcr_data = rgb_to_ycbcr(ppm_image);
 
-	RawImageData data = rgb_to_ycbcr<u8>(ppm_image);
+	auto mode1 = SubsamplingMode(4, 4, 4);
+	auto mode2 = SubsamplingMode(4, 2, 2);
 
-	SubsampledImageData subsampled_data = encode_subsampling(data, SubsamplingMode(4, 2, 1));
+	auto subsampled_data1 = encode_subsampling(ycbcr_data, mode1);
+	auto subsampled_data2 = encode_subsampling(ycbcr_data, mode2);
 
-	RawImageData decoded_data = decode_subsampling(subsampled_data);
+	auto decoded_data1 = decode_subsampling(subsampled_data1);
+	auto decoded_data2 = decode_subsampling(subsampled_data2);
 
-	// g_visualization.show(decoded_data);
-	g_visualization.show(decoded_data);
+	auto decoded_rgb_data1 = ycbcr_to_rgb(decoded_data1);
+	auto decoded_rgb_data2 = ycbcr_to_rgb(decoded_data2);
+
+	printf("=== MODE 1 ===\n");
+	printf("original data size = %lld\n", ppm_image.size());
+	printf("compressed data size = %lld\n", subsampled_data1.size());
+	printf("decoded data size = %lld\n", decoded_rgb_data1.size());
+	printf("PNSR = %f\n", PSNR(ppm_image, decoded_rgb_data1));
+	printf("==============\n");
+	
+	printf("=== MODE 2 ===\n");
+	printf("original data size = %lld\n", ppm_image.size());
+	printf("compressed data size = %lld\n", subsampled_data2.size());
+	printf("decoded data size = %lld\n", decoded_rgb_data2.size());
+	printf("PNSR = %f\n", PSNR(ppm_image, decoded_rgb_data2));
+	printf("==============\n");
+	
+
+	// g_visualization.show(decoded_rgb_data);
 
 	return 0;
 }

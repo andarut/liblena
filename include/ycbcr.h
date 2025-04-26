@@ -4,6 +4,9 @@
 #include "utils.h"
 #include "types.h"
 
+
+/* TODO: move to u8 type only, because [0, 255] formula */
+
 /* decimation (TODO: try interpolation) */
 /* 
 JPEG conversion (ITU-T T.871)

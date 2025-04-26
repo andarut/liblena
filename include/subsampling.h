@@ -92,6 +92,8 @@ struct SubsampledImageData : RawImageData<T> {
     } 
 };
 
+/* TODO: try fix encoding 8:4:4 */
+
 /* ENCODING */
 template <typename T>
 SubsampledChannelData<T> encode_subsampling(const RawChannelData<T> &data, const SubsamplingMode &mode) {
@@ -143,7 +145,7 @@ SubsampledChannelData<T> encode_subsampling(const RawChannelData<T> &data, const
 template <typename T>
 SubsampledImageData<T> encode_subsampling(const RawImageData<T> &data, const SubsamplingMode &mode) {
     return SubsampledImageData<T>(data.width, data.height, mode, std::vector<SubsampledChannelData<T>>({
-        encode_subsampling(data[0], SubsamplingMode(4, 4, 4)),
+        encode_subsampling(data[0], SubsamplingMode(mode.J, mode.J, mode.J)),
         encode_subsampling(data[1], mode),
         encode_subsampling(data[2], mode)
     }));
@@ -165,7 +167,7 @@ RawChannelData<T> decode_subsampling(const SubsampledChannelData<T> &subsampled_
     printf("height = %lld\n",  subsampled_data.original_height);
 
     printf("=== TO BE DECODED ===\n");
-    // subsampled_data.print();
+    subsampled_data.print();
 
     printf("=== START DECODING ===\n");
     u64 read_i = 0, read_j = 0;
@@ -200,7 +202,7 @@ RawChannelData<T> decode_subsampling(const SubsampledChannelData<T> &subsampled_
     }
     
     printf("=== DECODED ===\n");
-    // decoded_data.print();
+    decoded_data.print();
 
     return decoded_data;
 }

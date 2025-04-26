@@ -46,7 +46,7 @@ struct Visualization {
 	template <typename T>
 	void show(RawImageData<T> &data) {
 
-		int scale = 1;
+		int scale = 100;
 
 		/* Init window */
 		GLFWwindow* window = glfwCreateWindow(
@@ -112,7 +112,7 @@ struct Visualization {
 	template <typename T>
 	void show(const RawChannelData<T> &data) {
 
-		int scale = 1;
+		int scale = 100;
 
 		printf("show %lld x %lld\n", data.width, data.height);
 
@@ -174,7 +174,7 @@ struct Visualization {
 	template <typename T>
 	void show(const SubsampledChannelData<T> &data) {
 
-		int scale = 1;
+		int scale = 100;
 
 		/* Init window */
 		GLFWwindow* window = glfwCreateWindow(
@@ -241,17 +241,18 @@ struct Visualization {
 Visualization g_visualization;
 
 int main() {
-	std::ifstream ppm_file("/Users/andarut/dev/liblena/tests/tests_data/ppm_image.ppm");
+	// std::ifstream ppm_file("/Users/andarut/dev/liblena/tests/tests_data/ppm_image.ppm");
 	// std::ifstream ppm_file("/Users/andarut/dev/liblena/tests/tests_data/ppm_image_4K.ppm");
 	// std::ifstream ppm_file("/Users/andarut/dev/liblena/tests/tests_data/ppm_image_raw.ppm");
 	// std::ifstream ppm_file("/Users/andarut/dev/liblena/tests/tests_data/4x2.ppm");
-	// std::ifstream ppm_file("/Users/andarut/dev/liblena/tests/tests_data/8x4.ppm");
+	std::ifstream ppm_file("/Users/andarut/dev/liblena/tests/tests_data/8x4.ppm");
 
 	auto ppm_image = read_ppm_image<u8>(ppm_file);
 	auto ycbcr_data = rgb_to_ycbcr(ppm_image);
+	// auto ycbcr_data = ppm_image;
 
 	auto mode1 = SubsamplingMode(4, 4, 4);
-	auto mode2 = SubsamplingMode(4, 2, 2);
+	auto mode2 = SubsamplingMode(8, 4, 4);
 
 	auto subsampled_data1 = encode_subsampling(ycbcr_data, mode1);
 	auto subsampled_data2 = encode_subsampling(ycbcr_data, mode2);
@@ -261,6 +262,9 @@ int main() {
 
 	auto decoded_rgb_data1 = ycbcr_to_rgb(decoded_data1);
 	auto decoded_rgb_data2 = ycbcr_to_rgb(decoded_data2);
+
+	// auto decoded_rgb_data1 = decoded_data1;
+	// auto decoded_rgb_data2 = decoded_data2;
 
 	printf("=== MODE 1 ===\n");
 	printf("original data size = %lld\n", ppm_image.size());
@@ -276,8 +280,21 @@ int main() {
 	printf("PNSR = %f\n", PSNR(ppm_image, decoded_rgb_data2));
 	printf("==============\n");
 	
+	auto test_data = SubsampledChannelData<u8>(16, SubsamplingMode(8, 4, 4));
+	
+	test_data.original_width = 8;
+	test_data.original_height = 4;
 
-	// g_visualization.show(decoded_rgb_data);
+	test_data.data = {
+		255, 255, 0, 0,
+		0, 255, 0, 255,
+		0, 0, 255 ,255,
+		255, 0, 255, 0,
+	};
+
+	auto test_decoded = decode_subsampling(test_data);
+
+	g_visualization.show(test_decoded);
 
 	return 0;
 }

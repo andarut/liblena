@@ -87,7 +87,129 @@ struct Visualization {
 		for (int i = 0; i < data.height; i++) {
 			for (int j = 0; j < data.width; j++) {
 				glColor3ub((*R)(i,j), (*G)(i,j), (*B)(i,j));
-				printf("DRAW PIXEL %d %d\n", i, j);
+				// printf("DRAW PIXEL %d %d\n", i, j);
+				glBegin(GL_QUADS);
+					glVertex2f(px,      py);
+					glVertex2f(px+scale,   py);
+					glVertex2f(px+scale, py+scale);
+					glVertex2f(px,    py+scale);
+				glEnd();
+				px += scale;
+
+			}
+			py += scale;
+			px=0;
+		}
+
+
+		glfwSwapBuffers(window);
+
+		while (!glfwWindowShouldClose(window)) {
+			glfwPollEvents();
+		}
+	}
+
+	template <typename T>
+	void show(const RawChannelData<T> &data) {
+
+		int scale = 1;
+
+		printf("show %lld x %lld\n", data.width, data.height);
+
+		/* Init window */
+		GLFWwindow* window = glfwCreateWindow(
+			data.width*scale, data.height*scale, "RawImageData",
+			nullptr, nullptr
+		);
+		if (!window) {
+			glfwTerminate();
+			printf("window creation failed\n");
+			return;
+		}
+		glfwMakeContextCurrent(window);
+
+		/* Register callbacks */
+		// glfwSetKeyCallback(window, key_cb);
+		// glfwSetFramebufferSizeCallback(window, framebuffer_size_cb);
+
+		glPointSize(1);
+
+		glViewport(0, 0, data.width*scale, data.height*scale);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0, data.width*scale,  data.height*scale, 0,  -1, 1);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		int px = 0;
+		int py = 0;
+
+		for (int i = 0; i < data.height; i++) {
+			for (int j = 0; j < data.width; j++) {
+				glColor3ub(data(i,j), data(i,j), data(i,j));
+				// printf("DRAW PIXEL %d %d\n", i, j);
+				glBegin(GL_QUADS);
+					glVertex2f(px,      py);
+					glVertex2f(px+scale,   py);
+					glVertex2f(px+scale, py+scale);
+					glVertex2f(px,    py+scale);
+				glEnd();
+				px += scale;
+
+			}
+			py += scale;
+			px=0;
+		}
+
+
+		glfwSwapBuffers(window);
+
+		while (!glfwWindowShouldClose(window)) {
+			glfwPollEvents();
+		}
+	}
+
+	template <typename T>
+	void show(const SubsampledChannelData<T> &data) {
+
+		int scale = 1;
+
+		/* Init window */
+		GLFWwindow* window = glfwCreateWindow(
+			data.width*scale, data.height*scale, "RawImageData",
+			nullptr, nullptr
+		);
+		if (!window) {
+			glfwTerminate();
+			printf("window creation failed\n");
+			return;
+		}
+		glfwMakeContextCurrent(window);
+
+		/* Register callbacks */
+		// glfwSetKeyCallback(window, key_cb);
+		// glfwSetFramebufferSizeCallback(window, framebuffer_size_cb);
+
+		glPointSize(1);
+
+		glViewport(0, 0, data.width*scale, data.height*scale);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0, data.width*scale,  data.height*scale, 0,  -1, 1);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		int px = 0;
+		int py = 0;
+
+		for (int i = 0; i < data.height; i++) {
+			for (int j = 0; j < data.width; j++) {
+				glColor3ub(data(i,j), data(i,j), data(i,j));
+				// printf("DRAW PIXEL %d %d\n", i, j);
 				glBegin(GL_QUADS);
 					glVertex2f(px,      py);
 					glVertex2f(px+scale,   py);
@@ -127,11 +249,14 @@ int main() {
 
     PPMImage ppm_image = read_ppm_image<u8>(ppm_file);
 
-	g_visualization.show(ppm_image);
-
 	RawImageData data = rgb_to_ycbcr<u8>(ppm_image);
 
-	g_visualization.show(data);
+	SubsampledImageData subsampled_data = encode_subsampling(data, SubsamplingMode(4, 2, 1));
+
+	RawImageData decoded_data = decode_subsampling(subsampled_data);
+
+	// g_visualization.show(decoded_data);
+	g_visualization.show(decoded_data);
 
 	return 0;
 }

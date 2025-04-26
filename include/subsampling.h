@@ -125,7 +125,7 @@ SubsampledChannelData<T> encode_subsampling(const RawChannelData<T> &data, const
 
     printf("=== ENCODED ===\n");
     printf("width = %lld\n", subsampled_data.width);
-    subsampled_data.print();
+    // subsampled_data.print();
 
     subsampled_data.original_width = data.width;
     subsampled_data.original_height = data.height;
@@ -162,42 +162,33 @@ RawChannelData<T> decode_subsampling(const SubsampledChannelData<T> &subsampled_
 
     printf("=== START DECODING ===\n");
     u64 read_i = 0, read_j = 0;
-    u64 write_i = 0, write_j = 0;
 
-    for (read_i = 0; read_i < subsampled_data.height; read_i++) {
-        for (read_j = 0; read_j < subsampled_data.width; read_j++) {
-            u64 read_index = read_i * subsampled_data.width + read_j;
-            u64 element;
-            if (read_index >= subsampled_data.data.size()) {
-                element = subsampled_data.data.size()-1;
-            } else element = subsampled_data.data[read_index];
+    u64 read_index = 0;
 
-            u8 a_or_b = (read_i % 2 == 0) ? mode.a : mode.b;
-            if (a_or_b == 0) {
-                for (u64 copy_j = 0; copy_j < decoded_data.width; copy_j++) {
-                    decoded_data(write_i, copy_j) = decoded_data(write_i-1, copy_j);
-                    write_j++;
-                }
-                continue;
+    for (u64 write_i = 0; write_i < decoded_data.height; write_i++) {
+        u64 a_or_b = (write_i % 2 == 0) ? mode.a : mode.b;
+        if (a_or_b == 0) {
+            // printf("COPY %lld -> %lld\n", write_i-1, write_i);
+            for (u64 write_j = 0; write_j < decoded_data.width; write_j++) {
+                decoded_data(write_i, write_j) = decoded_data(write_i-1, write_j);
             }
+            continue;
+        }
+        for (u64 write_j = 0; write_j < decoded_data.width; write_j++) {
+            if (read_index >= subsampled_data.data.size()) {
+                read_index = subsampled_data.data.size() - 1;
+            }
+            T element = subsampled_data.data[read_index];
 
-            u8 copy_count = mode.J / a_or_b;
-            for (u64 i = 0; i < copy_count; i++) {
+            for (u64 copy_j = 0; copy_j < mode.J/a_or_b; copy_j++) {
+                // printf("write to (%lld, %lld) = %lld\n", write_i, write_j, element);
                 if (write_j == decoded_data.width) break;
-                printf("adding %lld, %lld = %lld\n", write_i, write_j, element);
                 decoded_data(write_i, write_j) = element;
                 write_j++;
             }
-           
-        }
-        write_i++;
-        write_j = 0;
-    }
+            write_j--;
 
-    if (subsampled_data.height == 1 && mode.b == 0) {
-        for (u64 copy_j = 0; copy_j < decoded_data.width; copy_j++) {
-            decoded_data(write_i, copy_j) = decoded_data(write_i-1, copy_j);
-            write_j++;
+            read_index++;   
         }
     }
     

@@ -130,12 +130,12 @@ struct RawImageData {
     }
 
     RawChannelData<T>& operator[](u64 ch_i) {
-        Logger::log_info("set channel data [%d]", ch_i);
+        // Logger::log_info("set channel data [%d]", ch_i);
         return data[ch_i];
     }
 
     const RawChannelData<T>& operator[](u64 ch_i) const {
-        Logger::log_info("get channel data [%d]", ch_i);
+        // Logger::log_info("get channel data [%d]", ch_i);
         return data[ch_i];
     }
 

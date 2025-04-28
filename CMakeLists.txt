@@ -17,7 +17,22 @@ add_library(liblena STATIC
 target_compile_features(liblena PRIVATE cxx_std_17)
 target_include_directories(liblena PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# liblena visualization?
+# liblena visualization
+find_package(opengl_system)
+find_package(stb)
+find_package(glfw3)
+
+add_executable(liblena_visualization
+    visualization/visualization.cpp
+)
+target_include_directories(liblena_visualization PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/visualization/include)
+
+target_link_libraries(liblena_visualization PRIVATE
+    opengl::opengl
+    glfw
+    stb::stb
+)
+
 
 # liblena_tests
 find_package(GTest)

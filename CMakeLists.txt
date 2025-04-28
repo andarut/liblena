@@ -45,6 +45,7 @@ add_executable(liblena_tests
     tests/ppm_image_tests.cpp
     tests/ycbcr_tests.cpp
     tests/subsampling_tests.cpp
+    tests/blocksplitting_tests.cpp
     
     # intergration tests
     tests/jpeg_tests.cpp

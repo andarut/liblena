@@ -22,6 +22,7 @@ struct BlockSplitedChannelData {
     BlockSplittingMode mode;
     std::vector<RawChannelData<T>> MCUs;
 
+    /* TODO: add this params into BlockSplitedData */
     u64 original_width, original_height;
 
     BlockSplitedChannelData() = default;
@@ -91,7 +92,7 @@ BlockSplitedChannelData<T> encode_blocksplitting(RawChannelData<T> data, BlockSp
 
         encoded_data.MCUs.push_back(block);
 
-        read_i += mode.w;
+        read_j += mode.w;
         if (read_j >= data.width) {
             read_j = 0;
             read_i += mode.h;
@@ -124,11 +125,13 @@ RawChannelData<T> decode_blocksplitting(BlockSplitedChannelData<T> data) {
             }
         }
         write_j += data.mode.w;
-        if (write_j > decoded_data.width) {
+        if (write_j >= decoded_data.width) {
             write_j = 0;
             write_i += data.mode.h;
         }
     }
+
+    /* TODO: add non-block's pixels techniques */
 
     return decoded_data;
 }

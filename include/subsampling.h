@@ -208,7 +208,7 @@ RawChannelData<T> decode_subsampling(const SubsampledChannelData<T> &subsampled_
 }
 
 template <typename T>
-RawImageData<T>   decode_subsampling(const SubsampledImageData<T>   &subsampled_data) {
+RawImageData<T> decode_subsampling(const SubsampledImageData<T>   &subsampled_data) {
     return RawImageData<T>(subsampled_data.width, subsampled_data.height, std::vector<RawChannelData<T>>({
         decode_subsampling(subsampled_data[0]),
         decode_subsampling(subsampled_data[1]),

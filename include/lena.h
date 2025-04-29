@@ -8,6 +8,7 @@
 #include "ppm_image.h"
 #include "ycbcr.h"
 #include "subsampling.h"
+#include "blocksplitting.h"
 #include "metrics.h"
 
 #endif // LENA_H

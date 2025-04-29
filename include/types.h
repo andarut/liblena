@@ -6,6 +6,7 @@
 
 /* 
 TODO: incapsulate data to avoid messing up data.size() and .size()
+TODO: regulate resize and reverse for data
 */
 
 template <typename T>
@@ -14,7 +15,7 @@ struct RawChannelData {
     std::vector<T> data;
 
     RawChannelData() = default;
-
+    
     RawChannelData(u64 _width, u64 _height) : \
         width(_width), height(_height) {
         data.resize(_width * _height);

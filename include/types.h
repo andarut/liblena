@@ -42,7 +42,10 @@ struct RawChannelData {
         }
         for (u64 i = 0; i < height; i++) {
             for (u64 j = 0; j < width; j++) {
-                printf("%hhu ", data[width * i + j]);
+                if (std::is_same<T, f64>::value)
+                    printf("%6.02lf ", (f64)(*this)(i, j));
+                
+                else printf("%hhu ", (*this)(i, j));
             }
             printf("\n");
         }

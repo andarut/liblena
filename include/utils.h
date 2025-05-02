@@ -68,6 +68,4 @@ struct Timers {
     }
 };
 
-inline Timers g_timers;
-
 #endif // UTILS_H

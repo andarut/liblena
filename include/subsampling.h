@@ -3,6 +3,7 @@
 
 #include "utils.h"
 #include "types.h"
+#include "globals.h"
 
 /*
 Supported mods are:

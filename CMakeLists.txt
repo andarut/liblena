@@ -13,6 +13,7 @@ message(CMAKE_CXX_COMPILER="${CMAKE_CXX_COMPILER}")
 # liblena
 add_library(liblena STATIC
     src/ppm_image.cpp
+    src/DCT.cpp
 )
 target_compile_features(liblena PRIVATE cxx_std_17)
 target_include_directories(liblena PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -28,6 +29,7 @@ add_executable(liblena_visualization
 target_include_directories(liblena_visualization PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/visualization/include)
 
 target_link_libraries(liblena_visualization PRIVATE
+    liblena
     opengl::opengl
     glfw
     stb::stb
@@ -46,6 +48,8 @@ add_executable(liblena_tests
     tests/ycbcr_tests.cpp
     tests/subsampling_tests.cpp
     tests/blocksplitting_tests.cpp
+
+    tests/DCT_tests.cpp
     
     # intergration tests
     tests/jpeg_tests.cpp

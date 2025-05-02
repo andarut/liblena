@@ -16,10 +16,4 @@ TEST(test_DCT, DCT_8x8) {
     auto DCT_data = encode_DCT(input_data);
     auto decoded_DCT = decode_DCT(DCT_data);
 
-    DCT_data.print();
-
-    decoded_DCT.print();
-
-    exit(1);
-
 }

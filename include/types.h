@@ -23,6 +23,7 @@ struct RawChannelData {
 
     RawChannelData(u64 _width, u64 _height, std::vector<T> _data) : \
         width(_width), height(_height), data(_data) {
+            assert(width*height == data.size());
         }
 
     friend bool operator==(const RawChannelData<T>& data1, const RawChannelData<T>& data2) {
@@ -44,6 +45,8 @@ struct RawChannelData {
             for (u64 j = 0; j < width; j++) {
                 if (std::is_same<T, f64>::value)
                     printf("%6.02lf ", (f64)(*this)(i, j));
+                else if (std::is_same<T, s16>::value)
+                    printf("%4d ", (s16)(*this)(i, j));
                 
                 else printf("%hhu ", (*this)(i, j));
             }

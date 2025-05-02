@@ -3,7 +3,7 @@
 
 #include "utils.h"
 #include "types.h"
-
+#include "globals.h"
 
 /* TODO: move to u8 type only, because [0, 255] formula */
 

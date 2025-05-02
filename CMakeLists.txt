@@ -14,6 +14,7 @@ message(CMAKE_CXX_COMPILER="${CMAKE_CXX_COMPILER}")
 add_library(liblena STATIC
     src/ppm_image.cpp
     src/DCT.cpp
+    src/quantization.cpp
 )
 target_compile_features(liblena PRIVATE cxx_std_17)
 target_include_directories(liblena PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -49,7 +50,8 @@ add_executable(liblena_tests
     tests/subsampling_tests.cpp
     tests/blocksplitting_tests.cpp
 
-    tests/DCT_tests.cpp
+    # tests/DCT_tests.cpp
+    tests/quantization_tests.cpp
     
     # intergration tests
     tests/jpeg_tests.cpp

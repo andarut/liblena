@@ -50,4 +50,8 @@ std::vector<T> encode_RLE(const std::vector<T> data) {
     return encoded_data;
 }
 
+// BitStream encode_huffman() {
+	
+// }
+
 #endif // ENTROPY_CODING_H

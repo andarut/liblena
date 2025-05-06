@@ -6,8 +6,8 @@
 #include "globals.h"
 
 struct HuffEntry {
-	u16 code;
 	u8  length;
+	u16 code;
 };
 
 // Table K.3 - Table for luminance DC coefficient differences
@@ -44,19 +44,19 @@ static constexpr std::array<HuffEntry,12> CHROMINANCE_DC = {{
 
 /* Table K.5 - Table for luminance AC coefficients */
 static constexpr std::array<HuffEntry, 16*16> LUMINANCE_AC = [](){
-    std::array<HuffEntry,256> tbl{};
+	std::array<HuffEntry,256> tbl{};
 
-    auto set = [&](int run, int size, const char* bits){
-        uint16_t code = 0;
-        uint8_t  len  = 0;
-        for (const char* p = bits; *p; ++p, ++len) {
-            code = (code << 1) | (*p - '0');
-        }
-		assert(len == sizeof(bits));
-        tbl[(run<<4) | size] = { code, len };
-    };
+	auto set = [&](int run, int size, const char* bits){
+		uint16_t code = 0;
+		uint8_t  len  = 0;
+		for (const char* p = bits; *p; ++p, ++len) {
+			code = (code << 1) | (*p - '0');
+		}
+		// assert(len == sizeof(bits));
+		tbl[(run<<4) | size] = { len, code };
+	};
 
-    /* (sheet 1 of 4 */
+	/* (sheet 1 of 4 */
 	/*   1 */ set(0x0, 0x0, "1010");
 	/*   2 */ set(0x0, 0x1, "00");
 	/*   3 */ set(0x0, 0x2, "01");
@@ -226,22 +226,22 @@ static constexpr std::array<HuffEntry, 16*16> LUMINANCE_AC = [](){
 	/* 161 */ set(0xF, 0x9, "1111111111111101");
 	/* 162 */ set(0xF, 0xA, "1111111111111110");
 	
-    return tbl;
+	return tbl;
 }();
 
 /* Table K.6 - Table for chrominane AC coefficients */
 static constexpr std::array<HuffEntry, 16*16> CHROMINANCE_AC = [](){
-    std::array<HuffEntry,256> tbl{};
+	std::array<HuffEntry,256> tbl{};
 
-    auto set = [&](int run, int size, const char* bits){
-        uint16_t code = 0;
-        uint8_t  len  = 0;
-        for (const char* p = bits; *p; ++p, ++len) {
-            code = (code << 1) | (*p - '0');
-        }
-		assert(len == sizeof(bits));
-        tbl[(run<<4) | size] = { code, len };
-    };
+	auto set = [&](int run, int size, const char* bits){
+		uint16_t code = 0;
+		uint8_t  len  = 0;
+		for (const char* p = bits; *p; ++p, ++len) {
+			code = (code << 1) | (*p - '0');
+		}
+		// assert(len == sizeof(bits));
+		tbl[(run<<4) | size] = { len, code };
+	};
 
 	/* (sheet 1 of 4) */
 	/*   1 */ set(0x0, 0x0, "00");
@@ -413,7 +413,59 @@ static constexpr std::array<HuffEntry, 16*16> CHROMINANCE_AC = [](){
 	/* 161 */ set(0xF, 0x9, "1111111111111101");
 	/* 162 */ set(0xF, 0xA, "1111111111111110");
 
+	return tbl;
 }();
 
+void writeVLI(BitStream &bs, s32 amplitude, u16 size) {
+	u32 abs_amplitude = std::abs(amplitude);
+
+	for (int i = int(size) - 1; i >= 0; --i) {
+		uint32_t bit = (abs_amplitude >> i) & 1u;
+		if (amplitude < 0) bit ^= 1u;
+		bs.write_bits(bit, 1);
+	}
+}
+
+u8 categoryDC(s32 diff) {
+	u32 abs_amplitude = std::abs(diff);
+	u8 cat = 1;
+	while (abs_amplitude >>= 1) ++cat;
+	return cat;
+}
+
+void writeLuminanceDC(BitStream &bs, s32 diff) {
+	u8 cat = categoryDC(diff);
+	assert(cat >= 0 && cat < 12);
+	printf("cat = %d\n", cat);
+
+	auto entry = LUMINANCE_DC[cat];
+	bs.write_bits(entry.code, entry.length);
+
+	if (cat > 0)
+		writeVLI(bs, diff, cat);
+}
+
+void writeChrominanceDC(BitStream &bs, s32 diff) {
+	u8 cat = categoryDC(diff);
+	assert(cat >= 0 && cat < 12);
+
+	auto entry = CHROMINANCE_DC[cat];
+	bs.write_bits(entry.code, entry.length);
+
+	if (cat > 0)
+		writeVLI(bs, diff, cat);
+}
+
+void writeLuminanceAC(BitStream &bs, u32 run, u16 size, s32 amplitude) {
+	auto &e = LUMINANCE_AC[(run<<4)|size];
+	bs.write_bits(e.code, e.length);
+	writeVLI(bs, amplitude, size);
+}
+
+void writeChrominanceAC(BitStream &bs, u32 run, u16 size, s32 amplitude) {
+	auto &e = CHROMINANCE_AC[(run<<4)|size];
+	bs.write_bits(e.code, e.length);
+	writeVLI(bs, amplitude, size);
+}
 
 #endif // HUFFMAN_CODING_H

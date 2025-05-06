@@ -220,6 +220,23 @@ struct BitStream {
 
 	u64 bits_size() { return offset; }
 	u64 bytes_size() { return (offset + 7) >> 3; }
+
+	std::string to_bit_string() const {
+		std::string s;
+		s.reserve(offset);
+		for (size_t i = 0; i < offset; ++i) {
+			size_t byte_idx = i >> 3;
+			unsigned bit_idx = 7 - (i & 7);
+			uint8_t bit = (buffer[byte_idx] >> bit_idx) & 1;
+			s.push_back(bit ? '1' : '0');
+		}
+		return s;
+	}
+
+	// ——— Print bits to ostream ———
+	void print(std::ostream &os = std::cout) const {
+		os << to_bit_string() << std::endl;
+	}
 };
   
 

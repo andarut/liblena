@@ -52,7 +52,8 @@ add_executable(liblena_tests
 
     # tests/DCT_tests.cpp
     # tests/quantization_tests.cpp
-    tests/entropycoding_tests.cpp
+    # tests/entropycoding_tests.cpp
+    tests/huffmancoding_tests.cpp
     
     # intergration tests
     # tests/jpeg_tests.cpp

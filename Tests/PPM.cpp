@@ -8,7 +8,7 @@ TEST(PPM_test, TEST1) {
     std::ifstream PPM_file(TESTS_DATA / "ppm_image_raw.ppm");
     EXPECT_TRUE(PPM_file.is_open());
 
-    auto PPM_image = PPM<u8>(PPM_file);
+    auto PPM_image = PPM(PPM_file);
 
     EXPECT_EQ(PPM_image[0].width(), 4);
     EXPECT_EQ(PPM_image[0].height(), 4);
@@ -26,7 +26,7 @@ TEST(PPM_test, TEST2) {
     std::ifstream PPM_file(TESTS_DATA / "ppm_image.ppm");
     EXPECT_TRUE(PPM_file.is_open());
 
-    auto PPM_image = PPM<u8>(PPM_file);
+    auto PPM_image = PPM(PPM_file);
 
     EXPECT_EQ(PPM_image[0].width(), 1920);
     EXPECT_EQ(PPM_image[0].height(), 1280);
@@ -44,7 +44,7 @@ TEST(PPM_test, TEST_PERFOMANCE) {
     std::ifstream PPM_file(TESTS_DATA / "ppm_image_4K.ppm");
     EXPECT_TRUE(PPM_file.is_open());
 
-    auto PPM_image = PPM<u8>(PPM_file);
+    auto PPM_image = PPM(PPM_file);
 
     EXPECT_EQ(PPM_image[0].width(), 5184);
     EXPECT_EQ(PPM_image[0].height(), 3456);

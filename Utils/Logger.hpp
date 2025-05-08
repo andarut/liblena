@@ -29,7 +29,7 @@ inline void log(const char* file, const char* func, int line, const char* fmt, .
         RESET,
         file, func, line);
     std::vfprintf(stderr, fmt, args);
-    std::fprintf(stderr, "%s\n", RESET);
+    std::fprintf(stderr, "%s", RESET);
     va_end(args);
 
 }

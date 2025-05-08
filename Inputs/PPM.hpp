@@ -35,11 +35,13 @@ std::vector<ImageChannel<T>> PPM(std::ifstream &PPM_file) {
     assert(maxVal > 0);
     
     /* Data */
-    std::vector<ImageChannel<T>> RGB_data(3);
 
-    ImageChannel<T> *R_ch = &RGB_data[0];
-    ImageChannel<T> *G_ch = &RGB_data[1];
-    ImageChannel<T> *B_ch = &RGB_data[2];
+    auto R_ch = ImageChannel<T>(width, height);
+    R_ch.resize(width, height);
+    auto G_ch = ImageChannel<T>(width, height);
+    G_ch.resize(width, height);
+    auto B_ch = ImageChannel<T>(width, height);
+    B_ch.resize(width, height);
 
     PPM_file.get();
     std::vector<char> buffer(width * height * 3 * (maxVal > 255 ? 2 : 1));
@@ -49,9 +51,9 @@ std::vector<ImageChannel<T>> PPM(std::ifstream &PPM_file) {
 
     for (u16 i = 0; i < height; i++) {
         for (u16 j = 0; j < width; j++) {
-            (*R_ch)(i, j) = static_cast<T>(buffer[i * width * 3 + j * 3 + 0]);
-            (*G_ch)(i, j) = static_cast<T>(buffer[i * width * 3 + j * 3 + 1]);
-            (*B_ch)(i, j) = static_cast<T>(buffer[i * width * 3 + j * 3 + 2]);
+            R_ch(i, j) = static_cast<T>(buffer[i * width * 3 + j * 3 + 0]);
+            G_ch(i, j) = static_cast<T>(buffer[i * width * 3 + j * 3 + 1]);
+            B_ch(i, j) = static_cast<T>(buffer[i * width * 3 + j * 3 + 2]);
 
         //     size_t pix_idx = static_cast<size_t>(i) * width + j;
         // // base byte offset for this pixel
@@ -92,13 +94,7 @@ std::vector<ImageChannel<T>> PPM(std::ifstream &PPM_file) {
         }
     }
 
-    assert(RGB_data.size() == width*height*3);
-
-    assert(RGB_data[0].size() == width*height);
-    assert(RGB_data[1].size() == width*height);
-    assert(RGB_data[2].size() == width*height);
-
-    return RGB_data;
+    return {R_ch, G_ch, B_ch};
 }
 
 #endif // PPM_H

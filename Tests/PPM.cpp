@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
-#include "../../Inputs/PPM.hpp"
+#include "Inputs/PPM.hpp"
 
 std::filesystem::path TESTS_DATA(RESOURCE_DIR);
 
-TEST(TEST_PPM, TEST1) {
+TEST(PPM_test, TEST1) {
     std::ifstream PPM_file(TESTS_DATA / "ppm_image_raw.ppm");
     EXPECT_TRUE(PPM_file.is_open());
 
@@ -22,7 +22,7 @@ TEST(TEST_PPM, TEST1) {
     PPM_file.close();
 }
 
-TEST(TEST_PPM, TEST2) {
+TEST(PPM_test, TEST2) {
     std::ifstream PPM_file(TESTS_DATA / "ppm_image.ppm");
     EXPECT_TRUE(PPM_file.is_open());
 
@@ -40,7 +40,7 @@ TEST(TEST_PPM, TEST2) {
     PPM_file.close();
 }
 
-TEST(TEST_PPM, TEST_PERFOMANCE) {
+TEST(PPM_test, TEST_PERFOMANCE) {
     std::ifstream PPM_file(TESTS_DATA / "ppm_image_4K.ppm");
     EXPECT_TRUE(PPM_file.is_open());
 

@@ -1,7 +1,7 @@
 #ifndef METRICS_H
 #define METRICS_H
 
-#include "types.h"
+#include "types.hpp"
 
 template <typename T>
 f64 MSE(const RawImageData<T>& I, const RawImageData<T>& K) {

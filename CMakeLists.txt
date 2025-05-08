@@ -1,71 +1,53 @@
 cmake_minimum_required(VERSION 3.23)
 
 project(liblena)
-project(liblena_tests)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 message(CMAKE_C_COMPILER="${CMAKE_C_COMPILER}")
 message(CMAKE_CXX_COMPILER="${CMAKE_CXX_COMPILER}")
 
-# liblena
-add_library(liblena STATIC
-    src/ppm_image.cpp
-    src/DCT.cpp
-    src/quantization.cpp
-)
-target_compile_features(liblena PRIVATE cxx_std_17)
-target_include_directories(liblena PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-# liblena visualization
+# For Visulization
 find_package(opengl_system)
 find_package(stb)
 find_package(glfw3)
 
-add_executable(liblena_visualization
-    visualization/visualization.cpp
-)
-target_include_directories(liblena_visualization PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/visualization/include)
-
-target_link_libraries(liblena_visualization PRIVATE
-    liblena
-    opengl::opengl
-    glfw
-    stb::stb
-)
-
-
-# liblena_tests
+# For Tests
 find_package(GTest)
 include(GoogleTest)
 enable_testing()
 
-add_executable(liblena_tests 
-    
-    # unit tests
-    # tests/ppm_image_tests.cpp
-    # tests/ycbcr_tests.cpp
-    # tests/subsampling_tests.cpp
-    # tests/blocksplitting_tests.cpp
-
-    # tests/DCT_tests.cpp
-    # tests/quantization_tests.cpp
-    # tests/entropycoding_tests.cpp
-    tests/huffmancoding_tests.cpp
-    
-    # intergration tests
-    # tests/jpeg_tests.cpp
+# liblena
+add_library(liblena
+    # JPEG
+    ${CMAKE_CURRENT_SOURCE_DIR}/JPEG/Tests/PPM.cpp
+)
+target_compile_features(liblena PUBLIC cxx_std_20)
+target_include_directories(liblena PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/
+    ${CMAKE_CURRENT_SOURCE_DIR}/Input
+    ${CMAKE_CURRENT_SOURCE_DIR}/Types
+    ${CMAKE_CURRENT_SOURCE_DIR}/Utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/JPEG
+    ${CMAKE_CURRENT_SOURCE_DIR}/Visualization
 )
 
-target_compile_definitions(liblena_tests PRIVATE
-    RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/tests_data"
+target_link_libraries(liblena PRIVATE
+    # Visulization libs
+    opengl::opengl
+    glfw
+    stb::stb
+
+    # Tests libs
+    gtest::gtest
 )
 
-target_link_libraries(liblena_tests PRIVATE
-    liblena
-    gtest::gtest    
+# For Tests
+target_compile_definitions(liblena PRIVATE
+    RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/TestsData"
 )
-
-gtest_discover_tests(liblena_tests)
+gtest_discover_tests(liblena
+    TEST_PREFIX "TEST_PPM"    
+)

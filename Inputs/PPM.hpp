@@ -1,63 +1,57 @@
-#ifndef PPM_IMAGE_H
-#define PPM_IMAGE_H
+#ifndef PPM_H
+#define PPM_H
 
-#include "utils.h"
-#include "types.h"
-
-template <typename T>
-struct PPMImage : RawImageData<T> {
-    std::string magicNumber;
-    u16 maxVal;
-
-    PPMImage(std::string _magicNumber, u64 _width, u64 _height, u8 _numberOfChannels, u16 _maxVal) : \
-        RawImageData<T>(_width, _height, _numberOfChannels), magicNumber(_magicNumber), maxVal(_maxVal) {};
-};
+#include "Utils.hpp"
+#include "Types.hpp"
+#include "Logger.hpp"
+#include "Globals.hpp"
 
 template <typename T>
-PPMImage<T> read_ppm_image(std::ifstream &ppm_file) {
+std::vector<ImageChannel<T>> PPM(std::ifstream &PPM_file) {
 
-    // Magic number
+    /* Magic number */
     std::string magic_number;
-    ppm_file >> magic_number;
+    PPM_file >> magic_number;
 
-    Logger::log_info("magic_number = %s", magic_number.c_str());
+    INFO("magic_number = %s", magic_number.c_str());
     assert(magic_number == "P3" || magic_number == "P6");
 
-    // Skip comments
+    /* Skip comments */
     char line[1024];
-    ppm_file.getline(line, 1024);
-    while (ppm_file.peek() == '#') ppm_file.getline(line, 1024);
+    PPM_file.getline(line, 1024);
+    while (PPM_file.peek() == '#') PPM_file.getline(line, 1024);
 
-    // Read header
+    /* Header */
     u16 width, height, maxVal;
-    ppm_file >> width >> height >> maxVal;
+    PPM_file >> width >> height >> maxVal;
     
-    Logger::log_info("width = %d", width);
+    INFO("width = %d", width);
     assert(width > 0);
     
-    Logger::log_info("height = %d", height);
+    INFO("height = %d", height);
     assert(height > 0);
     
-    Logger::log_info("maxVal = %d", maxVal);
+    INFO("maxVal = %d", maxVal);
     assert(maxVal > 0);
     
-    PPMImage<T> ppm_image(magic_number, width, height, 3, maxVal);
+    /* Data */
+    std::vector<ImageChannel<T>> RGB_data(3);
 
-    RawChannelData<T> *R = &ppm_image[0];
-    RawChannelData<T> *G = &ppm_image[1];
-    RawChannelData<T> *B = &ppm_image[2];
+    ImageChannel<T> *R_ch = &RGB_data[0];
+    ImageChannel<T> *G_ch = &RGB_data[1];
+    ImageChannel<T> *B_ch = &RGB_data[2];
 
-    ppm_file.get();
+    PPM_file.get();
     std::vector<char> buffer(width * height * 3 * (maxVal > 255 ? 2 : 1));
-    ppm_file.read(buffer.data(), buffer.size());
+    PPM_file.read(buffer.data(), buffer.size());
 
-    int bytes_per_sample = (maxVal > 255 ? 2 : 1);
+    u8 bytes_per_sample = (maxVal > 255 ? 2 : 1);
 
     for (u16 i = 0; i < height; i++) {
         for (u16 j = 0; j < width; j++) {
-            (*R)(i, j) = static_cast<T>(buffer[i * width * 3 + j * 3 + 0]);
-            (*G)(i, j) = static_cast<T>(buffer[i * width * 3 + j * 3 + 1]);
-            (*B)(i, j) = static_cast<T>(buffer[i * width * 3 + j * 3 + 2]);
+            (*R_ch)(i, j) = static_cast<T>(buffer[i * width * 3 + j * 3 + 0]);
+            (*G_ch)(i, j) = static_cast<T>(buffer[i * width * 3 + j * 3 + 1]);
+            (*B_ch)(i, j) = static_cast<T>(buffer[i * width * 3 + j * 3 + 2]);
 
         //     size_t pix_idx = static_cast<size_t>(i) * width + j;
         // // base byte offset for this pixel
@@ -98,15 +92,13 @@ PPMImage<T> read_ppm_image(std::ifstream &ppm_file) {
         }
     }
 
-    Logger::log_info("size = %d", ppm_image.size());
+    assert(RGB_data.size() == width*height*3);
 
-    assert(ppm_image.size() == width*height*3);
+    assert(RGB_data[0].size() == width*height);
+    assert(RGB_data[1].size() == width*height);
+    assert(RGB_data[2].size() == width*height);
 
-    assert(ppm_image[0].size() == width*height);
-    assert(ppm_image[1].size() == width*height);
-    assert(ppm_image[2].size() == width*height);
-
-    return ppm_image;
+    return RGB_data;
 }
 
-#endif // PPM_IMAGE_H
+#endif // PPM_H

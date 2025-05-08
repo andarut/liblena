@@ -1,8 +1,8 @@
 #ifndef DCT_H
 #define DCT_H
 
-#include "utils.h"
-#include "types.h"
+#include "utils.hpp"
+#include "types.hpp"
 
 #include "blocksplitting.h"
 

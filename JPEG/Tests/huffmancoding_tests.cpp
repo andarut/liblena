@@ -24,8 +24,9 @@ TEST(huffmancoding, test0) {
         0, 1, -1, // -1
             0, 0, // EOB 0, 0, 0, 0, 0, ...
     });
-    BitStream bs;
+    auto t = RawChannelData<u8>(-1, -1);
+    // BitStream bs;
     // writeLuminanceDC(bs, -26);
-    writeLuminanceAC(bs, 0, 2, -3);
-    bs.print();
+    // writeLuminanceAC(bs, 0, 2, -3);
+    // bs.print();
 }

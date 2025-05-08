@@ -1,8 +1,8 @@
 #ifndef HUFFMAN_CODING_H
 #define HUFFMAN_CODING_H
 
-#include "utils.h"
-#include "types.h"
+#include "utils.hpp"
+#include "types.hpp"
 #include "globals.h"
 
 struct HuffEntry {

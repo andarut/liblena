@@ -1,8 +1,8 @@
 #ifndef QUANTIZATION_H
 #define QUANTIZATION_H
 
-#include "utils.h"
-#include "types.h"
+#include "utils.hpp"
+#include "types.hpp"
 #include "globals.h"
 
 /* TODO: create quantization matrices for all qualities? */

@@ -1,8 +1,8 @@
 #ifndef SUBSAMPLING_H
 #define SUBSAMPLING_H
 
-#include "utils.h"
-#include "types.h"
+#include "utils.hpp"
+#include "types.hpp"
 #include "globals.h"
 
 /*
@@ -97,17 +97,14 @@ struct SubsampledImageData : RawImageData<T> {
 
 /* ENCODING */
 template <typename T>
-SubsampledChannelData<T> encode_subsampling(const RawChannelData<T> &data, const SubsamplingMode &mode) {
+SubsampledChannelData<T> encode_subsampling(const Imagechannel<T> &channel, const SubsamplingMode &mode) {
 
     g_timers.start("encoding");
 
     u64 block_w = mode.J;
     u64 block_h = 2;
 
-    Logger::log_info("mode = %lld:%lld:%lld", mode.J, mode.a, mode.b);
-
-    Logger::log_info("width = %lld", data.width);
-    Logger::log_info("height = %lld", data.height);
+    INFO("mode = %lld:%lld:%lld", mode.J, mode.a, mode.b);
 
     SubsampledChannelData<T> subsampled_data(data.width * data.height, mode);
 
@@ -157,7 +154,7 @@ template <typename T>
 RawChannelData<T> decode_subsampling(const SubsampledChannelData<T> &subsampled_data) {
     
     auto mode = subsampled_data.mode;
-    Logger::log_info("decode_subsampling mode = %lld:%lld:%lld", mode.J, mode.a, mode.b);
+    INFO("mode = %lld:%lld:%lld", mode.J, mode.a, mode.b);
 
     RawChannelData<T> decoded_data(0, 0);
     decoded_data.width = subsampled_data.original_width;

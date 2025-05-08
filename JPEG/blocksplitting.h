@@ -1,8 +1,8 @@
 #ifndef BLOCKSPLITTING_H
 #define BLOCKSPLITTING_H
 
-#include "types.h"
-#include "utils.h"
+#include "types.hpp"
+#include "utils.hpp"
 
 /*
 Supported modes:
@@ -75,7 +75,7 @@ BlockSplitedChannelData<T> encode_blocksplitting(RawChannelData<T> data, BlockSp
 
     u64 blocks_count = (data.width * data.height) / (mode.w * mode.h);
 
-    Logger::log_info("blocks_count = %lld", blocks_count);
+    INFO("blocks_count = %lld", blocks_count);
 
     encoded_data.MCUs.reserve(blocks_count);
 

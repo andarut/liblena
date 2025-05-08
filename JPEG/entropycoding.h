@@ -1,8 +1,8 @@
 #ifndef ENTROPY_CODING_H
 #define ENTROPY_CODING_H
 
-#include "utils.h"
-#include "types.h"
+#include "utils.hpp"
+#include "types.hpp"
 #include "globals.h"
 
 template<typename T>

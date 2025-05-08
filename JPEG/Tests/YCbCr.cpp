@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "ycbcr.h"
+#include "YCbCr.h"
 
 TEST(test_ycbcr, test_rgb_to_ycbcr) {
     // RGB                                    // YCbCr

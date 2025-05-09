@@ -2,7 +2,7 @@
 
 #include "YCbCr.hpp"
 
-TEST(YCbCr, FROM_RGB) {
+TEST(TEST_YCbCr, FROM_RGB) {
     auto RGB_data = std::vector<ImageChannel<u8>>({
         ImageChannel(3, 3, std::vector<u8>({
             0, 255, 255,

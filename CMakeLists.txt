@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.23)
 
 project(liblena)
 project(liblena_tests)
+project(liblena_JPEG)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -45,6 +46,7 @@ add_executable(liblena_tests
     ${CMAKE_CURRENT_SOURCE_DIR}/Tests/PPM.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Tests/YCbCr.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Tests/Downsampling.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/MCUs.cpp
 )
 target_link_libraries(liblena_tests
     liblena
@@ -57,3 +59,22 @@ target_compile_definitions(liblena_tests PRIVATE
     RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/TestsData"
 )
 gtest_discover_tests(liblena_tests)
+
+# JPEG
+add_executable(liblena_JPEG
+    ${CMAKE_CURRENT_SOURCE_DIR}/Examples/JPEG.cpp
+)
+target_include_directories(liblena_JPEG PUBLIC
+${CMAKE_CURRENT_SOURCE_DIR}/
+    ${CMAKE_CURRENT_SOURCE_DIR}/Input
+    ${CMAKE_CURRENT_SOURCE_DIR}/Types
+    ${CMAKE_CURRENT_SOURCE_DIR}/Utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/JPEG
+    ${CMAKE_CURRENT_SOURCE_DIR}/Visualization
+)
+target_compile_definitions(liblena_JPEG PRIVATE
+    RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/TestsData"
+)
+target_link_libraries(liblena_JPEG
+    liblena
+)

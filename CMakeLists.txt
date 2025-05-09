@@ -47,6 +47,7 @@ add_executable(liblena_tests
     ${CMAKE_CURRENT_SOURCE_DIR}/Tests/YCbCr.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Tests/Downsampling.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Tests/MCUs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/DCT.cpp
 )
 target_link_libraries(liblena_tests
     liblena

@@ -14,9 +14,9 @@ BitStream JPEG(std::vector<ImageChannel<u8>> RGB_data) {
     auto Cr_MCUs = MCUs(Cr_downsampled, {8, 8});
 
     /* DCT */
-    // auto Y_DCT  = DCT(Y_MCUs);
-    // auto Cb_DCT = DCT(Cb_MCUs);
-    // auto Cr_DCT = DCT(Cr_MCUs);
+    auto Y_DCT  = DCT(Y_MCUs);
+    auto Cb_DCT = DCT(Cb_MCUs);
+    auto Cr_DCT = DCT(Cr_MCUs);
 
     // /* Quantization */
     // auto Y_quantizated  = quantization(Y_DCT,  50);
@@ -31,7 +31,7 @@ BitStream JPEG(std::vector<ImageChannel<u8>> RGB_data) {
 
 int main() {
     std::filesystem::path resDir(RESOURCE_DIR);
-	std::ifstream ppm_file(resDir / "ppm_image_4K.ppm");
+	std::ifstream ppm_file(resDir / "ppm_image.ppm");
     std::vector<ImageChannel<u8>> RGB_data = PPM(ppm_file);
     JPEG(RGB_data);
     return 0;

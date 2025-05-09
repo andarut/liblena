@@ -12,7 +12,7 @@
 #include "YCbCr.hpp"
 #include "Downsampling.hpp"
 #include "MCUs.hpp"
-// #include "DCT.hpp"
+#include "DCT.hpp"
 
 /* Metrics */
 // #include "metrics.hpp"

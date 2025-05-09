@@ -5,6 +5,8 @@
 #include <cstdio>
 #include <utility>
 
+// #define TRUEDEBUG
+
 enum class LogLevel : int { DEBUG=0, INFO, WARN, ERROR };
 
 static constexpr const char* level_names[] = {
@@ -44,7 +46,12 @@ inline void log(const char* file, const char* func, int line, const char* fmt, .
 
 #ifndef NDEBUG
 
+#ifdef TRUEDEBUG
 #define DEBUG(fmt, ...) log<LogLevel::DEBUG>(__FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
+#else
+#define DEBUG(fmt, ...)
+#endif // TRUEDEBUG
+
 #define  INFO(fmt, ...) log<LogLevel::INFO >(__FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
 #define  WARN(fmt, ...) log<LogLevel::WARN >(__FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
 #define ERROR(fmt, ...) log<LogLevel::ERROR>(__FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)

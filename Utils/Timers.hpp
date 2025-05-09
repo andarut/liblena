@@ -14,6 +14,10 @@ struct Timers {
     Timers() = default;
 
     void start(const char *timer_name) {
+        /* Delete timer same exist (because function can be run multiple times) */
+        auto it = timers.find(timer_name);
+        if (it != timers.end())
+            timers.erase(it);
         auto timer = Timer();
         timer.start();
         timers.insert({timer_name, timer});

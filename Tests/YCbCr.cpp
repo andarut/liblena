@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "JPEG/YCbCr.hpp"
+#include "YCbCr.hpp"
 
 TEST(YCbCr, FROM_RGB) {
     auto RGB_data = std::vector<ImageChannel<u8>>({

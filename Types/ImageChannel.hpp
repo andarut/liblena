@@ -30,6 +30,10 @@ public:
 		m_data.resize(width * height);
 	}
 
+	void push_back(const T& value) {
+		m_data.push_back(value);
+	}
+
 	u64 size() const   { return m_data.size();  }
 	bool empty() const { return m_data.empty(); }
 	
@@ -41,6 +45,9 @@ public:
 			   (channel1.m_height == channel2.m_height) && \
 			   (channel1.m_data   == channel2.m_data);
 	}
+
+	inline void set_width(u64 width)   {  if (width > 0) m_width  = width;  }
+	inline void set_height(u64 height) { if (height > 0) m_height = height; }
 
 	inline u64 width() const           { return m_width;  }
 	inline u64 height() const          { return m_height; }

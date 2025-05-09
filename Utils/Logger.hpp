@@ -12,9 +12,17 @@ static constexpr const char* level_names[] = {
 };
 
 static constexpr const char* RESET  = "\033[0m";
+
+/* Colors */
 static constexpr const char* RED    = "\033[31m";
 static constexpr const char* GREEN  = "\033[32m";
 static constexpr const char* YELLOW = "\033[33m";
+static constexpr const char* BLUE   = "\033[36m";
+
+/* Text format */
+static constexpr const char* HEADER    = "\033[35m";
+static constexpr const char* UNDERLINE = "\033[4m";
+static constexpr const char* BOLD      = "\033[1m";
 
 template<LogLevel L>
 inline void log(const char* file, const char* func, int line, const char* fmt, ...) {

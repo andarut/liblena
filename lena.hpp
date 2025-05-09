@@ -13,6 +13,7 @@
 #include "Downsampling.hpp"
 #include "MCUs.hpp"
 #include "DCT.hpp"
+#include "Quantization.hpp"
 
 /* Metrics */
 // #include "metrics.hpp"

@@ -48,6 +48,7 @@ add_executable(liblena_tests
     ${CMAKE_CURRENT_SOURCE_DIR}/Tests/Downsampling.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Tests/MCUs.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Tests/DCT.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/Quantization.cpp
 )
 target_link_libraries(liblena_tests
     liblena

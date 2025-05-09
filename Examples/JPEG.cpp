@@ -18,10 +18,10 @@ BitStream JPEG(std::vector<ImageChannel<u8>> RGB_data) {
     auto Cb_DCT = DCT(Cb_MCUs);
     auto Cr_DCT = DCT(Cr_MCUs);
 
-    // /* Quantization */
-    // auto Y_quantizated  = quantization(Y_DCT,  50);
-    // auto Cb_quantizated = quantization(Cb_DCT, 50);
-    // auto Cr_quantizated = quantization(Cr_DCT, 50);
+    /* Quantization */
+    auto Y_quantizated  = quantization(Y_DCT,  50);
+    auto Cb_quantizated = quantization(Cb_DCT, 50);
+    auto Cr_quantizated = quantization(Cr_DCT, 50);
 
     // /* Entropy Coding */
     // return entropy_encoding(Y_quantizated, Cb_quantizated, Cr_quantizated);

@@ -16,7 +16,7 @@ public:
 	}
 
 	ImageChannel(u64 width, u64 height, std::vector<T> data) : \
-		ImageChannel(width, height), m_data((assert(data.size() > 0), data)) {
+		m_width((assert(width > 0), width)), m_height((assert(height > 0), height)), m_data((assert(data.size() > 0), data)) {
 			DEBUG("init %llu x %llu, %llu\n", width, height, data.size());
 			assert(width*height == data.size());
 		}
@@ -42,9 +42,9 @@ public:
 			   (channel1.m_data   == channel2.m_data);
 	}
 
-	inline u64 width()             { return m_width;  }
-	inline u64 height()            { return m_height; }
-	inline std::vector<T> data()   { return m_data;   }
+	inline u64 width() const           { return m_width;  }
+	inline u64 height() const          { return m_height; }
+	inline std::vector<T> data() const { return m_data;   }
 
 private:
     u64 m_width, m_height;

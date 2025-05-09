@@ -43,6 +43,7 @@ enable_testing()
 
 add_executable(liblena_tests
     ${CMAKE_CURRENT_SOURCE_DIR}/Tests/PPM.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/YCbCr.cpp
 )
 target_link_libraries(liblena_tests
     liblena

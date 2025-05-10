@@ -1,12 +1,14 @@
 #include "lena.hpp"
 
+/* ENCODER */
 BitStream JPEG(std::vector<ImageChannel<u8>> RGB_data) {
+
     /* Color Transform */
     auto YCbCr_data = RGB2YCbCr(RGB_data);
 
     /* Downsampling */
-    auto Cb_downsampled = downsampling(YCbCr_data[1], {4, 2, 2});
-    auto Cr_downsampled = downsampling(YCbCr_data[2], {4, 2, 2});
+    auto Cb_downsampled = downsampling(YCbCr_data[1], {4, 4, 4});
+    auto Cr_downsampled = downsampling(YCbCr_data[2], {4, 4, 4});
 
     /* MCUs */
     auto Y_MCUs  = MCUs(YCbCr_data[0],  {8, 8});
@@ -23,16 +25,18 @@ BitStream JPEG(std::vector<ImageChannel<u8>> RGB_data) {
     auto Cb_quantizated = quantization(Cb_DCT, 50);
     auto Cr_quantizated = quantization(Cr_DCT, 50);
 
-    // /* Entropy Coding */
-    // return entropy_encoding(Y_quantizated, Cb_quantizated, Cr_quantizated);
-    BitStream bs;
-    return bs;
+    /* Entropy Coding */
+    return entropy_coding(Y_quantizated, Cb_quantizated, Cr_quantizated);
 }
+
+/* DECODER */
 
 int main() {
     std::filesystem::path resDir(RESOURCE_DIR);
-	std::ifstream ppm_file(resDir / "ppm_image.ppm");
+	// std::ifstream ppm_file(resDir / "ppm_image.ppm");
+    std::ifstream ppm_file(resDir / "8x8.ppm");
     std::vector<ImageChannel<u8>> RGB_data = PPM(ppm_file);
-    JPEG(RGB_data);
+    auto bs = JPEG(RGB_data);
+    bs.fwrite("JPEG.bs");
     return 0;
 }

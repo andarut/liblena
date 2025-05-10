@@ -42,6 +42,10 @@ TEST(TEST_entropycoding, rle) {
 
     auto RLE_data = RLE(TEST_data);
 
+    for (u64 i = 0; i < RLE_data.size(); i += 3) {
+        printf("%d %d %d\n", RLE_data[i], RLE_data[i+1], RLE_data[i+2]);
+    }
+
     ASSERT_EQ(RLE_data, std::vector<s16>({
         0, 2, -3, // -3,
         1, 2, -3, // 0, -3
@@ -62,37 +66,24 @@ TEST(TEST_entropycoding, rle) {
         0, 2,  2, // 2
         5, 1, -1, // 0, 0, 0, 0, 0, -1
         0, 1, -1, // -1
-            0, 0, // EOB 0, 0, 0, 0, 0, ...
+           15, 0, // ZRL (16 zeros)
+           15, 0, // ZRL (16 zeros)
+           0, 0,  // EOB 0, 0, 0, 0, 0
     }));
 
 }
 
-// TEST(TEST_entropycoding, huffmancoding) {
-//     const auto test_data = std::vector<s16>({
-//         0, 2, -3, // -3,
-//         1, 2, -3, // 0, -3
-//         0, 2, -2, // -2
-//         0, 3, -6, // -6
-//         0, 2,  2, // 2
-//         0, 3, -4, // -4
-//         0, 1,  1, // 1
-//         0, 2, -3, // -3
-//         0, 1,  1, // 1
-//         0, 1,  1, // 1
-//         0, 3,  5, // 5
-//         0, 1,  1, // 1
-//         0, 2,  2, // 2
-//         0, 1, -1, // -1
-//         0, 1,  1, // 1
-//         0, 1, -1, // -1
-//         0, 2,  2, // 2
-//         5, 1, -1, // 0, 0, 0, 0, 0, -1
-//         0, 1, -1, // -1
-//             0, 0, // EOB 0, 0, 0, 0, 0, ...
-//     });
-//     auto t = RawChannelData<u8>(-1, -1);
-//     // BitStream bs;
-//     // writeLuminanceDC(bs, -26);
-//     // writeLuminanceAC(bs, 0, 2, -3);
-//     // bs.print();
-// }
+TEST(TEST_entropycoding, entropy_coding) {
+    const auto TEST_data = ImageChannel<s16>(8, 8, {
+        -26, -3, -6, 2, 2, -1, 0, 0,
+         0, -2, -4, 1, 1, 0, 0, 0,
+        -3, 1, 5, -1, -1, 0, 0, 0,
+        -3, 1, 2, -1, 0, 0, 0, 0,
+        1, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+    });
+    BitStream bs = entropy_coding({TEST_data}, {TEST_data}, {TEST_data});
+    // bs.print();
+}

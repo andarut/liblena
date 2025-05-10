@@ -14,6 +14,7 @@
 #include "MCUs.hpp"
 #include "DCT.hpp"
 #include "Quantization.hpp"
+#include "EntropyCoding.hpp"
 
 /* Metrics */
 // #include "metrics.hpp"

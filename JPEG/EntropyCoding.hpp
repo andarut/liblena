@@ -35,7 +35,15 @@ std::vector<T> RLE(const std::vector<T> data) {
 
     u64 count = 0;
     for (u64 i = 1; i < data.size(); i++) {
-        if (data[i] == 0) count++;
+        if (data[i] == 0) {
+			count++;
+			/* ZRL */
+			if (count == 16) {
+				RLE_data.push_back(0xF);
+				RLE_data.push_back(0);
+				count = 0;
+			}
+		}
         else {
             RLE_data.push_back(count);
             RLE_data.push_back(log2(std::abs(data[i]))+1);
@@ -45,8 +53,10 @@ std::vector<T> RLE(const std::vector<T> data) {
     }
 
     // EOB
-    RLE_data.push_back(0);
-    RLE_data.push_back(0);
+	if (count != 0) {
+		RLE_data.push_back(0);
+		RLE_data.push_back(0);
+	}
 
     return RLE_data;
 }
@@ -482,7 +492,6 @@ u8 categoryDC(s32 diff) {
 void writeLuminanceDC(BitStream &bs, s32 diff) {
 	u8 cat = categoryDC(diff);
 	assert(cat >= 0 && cat < 12);
-	printf("cat = %d\n", cat);
 
 	auto entry = LUMINANCE_DC[cat];
 	bs.write_bits(entry.code, entry.length);
@@ -503,7 +512,9 @@ void writeChrominanceDC(BitStream &bs, s32 diff) {
 }
 
 void writeLuminanceAC(BitStream &bs, u32 run, u16 size, s32 amplitude) {
+	INFO("run = %llu, size = %llu, ampl = %d\n", run, size, amplitude);
 	auto &e = LUMINANCE_AC[(run<<4)|size];
+	INFO("code = %llu, length = %llu\n", e.code, e.length);
 	bs.write_bits(e.code, e.length);
 	writeVLI(bs, amplitude, size);
 }
@@ -512,6 +523,32 @@ void writeChrominanceAC(BitStream &bs, u32 run, u16 size, s32 amplitude) {
 	auto &e = CHROMINANCE_AC[(run<<4)|size];
 	bs.write_bits(e.code, e.length);
 	writeVLI(bs, amplitude, size);
+}
+
+BitStream entropy_coding(std::vector<ImageChannel<s16>>  Y_MCUs, \
+                         std::vector<ImageChannel<s16>> Cb_MCUs, \
+						 std::vector<ImageChannel<s16>> Cr_MCUs) {
+    BitStream bs;
+
+    auto first_DC = Y_MCUs[0](0, 0);
+    for (auto& Y_MCU : Y_MCUs) {
+        writeLuminanceDC(bs, Y_MCU(0, 0) - first_DC);
+        auto zigzag_order = zigzag(Y_MCU);
+        auto RLE_data = RLE(zigzag_order);
+        auto EOB = (RLE_data.size() % 3 == 0) ? false : true;
+        auto size = RLE_data.size() - (EOB ? 2 : 0);
+        for (u64 i = 0; i < size; i += 3) {
+            auto run =  RLE_data[i];
+            auto size = RLE_data[i+1];
+            auto ampl = RLE_data[i+2];
+            writeLuminanceAC(bs, run, size, ampl);
+        }
+        if (EOB) {
+            bs.write_bits(0b1010, 4);
+        }
+    } 
+
+    return bs;
 }
 
 #endif // ENTROPYCODING_H

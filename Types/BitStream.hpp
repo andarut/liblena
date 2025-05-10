@@ -3,51 +3,99 @@
 
 #include "Utils.hpp"
 
-struct BitStream {
-	std::vector<u8> buffer;
-	u64 offset = 0;
-  
-	BitStream(u64 bytes=1024): buffer(bytes) {}
-
-	void write_bits(uint32_t value, u64 size) {
-		while (size--) {
-			size_t byte_idx = offset >> 3;
-			u64 bit_idx = 7 - (offset & 7);
-			buffer[byte_idx] &= ~(1 << bit_idx);
-			buffer[byte_idx] |= ((value >> size) & 1) << bit_idx;
-			++offset;
-		}
+inline std::string bit_string(u32 value, u8 size) {
+	std::string s;
+	s.reserve(size);
+	for (size_t i = 0; i < size; ++i) {
+		u64 byte_idx = i >> 3;
+		u64 bit_idx = 7 - (i & 7);
+		u8 bit = (value >> bit_idx) & 1;
+		s.push_back(bit ? '1' : '0');
 	}
+	return s;
+}
 
-	u32 read_bits(u64 size) {
-		u32 v = 0;
+class BitStream {
+public:
+	BitStream(u64 bytes=10000024): m_buf(bytes), m_offset(0) {}
+
+	void write_bits(uint32_t value, uint64_t size) {
+		INFO("value = %llu, size = %llu, %llu / %llu\n", value, size, m_offset, m_buf.size());
+        uint64_t final_offset = m_offset + size;
+        uint64_t needed_bytes = (final_offset + 7) >> 3;
+        if (needed_bytes > m_buf.size()) {
+            m_buf.resize(needed_bytes);
+        }
+        while (size--) {
+            size_t byte_idx = m_offset >> 3;
+            uint64_t bit_idx = 7 - (m_offset & 7);
+            m_buf[byte_idx] &= ~(1 << bit_idx);
+            m_buf[byte_idx] |= ((value >> size) & 1) << bit_idx;
+            ++m_offset;
+        }
+    }
+
+	u32 read_bits(u64 size) const {
+		uint32_t v = 0;
+		uint64_t temp = m_offset;
 		while (size--) {
-			u64 byte_idx = offset >> 3;
-			u64 bit_idx  = 7 - (offset & 7);
-			v = (v << 1) | ((buffer[byte_idx] >> bit_idx) & 1);
-			++offset;
+			size_t b = temp >> 3;
+			uint64_t i = 7 - (temp & 7);
+			v = (v << 1) | ((m_buf[b] >> i) & 1);
+			++temp;
 		}
 		return v;
 	}
 
-	u64 bits_size() { return offset; }
-	u64 bytes_size() { return (offset + 7) >> 3; }
+	void write_byte(u8 byte) {
+        write_bits(byte, 8);
+    }
 
-	std::string to_bit_string() const {
-		std::string s;
-		s.reserve(offset);
-		for (size_t i = 0; i < offset; ++i) {
-			u64 byte_idx = i >> 3;
-			u64 bit_idx = 7 - (i & 7);
-			u8 bit = (buffer[byte_idx] >> bit_idx) & 1;
-			s.push_back(bit ? '1' : '0');
-		}
-		return s;
-	}
+    void write_bytes(const u8* data, size_t count) {
+        for (size_t i = 0; i < count; ++i) {
+            write_byte(data[i]);
+        }
+    }
 
-	void print(std::ostream &os = std::cout) const {
-		os << to_bit_string() << std::endl;
-	}
+	u8 read_byte() const {
+        return static_cast<u8>(read_bits(8));
+    }
+
+	size_t read_bytes(u8* out, size_t count) {
+        size_t i = 0;
+        for (; i < count && (bits_size() + 8) <= m_buf.size() * 8; ++i) {
+            out[i] = read_byte();
+        }
+        return i;
+    }
+
+	u64 bits_size() const { return m_offset; }
+	u64 bytes_size() const { return (m_offset + 7) >> 3; }
+
+	void fwrite(const std::string& filename) const {
+        std::ofstream ofs(filename, std::ios::binary);
+        if (!ofs) throw std::runtime_error("Failed to open file for writing: " + filename);
+        ofs.write(reinterpret_cast<const char*>(m_buf.data()),
+                  static_cast<std::streamsize>(bytes_size()));
+    }
+
+	void fread(const std::string& filename) {
+        std::ifstream ifs(filename, std::ios::binary | std::ios::ate);
+        if (!ifs) throw std::runtime_error("Failed to open file for reading: " + filename);
+        std::streamsize size = ifs.tellg();
+        ifs.seekg(0, std::ios::beg);
+
+        m_buf.resize(static_cast<size_t>(size));
+        if (!ifs.read(reinterpret_cast<char*>(m_buf.data()), size)) {
+            throw std::runtime_error("Failed to read entire file: " + filename);
+        }
+        m_offset = size * 8;
+    }
+
+	void rewind() { m_offset = 0; }
+private:
+	std::vector<u8> m_buf;
+	u64 m_offset;
 };
 
 #endif // BITSTREAM_H

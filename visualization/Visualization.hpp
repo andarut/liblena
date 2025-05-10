@@ -1,258 +1,181 @@
+#ifndef VISUALIZATION_H
+#define VISUALIZATION_H
+
 #include <GLFW/glfw3.h>
 
-// #include <vector>
-// #include <string>
-// #include <sstream>
-// #include <algorithm>
+#include <vector>
+#include <string>
+#include <sstream>
+#include <algorithm>
 
-// #include "../lena.hpp"
+#include "Utils.hpp"
+#include "Types.hpp"
+#include "Logger.hpp"
+#include "Globals.hpp"
 
-// /* for text rendering */
-// #define STB_EASY_FONT_IMPLEMENTATION
-// #include "stb_easy_font.h"
+/* for text rendering */
+#define STB_EASY_FONT_IMPLEMENTATION
+#include "stb_easy_font.h"
 
-// struct Visualization {
-
-// 	std::vector<GLFWwindow*> windows;
-
-// 	static void error_cb(int err, const char* desc) {
-// 		fprintf(stderr, "GLFW Error %d: %s\n", err, desc);
-// 	}
+class Visualization {
+public:
+	static void error_cb(int err, const char* desc) {
+		fprintf(stderr, "GLFW Error %d: %s\n", err, desc);
+	}
 	
+	// static void key_cb(GLFWwindow* win, int key, int, int action, int) {
+	// 	if (action != GLFW_PRESS) return;
+	// 	if (key == GLFW_KEY_KP_ADD || key == GLFW_KEY_EQUAL) {
+	// 		scale++;
+	// 	} else if (key == GLFW_KEY_KP_SUBTRACT || key == GLFW_KEY_MINUS) {
+	// 		scale--;
+	// 	}
+	// }
 
-// 	// static void key_cb(GLFWwindow* win, int key, int, int action, int) {
-// 	// 	if (action != GLFW_PRESS) return;
-// 	// 	if (key == GLFW_KEY_KP_ADD || key == GLFW_KEY_EQUAL) {
-// 	// 		scale++;
-// 	// 	} else if (key == GLFW_KEY_KP_SUBTRACT || key == GLFW_KEY_MINUS) {
-// 	// 		scale--;
-// 	// 	}
-// 	// }
+	Visualization() {
+		/* Init GLFW */
+		glfwSetErrorCallback(error_cb);
+		if (!glfwInit()) {
+			printf("glfwInit failed\n");
+		}
 
+		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+		glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+	}
 
-// 	Visualization() {
-// 		/* Init GLFW */
-// 		glfwSetErrorCallback(error_cb);
-// 		if (!glfwInit()) {
-// 			printf("glfwInit failed\n");
-// 		}
+	template <typename T>
+	void show(const ImageChannel<T> &ch) {
 
-// 		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
-// 		glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-// 	}
+		int scale = 100;
 
-	
+		printf("show %lld x %lld\n", ch.width(), ch.height());
 
-// 	template <typename T>
-// 	void show(RawImageData<T> &data) {
+		/* Init window */
+		GLFWwindow* window = glfwCreateWindow(
+			ch.width()*scale, ch.height()*scale, "RawImageData",
+			nullptr, nullptr
+		);
+		if (!window) {
+			glfwTerminate();
+			printf("window creation failed\n");
+			return;
+		}
+		glfwMakeContextCurrent(window);
 
-// 		int scale = 1;
+		/* Register callbacks */
+		// glfwSetKeyCallback(window, key_cb);
+		// glfwSetFramebufferSizeCallback(window, framebuffer_size_cb);
 
-// 		/* Init window */
-// 		GLFWwindow* window = glfwCreateWindow(
-// 			data.width*scale, data.height*scale, "RawImageData",
-// 			nullptr, nullptr
-// 		);
-// 		if (!window) {
-// 			glfwTerminate();
-// 			printf("window creation failed\n");
-// 			return;
-// 		}
-// 		glfwMakeContextCurrent(window);
+		glPointSize(1);
 
-// 		/* Register callbacks */
-// 		// glfwSetKeyCallback(window, key_cb);
-// 		// glfwSetFramebufferSizeCallback(window, framebuffer_size_cb);
+		glViewport(0, 0, ch.width()*scale, ch.height()*scale);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0, ch.width()*scale,  ch.height()*scale, 0,  -1, 1);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
 
-// 		glPointSize(1);
+		glClear(GL_COLOR_BUFFER_BIT);
 
-// 		RawChannelData<T> *R = &data[0];
-// 		RawChannelData<T> *G = &data[1];
-// 		RawChannelData<T> *B = &data[2];
+		int px = 0;
+		int py = 0;
 
-// 		glViewport(0, 0, data.width*scale, data.height*scale);
-// 		glMatrixMode(GL_PROJECTION);
-// 		glLoadIdentity();
-// 		glOrtho(0, data.width*scale,  data.height*scale, 0,  -1, 1);
-// 		glMatrixMode(GL_MODELVIEW);
-// 		glLoadIdentity();
+		for (int i = 0; i < ch.height(); i++) {
+			for (int j = 0; j < ch.width(); j++) {
+				glColor3ub(ch(i,j), ch(i,j), ch(i,j));
+				// printf("DRAW PIXEL %d %d\n", i, j);
+				glBegin(GL_QUADS);
+					glVertex2f(px,      py);
+					glVertex2f(px+scale,   py);
+					glVertex2f(px+scale, py+scale);
+					glVertex2f(px,    py+scale);
+				glEnd();
+				px += scale;
 
-// 		glClear(GL_COLOR_BUFFER_BIT);
-
-// 		int px = 0;
-// 		int py = 0;
-
-		
-
-// 		for (int i = 0; i < data.height; i++) {
-// 			for (int j = 0; j < data.width; j++) {
-// 				glColor3ub((*R)(i,j), (*G)(i,j), (*B)(i,j));
-// 				// printf("DRAW PIXEL %d %d\n", i, j);
-// 				glBegin(GL_QUADS);
-// 					glVertex2f(px,      py);
-// 					glVertex2f(px+scale,   py);
-// 					glVertex2f(px+scale, py+scale);
-// 					glVertex2f(px,    py+scale);
-// 				glEnd();
-// 				px += scale;
-
-// 			}
-// 			py += scale;
-// 			px=0;
-// 		}
+			}
+			py += scale;
+			px=0;
+		}
 
 
-// 		glfwSwapBuffers(window);
+		glfwSwapBuffers(window);
 
-// 		while (!glfwWindowShouldClose(window)) {
-// 			glfwPollEvents();
-// 		}
-// 	}
+		while (!glfwWindowShouldClose(window)) {
+			glfwPollEvents();
+		}
+	}
 
-// 	template <typename T>
-// 	void show(const RawChannelData<T> &data) {
+    template <typename T>
+	void show(const std::vector<ImageChannel<T>> &chs) {
 
-// 		int scale = 1;
+        assert(chs.size() == 3);
 
-// 		printf("show %lld x %lld\n", data.width, data.height);
+		int scale = 100;
 
-// 		/* Init window */
-// 		GLFWwindow* window = glfwCreateWindow(
-// 			data.width*scale, data.height*scale, "RawImageData",
-// 			nullptr, nullptr
-// 		);
-// 		if (!window) {
-// 			glfwTerminate();
-// 			printf("window creation failed\n");
-// 			return;
-// 		}
-// 		glfwMakeContextCurrent(window);
+		printf("show %lld x %lld\n", chs[0].width(), chs[0].height());
 
-// 		/* Register callbacks */
-// 		// glfwSetKeyCallback(window, key_cb);
-// 		// glfwSetFramebufferSizeCallback(window, framebuffer_size_cb);
+		/* Init window */
+		GLFWwindow* window = glfwCreateWindow(
+			chs[0].width()*scale, chs[0].height()*scale, "RawImageData",
+			nullptr, nullptr
+		);
+		if (!window) {
+			glfwTerminate();
+			printf("window creation failed\n");
+			return;
+		}
+		glfwMakeContextCurrent(window);
 
-// 		glPointSize(1);
+		/* Register callbacks */
+		// glfwSetKeyCallback(window, key_cb);
+		// glfwSetFramebufferSizeCallback(window, framebuffer_size_cb);
 
-// 		glViewport(0, 0, data.width*scale, data.height*scale);
-// 		glMatrixMode(GL_PROJECTION);
-// 		glLoadIdentity();
-// 		glOrtho(0, data.width*scale,  data.height*scale, 0,  -1, 1);
-// 		glMatrixMode(GL_MODELVIEW);
-// 		glLoadIdentity();
+		glPointSize(1);
 
-// 		glClear(GL_COLOR_BUFFER_BIT);
+		glViewport(0, 0, chs[0].width()*scale, chs[0].height()*scale);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0, chs[0].width()*scale,  chs[0].height()*scale, 0,  -1, 1);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
 
-// 		int px = 0;
-// 		int py = 0;
+		glClear(GL_COLOR_BUFFER_BIT);
 
-// 		for (int i = 0; i < data.height; i++) {
-// 			for (int j = 0; j < data.width; j++) {
-// 				glColor3ub(data(i,j), data(i,j), data(i,j));
-// 				// printf("DRAW PIXEL %d %d\n", i, j);
-// 				glBegin(GL_QUADS);
-// 					glVertex2f(px,      py);
-// 					glVertex2f(px+scale,   py);
-// 					glVertex2f(px+scale, py+scale);
-// 					glVertex2f(px,    py+scale);
-// 				glEnd();
-// 				px += scale;
+		int px = 0;
+		int py = 0;
 
-// 			}
-// 			py += scale;
-// 			px=0;
-// 		}
+		for (int i = 0; i < chs[0].height(); i++) {
+			for (int j = 0; j < chs[0].width(); j++) {
+				glColor3ub(chs[0](i,j), chs[1](i,j), chs[2](i,j));
+				// printf("DRAW PIXEL %d %d\n", i, j);
+				glBegin(GL_QUADS);
+					glVertex2f(px,      py);
+					glVertex2f(px+scale,   py);
+					glVertex2f(px+scale, py+scale);
+					glVertex2f(px,    py+scale);
+				glEnd();
+				px += scale;
 
-
-// 		glfwSwapBuffers(window);
-
-// 		while (!glfwWindowShouldClose(window)) {
-// 			glfwPollEvents();
-// 		}
-// 	}
-
-// 	template <typename T>
-// 	void show(const SubsampledChannelData<T> &data) {
-
-// 		int scale = 100;
-
-// 		/* Init window */
-// 		GLFWwindow* window = glfwCreateWindow(
-// 			data.width*scale, data.height*scale, "RawImageData",
-// 			nullptr, nullptr
-// 		);
-// 		if (!window) {
-// 			glfwTerminate();
-// 			printf("window creation failed\n");
-// 			return;
-// 		}
-// 		glfwMakeContextCurrent(window);
-
-// 		/* Register callbacks */
-// 		// glfwSetKeyCallback(window, key_cb);
-// 		// glfwSetFramebufferSizeCallback(window, framebuffer_size_cb);
-
-// 		glPointSize(1);
-
-// 		glViewport(0, 0, data.width*scale, data.height*scale);
-// 		glMatrixMode(GL_PROJECTION);
-// 		glLoadIdentity();
-// 		glOrtho(0, data.width*scale,  data.height*scale, 0,  -1, 1);
-// 		glMatrixMode(GL_MODELVIEW);
-// 		glLoadIdentity();
-
-// 		glClear(GL_COLOR_BUFFER_BIT);
-
-// 		int px = 0;
-// 		int py = 0;
-
-// 		for (int i = 0; i < data.height; i++) {
-// 			for (int j = 0; j < data.width; j++) {
-// 				glColor3ub(data(i,j), data(i,j), data(i,j));
-// 				// printf("DRAW PIXEL %d %d\n", i, j);
-// 				glBegin(GL_QUADS);
-// 					glVertex2f(px,      py);
-// 					glVertex2f(px+scale,   py);
-// 					glVertex2f(px+scale, py+scale);
-// 					glVertex2f(px,    py+scale);
-// 				glEnd();
-// 				px += scale;
-
-// 			}
-// 			py += scale;
-// 			px=0;
-// 		}
+			}
+			py += scale;
+			px=0;
+		}
 
 
-// 		glfwSwapBuffers(window);
+		glfwSwapBuffers(window);
 
-// 		while (!glfwWindowShouldClose(window)) {
-// 			glfwPollEvents();
-// 		}
-// 	}
+		while (!glfwWindowShouldClose(window)) {
+			glfwPollEvents();
+		}
+	}
 
-// 	~Visualization() {
-// 		for (int i = 0; i < windows.size(); i++)
-// 			glfwDestroyWindow(windows[i]);
-// 		glfwTerminate();
-// 	}
-// };
+	~Visualization() {
+		for (int i = 0; i < m_windows.size(); i++)
+			glfwDestroyWindow(m_windows[i]);
+		glfwTerminate();
+	}
+private:
+    std::vector<GLFWwindow*> m_windows;
+};
 
-// Visualization g_visualization;
-
-// int main() {
-// 	// std::ifstream ppm_file("/Users/andarut/dev/liblena/tests/tests_data/ppm_image.ppm");
-// 	std::ifstream ppm_file("/Users/andarut/dev/liblena/tests/tests_data/ppm_image_4K.ppm");
-// 	// std::ifstream ppm_file("/Users/andarut/dev/liblena/tests/tests_data/ppm_image_raw.ppm");
-// 	// std::ifstream ppm_file("/Users/andarut/dev/liblena/tests/tests_data/4x2.ppm");
-// 	// std::ifstream ppm_file("/Users/andarut/dev/liblena/tests/tests_data/8x4.ppm");
-
-// 	auto ppm_image = read_ppm_image<u8>(ppm_file);
-
-// 	auto splited_data = encode_blocksplitting(ppm_image, BlockSplittingMode(8, 8));
-// 	auto decoded_data = decode_blocksplitting(splited_data);
-
-// 	g_visualization.show(decoded_data);
-
-// 	return 0;
-// }
+#endif // VISUALIZATION_H

@@ -69,18 +69,22 @@ std::vector<ImageChannel<s16>> quantization(const std::vector<ImageChannel<f64>>
 
 } // namespace enc
 
+namespace dec {
 
-// RawChannelData<s16> decode_quantization(RawChannelData<s16> data, u8 quality) {
-//     auto Q = create_quantization(quality);
+ImageChannel<s16> quantization(ImageChannel<s16> ch, u8 quality) {
+    auto Q = Q_N(quality);
 
-//     auto decoded_data = RawChannelData<s16>(data.width, data.height);
+    auto decoded_data = ImageChannel<s16>(ch.width(), ch.height());
+    decoded_data.resize(ch.width(), ch.height());
 
-//     for (u64 i = 0; i < data.height; i++)
-//         for (u64 j = 0; j < data.width; j++) {
-//             decoded_data(i, j) = std::round((f64)(data(i, j))*Q(i, j));
-//         }
+    for (u64 i = 0; i < ch.height(); i++)
+        for (u64 j = 0; j < ch.width(); j++) {
+            decoded_data(i, j) = std::round((f64)(ch(i, j))*Q(i, j));
+        }
 
-//     return decoded_data;
-// }
+    return decoded_data;
+}
+
+} // namespace dec
 
 #endif // QUANTIZATION_H

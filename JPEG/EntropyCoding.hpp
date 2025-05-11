@@ -599,7 +599,7 @@ BitStream entropy_coding(std::vector<ImageChannel<s16>>  Y_MCUs, \
     BitStream bs;
 
     auto first_DC = Y_MCUs[0](0, 0);
-	writeLuminanceDC(bs, first_DC);
+	// writeLuminanceDC(bs, first_DC);
     for (auto& Y_MCU : Y_MCUs) {
         writeLuminanceDC(bs, Y_MCU(0, 0) - first_DC);
         auto zigzag_order = zigzag(Y_MCU);
@@ -627,11 +627,36 @@ BitStream entropy_coding(std::vector<ImageChannel<s16>>  Y_MCUs, \
 
 namespace dec {
 
+template<typename T>
+ImageChannel<T> zigzag(const std::vector<T> zigzag, u64 w) {
+	assert(zigzag.size() % w == 0);
+    ImageChannel<T> data(w, zigzag.size()/w);
+	data.resize(w, zigzag.size()/w);
+
+    u64 write_i = 0, write_j = 0;
+    for (u64 i = 0; i < zigzag.size(); i++) {
+
+        data(write_i, write_j) = zigzag[i];
+
+        if ((write_i+write_j) % 2 == 0) { 
+            if (write_i > 0) write_i--; 
+            if (write_j < data.width()-1) write_j++; 
+        } else { 
+            if (write_i < data.height()-1) write_i++; 
+            if (write_j > 0) write_j--; 
+        }
+    }
+
+    return data;
+}
+
 /* NOTE: this is jpeg's RLE (rely on many zeros in data and omitting DC) */
 template<typename T>
-std::vector<T> RLE(const std::vector<T> RLE_data) {
+std::vector<T> RLE(s16 DC, const std::vector<T> RLE_data) {
     std::vector<T> data(64);
-	u64 write_i = 0;
+	data[0] = DC;
+	
+	u64 write_i = 1;
 
 	for (u64 i = 0; i < RLE_data.size(); i += 3) {
 		u8 run  = RLE_data[i];
@@ -668,12 +693,11 @@ std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& bs) {
 		RLE_data.push_back(ampl);
 	}
 
-	std::vector<s16> data = dec::RLE(RLE_data);
-	printf("size = %d\n", data.size());
-	for (u64 i = 0; i < data.size(); i++)
-		printf("%d ", data[i]);
-	printf("\n");
-	
+	std::vector<s16> RLE_decoded = dec::RLE(DC, RLE_data);
+
+	ImageChannel<s16> zigzag_decoded = dec::zigzag(RLE_decoded, 8);
+	v[0].resize(1);
+	v[0][0] = zigzag_decoded;
 	return v;
 }
 

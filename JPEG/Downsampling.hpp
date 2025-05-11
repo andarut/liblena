@@ -63,59 +63,51 @@ ImageChannel<T> downsampling(const ImageChannel<T> &ch, const DownsamplingMode &
 
 } // namespace enc
 
-// template <typename T>
-// RawChannelData<T> decode_subsampling(const SubsampledChannelData<T> &subsampled_data) {
-    
-//     auto mode = subsampled_data.mode;
-//     INFO("mode = %lld:%lld:%lld", mode.J, mode.a, mode.b);
+namespace dec {
 
-//     RawChannelData<T> decoded_data(0, 0);
-//     decoded_data.width = subsampled_data.original_width;
-//     decoded_data.height = subsampled_data.original_height;
-//     decoded_data.data.resize(decoded_data.width * decoded_data.height);
+/* TODO: think about passing down original sizes */
+template <typename T>
+ImageChannel<T> downsampling(const ImageChannel<T> &ch, const DownsamplingMode &mode) {
+    INFO("mode = %lld:%lld:%lld\n", mode.J, mode.a, mode.b);
 
-//     printf("width = %lld\n",  subsampled_data.original_width);
-//     printf("height = %lld\n",  subsampled_data.original_height);
+    ImageChannel<T> decoded_data(ch.width(), ch.height());
+    decoded_data.resize(ch.width(), ch.height());
 
-//     printf("=== TO BE DECODED ===\n");
-//     subsampled_data.print();
 
-//     printf("=== START DECODING ===\n");
-//     u64 read_i = 0, read_j = 0;
+    u64 read_i = 0, read_j = 0;
 
-//     u64 read_index = 0;
+    u64 read_index = 0;
 
-//     for (u64 write_i = 0; write_i < decoded_data.height; write_i++) {
-//         u64 a_or_b = (write_i % 2 == 0) ? mode.a : mode.b;
-//         if (a_or_b == 0) {
-//             // printf("COPY %lld -> %lld\n", write_i-1, write_i);
-//             for (u64 write_j = 0; write_j < decoded_data.width; write_j++) {
-//                 decoded_data(write_i, write_j) = decoded_data(write_i-1, write_j);
-//             }
-//             continue;
-//         }
-//         for (u64 write_j = 0; write_j < decoded_data.width; write_j++) {
-//             if (read_index >= subsampled_data.data.size()) {
-//                 read_index = subsampled_data.data.size() - 1;
-//             }
-//             T element = subsampled_data.data[read_index];
+    for (u64 write_i = 0; write_i < decoded_data.height(); write_i++) {
+        u64 a_or_b = (write_i % 2 == 0) ? mode.a : mode.b;
+        if (a_or_b == 0) {
+            // printf("COPY %lld -> %lld\n", write_i-1, write_i);
+            for (u64 write_j = 0; write_j < decoded_data.width(); write_j++) {
+                decoded_data(write_i, write_j) = decoded_data(write_i-1, write_j);
+            }
+            continue;
+        }
+        for (u64 write_j = 0; write_j < decoded_data.width(); write_j++) {
+            if (read_index >= ch.size()) {
+                read_index = ch.size() - 1;
+            }
+            T element = ch(0, read_index);
 
-//             for (u64 copy_j = 0; copy_j < mode.J/a_or_b; copy_j++) {
-//                 // printf("write to (%lld, %lld) = %lld\n", write_i, write_j, element);
-//                 if (write_j == decoded_data.width) break;
-//                 decoded_data(write_i, write_j) = element;
-//                 write_j++;
-//             }
-//             write_j--;
+            for (u64 copy_j = 0; copy_j < mode.J/a_or_b; copy_j++) {
+                // printf("write to (%lld, %lld) = %lld\n", write_i, write_j, element);
+                if (write_j == decoded_data.width()) break;
+                decoded_data(write_i, write_j) = element;
+                write_j++;
+            }
+            write_j--;
 
-//             read_index++;   
-//         }
-//     }
-    
-//     printf("=== DECODED ===\n");
-//     decoded_data.print();
+            read_index++;   
+        }
+    }
 
-//     return decoded_data;
-// }
+    return decoded_data;
+}
+
+} // namespace dec
 
 #endif // DOWNSAMPLING_H

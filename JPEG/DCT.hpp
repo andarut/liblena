@@ -54,28 +54,35 @@ std::vector<ImageChannel<f64>> DCT(const std::vector<ImageChannel<u8>>& _MCUs) {
 
 } // namespace enc
 
-// RawChannelData<u8> decode_DCT(const RawChannelData<f64>& data) {
-    
-//     /* Step 1: Reverse DCT */
-//     RawChannelData<f64> f(data.width, data.height);
-//     auto alpha = [](u64 x) { return (x == 0) ? 1.0 / sqrt(2) : 1.0; };
 
-//     for (u64 i = 0; i < data.height; i++)
-//         for (u64 j = 0; j < data.width; j++) {
-//             f64 sum = 0.0;
-//             for (u64 u = 0; u < data.height; u++)
-//                 for (u64 v = 0; v < data.width; v++)
-//                     sum += alpha(u) * alpha(v) * data(u, v) * cos((2.0*i+1.0)*u*M_PI/16.0) * cos((2.0*j+1.0)*v*M_PI/16.0);
-//             f(i, j) = 0.25 * sum;
-//         }
-    
-//     /* Step 2: Calculate the DCT Coefficients */
-//     RawChannelData<u8> decoded_data(data.width, data.height);
-//     for (u64 i = 0; i < data.height; i++)
-//         for (u64 j = 0; j < data.width; j++)
-//             decoded_data(i, j) = (u8)(f(i, j) + 128.0);
+namespace dec {
 
-//     return decoded_data;
-// }
+ImageChannel<u8> DCT(const ImageChannel<s16>& data) {
+    
+    /* Step 1: Reverse DCT */
+    ImageChannel<f64> f(data.width(), data.height());
+    f.resize(data.width(), data.height());
+    auto alpha = [](u64 x) { return (x == 0) ? 1.0 / sqrt(2) : 1.0; };
+
+    for (u64 i = 0; i < data.height(); i++)
+        for (u64 j = 0; j < data.width(); j++) {
+            f64 sum = 0.0;
+            for (u64 u = 0; u < data.height(); u++)
+                for (u64 v = 0; v < data.width(); v++)
+                    sum += alpha(u) * alpha(v) * (f64)data(u, v) * cos((2.0*i+1.0)*u*M_PI/16.0) * cos((2.0*j+1.0)*v*M_PI/16.0);
+            f(i, j) = 0.25 * sum;
+        }
+    
+    /* Step 2: Calculate the DCT Coefficients */
+    ImageChannel<u8> decoded_data(data.width(), data.height());
+    decoded_data.resize(data.width(), data.height());
+    for (u64 i = 0; i < data.height(); i++)
+        for (u64 j = 0; j < data.width(); j++)
+            decoded_data(i, j) = (u8)(f(i, j) + 128.0);
+
+    return decoded_data;
+}
+
+} // namespace dec
 
 #endif // DCT_H

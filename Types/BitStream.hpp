@@ -20,7 +20,7 @@ public:
 	BitStream(u64 bytes=10000024): m_buf(bytes), m_offset(0) {}
 
 	void write_bits(uint32_t value, uint64_t size) {
-		INFO("value = %llu, size = %llu, %llu / %llu\n", value, size, m_offset, m_buf.size());
+		DEBUG("value = %llu, size = %llu, %llu / %llu\n", value, size, m_offset, m_buf.size());
         uint64_t final_offset = m_offset + size;
         uint64_t needed_bytes = (final_offset + 7) >> 3;
         if (needed_bytes > m_buf.size()) {
@@ -35,15 +35,27 @@ public:
         }
     }
 
-	u32 read_bits(u64 size) const {
+    u32 peek_bits(u64 size) const {
+        uint32_t v = 0;
+        u64      temp = m_offset;
+        while (size--) {
+            size_t b = temp >> 3;
+            u64    i = 7 - (temp & 7);
+            v = (v << 1) | ((m_buf[b] >> i) & 1);
+            ++temp;
+        }
+        return v;
+    }
+
+	u32 read_bits(u64 size) {
 		uint32_t v = 0;
-		uint64_t temp = m_offset;
 		while (size--) {
-			size_t b = temp >> 3;
-			uint64_t i = 7 - (temp & 7);
+			size_t b = m_offset >> 3;
+			uint64_t i = 7 - (m_offset & 7);
 			v = (v << 1) | ((m_buf[b] >> i) & 1);
-			++temp;
+			++m_offset;
 		}
+        DEBUG("offset = %lu, value = %lu\n", m_offset, v);
 		return v;
 	}
 
@@ -57,7 +69,7 @@ public:
         }
     }
 
-	u8 read_byte() const {
+	u8 read_byte() {
         return static_cast<u8>(read_bits(8));
     }
 
@@ -67,6 +79,10 @@ public:
             out[i] = read_byte();
         }
         return i;
+    }
+
+    u32 nextBit() {
+        return read_bits(1);
     }
 
 	u64 bits_size() const { return m_offset; }
@@ -97,5 +113,18 @@ private:
 	std::vector<u8> m_buf;
 	u64 m_offset;
 };
+
+inline void print(BitStream& bs) {
+    u64 totalBits = bs.bits_size();
+    bs.rewind();
+    for (uint64_t i = 0; i < totalBits; ++i) {
+        printf("%d", bs.read_bits(1));
+        if ((i + 1) % 8 == 0 && (i + 1) != totalBits)
+            printf(" ");
+    }
+    printf("\n");
+    bs.rewind();
+}
+
 
 #endif // BITSTREAM_H

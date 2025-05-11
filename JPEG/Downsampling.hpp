@@ -21,6 +21,8 @@ struct DownsamplingMode {
     u64 J, a, b;
 };
 
+namespace enc {
+
 template <typename T>
 ImageChannel<T> downsampling(const ImageChannel<T> &ch, const DownsamplingMode &mode) {
 
@@ -58,6 +60,8 @@ ImageChannel<T> downsampling(const ImageChannel<T> &ch, const DownsamplingMode &
 
     return downsampled_ch;
 }
+
+} // namespace enc
 
 // template <typename T>
 // RawChannelData<T> decode_subsampling(const SubsampledChannelData<T> &subsampled_data) {

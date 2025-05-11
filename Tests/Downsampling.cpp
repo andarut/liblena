@@ -8,7 +8,7 @@ inline const auto TEST_ch = ImageChannel<u8>(4, 2, {
 });
 
 TEST(TEST_Downsampling, no_downsampling) {
-	auto downsampled_ch = downsampling(TEST_ch, {4, 4, 4});
+	auto downsampled_ch = enc::downsampling(TEST_ch, {4, 4, 4});
 	
 	EXPECT_EQ(downsampled_ch, TEST_ch);
 }

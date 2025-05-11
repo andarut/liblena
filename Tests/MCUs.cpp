@@ -14,7 +14,7 @@ inline const auto TEST_ch = ImageChannel<u8>(8, 8, {
 });
 
 TEST(TEST_MCUs, _8x8) {
-	auto _MCUs = MCUs(TEST_ch, {8, 8});
+	auto _MCUs = enc::MCUs(TEST_ch, {8, 8});
 	for (auto& _MCU : _MCUs) {
 		EXPECT_EQ(_MCU.width(), 8);
 		EXPECT_EQ(_MCU.height(), 8);

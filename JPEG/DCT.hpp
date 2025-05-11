@@ -6,6 +6,8 @@
 #include "Logger.hpp"
 #include "Globals.hpp"
 
+namespace enc {
+
 ImageChannel<f64> DCT(const ImageChannel<u8>& ch) {
     ImageChannel<f64> g(ch.width(), ch.height());
     g.resize(ch.width(), ch.height());
@@ -49,6 +51,8 @@ std::vector<ImageChannel<f64>> DCT(const std::vector<ImageChannel<u8>>& _MCUs) {
 
     return DCT_MCUs;
 }
+
+} // namespace enc
 
 // RawChannelData<u8> decode_DCT(const RawChannelData<f64>& data) {
     

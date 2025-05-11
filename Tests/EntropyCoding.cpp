@@ -84,6 +84,6 @@ TEST(TEST_entropycoding, entropy_coding) {
         0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0
     });
-    BitStream bs = entropy_coding({TEST_data}, {TEST_data}, {TEST_data});
+    BitStream bs = enc::entropy_coding({TEST_data}, {TEST_data}, {TEST_data});
     // bs.print();
 }

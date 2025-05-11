@@ -32,6 +32,8 @@ ImageChannel<u8> Q_N(u8 quality) {
     return Q;
 }
 
+namespace enc {
+
 ImageChannel<s16> quantization(ImageChannel<f64> ch, u8 quality) {
     assert(ch.width() == 8);
     assert(ch.height() == 8);
@@ -64,6 +66,8 @@ std::vector<ImageChannel<s16>> quantization(const std::vector<ImageChannel<f64>>
 
     return quantization_MCUs;
 }
+
+} // namespace enc
 
 
 // RawChannelData<s16> decode_quantization(RawChannelData<s16> data, u8 quality) {

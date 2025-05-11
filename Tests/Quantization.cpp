@@ -19,7 +19,7 @@ TEST(TEST_quantization, q_n) {
 
 TEST(TEST_quantization, quantization) {
 
-    auto quantizated_ch = quantization(TEST_quantization_ch, 50);
+    auto quantizated_ch = enc::quantization(TEST_quantization_ch, 50);
 
     ASSERT_EQ(quantizated_ch, ImageChannel<s16>(8, 8, {
         -26, -3, -6, 2, 2, -1, 0, 0,

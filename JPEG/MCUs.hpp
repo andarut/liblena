@@ -16,6 +16,8 @@ struct MCUMode {
     u64 width, height;
 };
 
+namespace enc {
+
 template <typename T>
 std::vector<ImageChannel<T>> MCUs(ImageChannel<T> ch, MCUMode mode) {
 
@@ -60,6 +62,7 @@ std::vector<ImageChannel<T>> MCUs(ImageChannel<T> ch, MCUMode mode) {
     return _MCUs;
 }
 
+} // namespace enc
 
 // template <typename T>
 // RawChannelData<T> decode_blocksplitting(BlockSplitedChannelData<T> data) {

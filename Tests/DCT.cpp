@@ -14,7 +14,7 @@ inline const auto TEST_ch = ImageChannel<u8>(8, 8, {
 });
 
 TEST(TEST_DCT, _8x8) {
-    auto DCT_data = DCT(TEST_ch);
+    auto DCT_data = enc::DCT(TEST_ch);
     EXPECT_EQ(DCT_data.width(), TEST_ch.width());
     EXPECT_EQ(DCT_data.height(), TEST_ch.height());
 }

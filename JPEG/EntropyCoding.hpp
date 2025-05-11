@@ -82,6 +82,16 @@ static constexpr std::array<HuffEntry,12> LUMINANCE_DC = {{
 	/* 11 */ { 9, 0b111111110 },
 }};
 
+std::unordered_map<u32, u8> LUMINANCE_DC_MAP() {
+    std::unordered_map<u32, u8> dcMap;
+    for (uint8_t symbol = 0; symbol < LUMINANCE_DC.size(); ++symbol) {
+        auto entry = LUMINANCE_DC[symbol];
+        u32 key = (static_cast<u32>(entry.length) << 16) | entry.code;
+        dcMap[key] = symbol;
+    }
+    return dcMap;
+}
+
 // Table K.4 - Table for chrominance DC coefficient differences
 static constexpr std::array<HuffEntry,12> CHROMINANCE_DC = {{
 	/*  0 */ {  2, 0b00 },
@@ -97,6 +107,37 @@ static constexpr std::array<HuffEntry,12> CHROMINANCE_DC = {{
 	/* 10 */ { 10, 0b1111111110 },
 	/* 11 */ { 11, 0b11111111110 },
 }};
+
+u16 decode_dc_category(BitStream& bs, const std::unordered_map<u32, u8>& dcMap) {
+    u16 code = 0;
+    for (uint8_t length = 1; length <= 16; ++length) {
+        code = (code << 1) | bs.nextBit();
+        uint32_t key = (static_cast<uint32_t>(length) << 16) | code;
+        auto it = dcMap.find(key);
+        if (it != dcMap.end()) {
+            return it->second;  // category 0–11
+        }
+    }
+    throw std::runtime_error("Invalid DC Huffman code");
+}
+
+s16 extend_dc_value(uint16_t S, BitStream& bs) {
+    if (S == 0) return 0;
+    s16 bits = 0;
+    for (u16 i = 0; i < S; ++i) {
+        bits = (bits << 1) | bs.nextBit();
+    }
+    // JPEG “extend”: if the leading bit is 0, subtract (2^S - 1)
+    s16 threshold = 1 << (S - 1);
+    if (bits < threshold)
+        bits -= (1 << S) - 1;
+    return bits;
+}
+
+s16 decode_dc(BitStream& bs, const std::unordered_map<u32, u8>& dcMap) {
+    s16 category = decode_dc_category(bs, dcMap);
+    return extend_dc_value(category, bs);
+}
 
 /* Table K.5 - Table for luminance AC coefficients */
 static constexpr std::array<HuffEntry, 16*16> LUMINANCE_AC = [](){
@@ -285,6 +326,17 @@ static constexpr std::array<HuffEntry, 16*16> LUMINANCE_AC = [](){
 	return tbl;
 }();
 
+std::unordered_map<u32, u8> LUMINANCE_AC_MAP(){
+    std::unordered_map<u32, u8> map{};
+    for (uint16_t idx = 0; idx < LUMINANCE_AC.size(); ++idx) {
+        auto e = LUMINANCE_AC[idx];
+        if (e.length == 0) continue;
+        uint32_t key = (uint32_t(e.length) << 16) | e.code;
+        map[key] = idx; // idx encodes run<<4 | size
+    }
+    return map;
+}
+
 /* Table K.6 - Table for chrominane AC coefficients */
 static constexpr std::array<HuffEntry, 16*16> CHROMINANCE_AC = [](){
 	std::array<HuffEntry,256> tbl{};
@@ -472,6 +524,19 @@ static constexpr std::array<HuffEntry, 16*16> CHROMINANCE_AC = [](){
 	return tbl;
 }();
 
+u8 decode_ac_symbol(BitStream& bs,
+                         const std::unordered_map<uint32_t,uint8_t>& acMap) {
+    uint16_t code = 0;
+    for (uint8_t len = 1; len <= 16; ++len) {
+        code = (code << 1) | bs.nextBit();
+        uint32_t key = (uint32_t(len)<<16) | code;
+        auto it = acMap.find(key);
+        if (it != acMap.end()) return it->second;
+    }
+    throw std::runtime_error("Invalid AC Huffman code");
+}
+
+
 void writeVLI(BitStream &bs, s32 amplitude, u16 size) {
 	u32 abs_amplitude = std::abs(amplitude);
 
@@ -484,17 +549,18 @@ void writeVLI(BitStream &bs, s32 amplitude, u16 size) {
 
 u8 categoryDC(s32 diff) {
 	u32 abs_amplitude = std::abs(diff);
-	u8 cat = 1;
+	u8 cat = 0;
 	while (abs_amplitude >>= 1) ++cat;
 	return cat;
 }
 
 void writeLuminanceDC(BitStream &bs, s32 diff) {
+	INFO("diff = %llu\n", diff);
 	u8 cat = categoryDC(diff);
 	assert(cat >= 0 && cat < 12);
-
-	auto entry = LUMINANCE_DC[cat];
-	bs.write_bits(entry.code, entry.length);
+	auto e = LUMINANCE_DC[cat];
+	INFO("cat = %llu, code = %llu, length = %d\n", cat, e.code, e.length);
+	bs.write_bits(e.code, e.length);
 
 	if (cat > 0)
 		writeVLI(bs, diff, cat);
@@ -525,16 +591,22 @@ void writeChrominanceAC(BitStream &bs, u32 run, u16 size, s32 amplitude) {
 	writeVLI(bs, amplitude, size);
 }
 
+namespace enc {
+
 BitStream entropy_coding(std::vector<ImageChannel<s16>>  Y_MCUs, \
                          std::vector<ImageChannel<s16>> Cb_MCUs, \
 						 std::vector<ImageChannel<s16>> Cr_MCUs) {
     BitStream bs;
 
     auto first_DC = Y_MCUs[0](0, 0);
+	writeLuminanceDC(bs, first_DC);
     for (auto& Y_MCU : Y_MCUs) {
         writeLuminanceDC(bs, Y_MCU(0, 0) - first_DC);
         auto zigzag_order = zigzag(Y_MCU);
         auto RLE_data = RLE(zigzag_order);
+		for (u64 i = 0; i < RLE_data.size(); i++)
+			printf("%d ", RLE_data[i]);
+		printf("\n");
         auto EOB = (RLE_data.size() % 3 == 0) ? false : true;
         auto size = RLE_data.size() - (EOB ? 2 : 0);
         for (u64 i = 0; i < size; i += 3) {
@@ -550,5 +622,61 @@ BitStream entropy_coding(std::vector<ImageChannel<s16>>  Y_MCUs, \
 
     return bs;
 }
+
+} // namespace enc
+
+namespace dec {
+
+/* NOTE: this is jpeg's RLE (rely on many zeros in data and omitting DC) */
+template<typename T>
+std::vector<T> RLE(const std::vector<T> RLE_data) {
+    std::vector<T> data(64);
+	u64 write_i = 0;
+
+	for (u64 i = 0; i < RLE_data.size(); i += 3) {
+		u8 run  = RLE_data[i];
+		u8 size = RLE_data[i+1];
+		if (size == 0 && run == 0) break;
+		if (size == 0 && run == 0xF) break;
+		s16 ampl = RLE_data[i+2];
+		INFO("run = %d size = %d, ampl = %d\n", run, size, ampl);
+		write_i += run;
+		data[write_i] = ampl;
+		write_i++;
+	}
+    return data;
+}
+
+std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& bs) {
+	print(bs);
+
+	std::array<std::vector<ImageChannel<s16>>, 3> v;
+	s16 DC = decode_dc(bs, LUMINANCE_DC_MAP());
+	INFO("DC = %d\n", DC);
+
+	std::vector<s16> RLE_data;
+	while(1) {
+		s16 AC = decode_ac_symbol(bs, LUMINANCE_AC_MAP());
+		uint8_t run  = AC >> 4;
+		uint8_t size = AC & 0x0F;
+		INFO("run = %d size = %d\n", run, size);
+		RLE_data.push_back(run);
+		RLE_data.push_back(size);
+		if (size == 0 && run == 0) break;
+		s16 ampl = extend_dc_value(size, bs);
+		INFO("ampl = %d\n", ampl);
+		RLE_data.push_back(ampl);
+	}
+
+	std::vector<s16> data = dec::RLE(RLE_data);
+	printf("size = %d\n", data.size());
+	for (u64 i = 0; i < data.size(); i++)
+		printf("%d ", data[i]);
+	printf("\n");
+	
+	return v;
+}
+
+} // namespace dec
 
 #endif // ENTROPYCODING_H

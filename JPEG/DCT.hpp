@@ -77,11 +77,35 @@ ImageChannel<u8> DCT(const ImageChannel<s16>& data) {
     ImageChannel<u8> decoded_data(data.width(), data.height());
     decoded_data.resize(data.width(), data.height());
     for (u64 i = 0; i < data.height(); i++)
-        for (u64 j = 0; j < data.width(); j++)
-            decoded_data(i, j) = (u8)(f(i, j) + 128.0);
+        for (u64 j = 0; j < data.width(); j++) {
+            f64 _f = f(i, j) + 128.0;
+            s16 r = (s16)std::round(_f);
+            if (0 <= r && r <= 255) decoded_data(i, j) = static_cast<u8>(r);
+            if (r > 255) decoded_data(i, j) = 255;
+            if (r < 0) decoded_data(i, j) = 0;
+        }
+            
 
     return decoded_data;
 }
+
+std::vector<ImageChannel<u8>> DCT(const std::vector<ImageChannel<s16>>& _MCUs) {
+    g_timers.start("IDCT MCUs");
+
+    std::vector<ImageChannel<u8>> DCT_MCUs(_MCUs.size());
+    for (u64 i = 0; i < _MCUs.size(); i++) {
+        DCT_MCUs[i].resize(_MCUs[i].width(), _MCUs[i].height());
+        DCT_MCUs[i] = dec::DCT(_MCUs[i]);
+    }
+    g_timers.end("IDCT MCUs");
+
+    u64 duration = g_timers.duration("IDCT MCUs");
+
+    INFO("IDCT MCUs for %llu MCUs duration = %llu ms\n", _MCUs.size(), duration);
+
+    return DCT_MCUs;
+}
+
 
 } // namespace dec
 

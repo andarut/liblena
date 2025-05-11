@@ -50,12 +50,16 @@ public:
 	u32 read_bits(u64 size) {
 		uint32_t v = 0;
 		while (size--) {
+            if (m_offset == m_buf.size()*8) {
+                ERROR("out of bounce %lu / %zu\n", m_offset, m_buf.size()*8);
+            }
 			size_t b = m_offset >> 3;
 			uint64_t i = 7 - (m_offset & 7);
 			v = (v << 1) | ((m_buf[b] >> i) & 1);
 			++m_offset;
+            
 		}
-        DEBUG("offset = %lu, value = %lu\n", m_offset, v);
+        DEBUG("offset = %lu / %zu, value = %d\n", m_offset, m_buf.size()*8, v);
 		return v;
 	}
 

@@ -14,7 +14,7 @@ TEST(TEST_entropycoding, zigzag_order) {
         0, 0, 0, 0, 0, 0, 0, 0
     });
     
-    auto zigzag_data = zigzag(TEST_data);
+    auto zigzag_data = enc::zigzag(TEST_data);
     
     ASSERT_EQ(zigzag_data, std::vector<s16>({
         -26, -3, 0, -3, -2, -6, 2, -4,
@@ -40,7 +40,7 @@ TEST(TEST_entropycoding, rle) {
         0, 0, 0, 0, 0, 0, 0, 0
     });
 
-    auto RLE_data = RLE(TEST_data);
+    auto RLE_data = enc::RLE(TEST_data);
 
     for (u64 i = 0; i < RLE_data.size(); i += 3) {
         printf("%d %d %d\n", RLE_data[i], RLE_data[i+1], RLE_data[i+2]);

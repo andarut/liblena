@@ -85,6 +85,23 @@ ImageChannel<s16> quantization(ImageChannel<s16> ch, u8 quality) {
     return decoded_data;
 }
 
+std::vector<ImageChannel<s16>> quantization(const std::vector<ImageChannel<s16>>& _MCUs, u8 quality) {
+    g_timers.start("dequantization MCUs");
+
+    std::vector<ImageChannel<s16>> quantization_MCUs(_MCUs.size());
+    for (u64 i = 0; i < _MCUs.size(); i++) {
+        quantization_MCUs[i].resize(_MCUs[i].width(), _MCUs[i].height());
+        quantization_MCUs[i] = dec::quantization(_MCUs[i], quality);
+    }
+    g_timers.end("dequantization MCUs");
+
+    u64 duration = g_timers.duration("dequantization MCUs");
+
+    INFO("dequantization MCUs for %llu MCUs duration = %llu ms\n", _MCUs.size(), duration);
+
+    return quantization_MCUs;
+}
+
 } // namespace dec
 
 #endif // QUANTIZATION_H

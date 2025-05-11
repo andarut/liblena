@@ -64,27 +64,32 @@ std::vector<ImageChannel<T>> MCUs(ImageChannel<T> ch, MCUMode mode) {
 
 } // namespace enc
 
-// template <typename T>
-// RawChannelData<T> decode_blocksplitting(BlockSplitedChannelData<T> data) {
-//     RawChannelData<T> decoded_data(data.original_width, data.original_height);
+namespace dec {
 
-//     u64 write_i = 0, write_j = 0;
-//     for (auto& MCU : data.MCUs) {
-//         for (u64 read_i = 0; read_i < data.mode.h; read_i++) {
-//             for (u64 read_j = 0; read_j < data.mode.w; read_j++) {
-//                 decoded_data(write_i+read_i, write_j+read_j) = MCU(read_i, read_j);
-//             }
-//         }
-//         write_j += data.mode.w;
-//         if (write_j >= decoded_data.width) {
-//             write_j = 0;
-//             write_i += data.mode.h;
-//         }
-//     }
+template <typename T>
+ImageChannel<T> MCUs(std::vector<ImageChannel<T>> MCUs, MCUMode mode) {
+    ImageChannel<T> decoded_data(8, 8);
+    decoded_data.resize(8, 8);
 
-//     /* TODO: add non-block's pixels techniques */
+    u64 write_i = 0, write_j = 0;
+    for (auto& MCU : MCUs) {
+        for (u64 read_i = 0; read_i < mode.height; read_i++) {
+            for (u64 read_j = 0; read_j < mode.width; read_j++) {
+                decoded_data(write_i+read_i, write_j+read_j) = MCU(read_i, read_j);
+            }
+        }
+        write_j += mode.width;
+        if (write_j >= decoded_data.width()) {
+            write_j = 0;
+            write_i += mode.height;
+        }
+    }
 
-//     return decoded_data;
-// }
+    /* TODO: add non-block's pixels techniques */
+
+    return decoded_data;
+}
+
+} // namespace dec
 
 #endif // MCUS_H

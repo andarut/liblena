@@ -60,6 +60,12 @@ std::vector<ImageChannel<u8>> JPEG(BitStream& bs) {
     printf("DECODED readed Y_data\n");
     print_ch(Y_MCUs[0]);
 
+    printf("DECODED readed Cb_data\n");
+    print_ch(Cb_MCUs[0]);
+
+    printf("DECODED readed Cr_data\n");
+    print_ch(Cr_MCUs[0]);
+
     auto Y_dequantizated_MCUs  = dec::quantization(Y_MCUs, 50);
     auto Cb_dequantizated_MCUs = dec::quantization(Cb_MCUs, 50);
     auto Cr_dequantizated_MCUs = dec::quantization(Cr_MCUs, 50);
@@ -67,12 +73,24 @@ std::vector<ImageChannel<u8>> JPEG(BitStream& bs) {
     printf("DECODED Y_dequantizated_MCUs\n");
     print_ch(Y_dequantizated_MCUs[0]);
 
+    printf("DECODED Cb_dequantizated_MCUs\n");
+    print_ch(Cb_dequantizated_MCUs[0]);
+
+    printf("DECODED Cr_dequantizated_MCUs\n");
+    print_ch(Cr_dequantizated_MCUs[0]);
+
     auto Y_IDCT_MCUs  = dec::DCT(Y_dequantizated_MCUs);
     auto Cb_IDCT_MCUs = dec::DCT(Cb_dequantizated_MCUs);
     auto Cr_IDCT_MCUs = dec::DCT(Cr_dequantizated_MCUs);
 
     printf("DECODED Y_IDCT\n");
     print_ch(Y_IDCT_MCUs[0]);
+
+    printf("DECODED Cb_IDCT\n");
+    print_ch(Cb_IDCT_MCUs[0]);
+
+    printf("DECODED Cr_IDCT\n");
+    print_ch(Cr_IDCT_MCUs[0]);
 
     auto Y  = dec::MCUs(Y_IDCT_MCUs, {8, 8});
     auto Cb = dec::MCUs(Cb_IDCT_MCUs, {8, 8});
@@ -84,9 +102,18 @@ std::vector<ImageChannel<u8>> JPEG(BitStream& bs) {
     printf("DECODED Y_data\n");
     print_ch(Y);
 
-    auto RGB_data = YCbCr2RGB({Y, Y, Y});
+    printf("DECODED Cb_data\n");
+    print_ch(Cb);
 
-    g_visualization.show(Y);
+    printf("DECODED Cr_data\n");
+    print_ch(Cr);
+
+    auto RGB_data = YCbCr2RGB({Y, Cb, Cr});
+
+    // g_visualization.show(Y);
+    // g_visualization.show(Cb);
+    // g_visualization.show(Cr);
+    g_visualization.show(RGB_data);
 
     return RGB_data;
 }

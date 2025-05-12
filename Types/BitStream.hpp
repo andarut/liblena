@@ -6,12 +6,9 @@
 inline std::string bit_string(u32 value, u8 size) {
 	std::string s;
 	s.reserve(size);
-	for (size_t i = 0; i < size; ++i) {
-		u64 byte_idx = i >> 3;
-		u64 bit_idx = 7 - (i & 7);
-		u8 bit = (value >> bit_idx) & 1;
-		s.push_back(bit ? '1' : '0');
-	}
+	for (int8_t i = size - 1; i >= 0; --i) {
+        s.push_back(((value >> i) & 1) ? '1' : '0');
+    }
 	return s;
 }
 

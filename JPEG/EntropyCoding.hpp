@@ -481,6 +481,7 @@ static constexpr std::array<HuffEntry, 16*16> CHROMINANCE_AC = [](){
 	return tbl;
 }();
 
+
 std::unordered_map<u32, u8> CHROMINANCE_AC_MAP(){
     std::unordered_map<u32, u8> map{};
     for (uint16_t idx = 0; idx < CHROMINANCE_AC.size(); ++idx) {
@@ -491,6 +492,7 @@ std::unordered_map<u32, u8> CHROMINANCE_AC_MAP(){
     }
     return map;
 }
+
 
 u8 decode_ac_symbol(BitStream& bs,
                          const std::unordered_map<uint32_t,uint8_t>& acMap) {
@@ -505,12 +507,15 @@ u8 decode_ac_symbol(BitStream& bs,
 }
 
 
-void writeVLI(BitStream &bs, s32 amplitude, u16 size) {
-	u32 abs_amplitude = std::abs(amplitude);
+void writeVLI(BitStream &bs, s32 ampl, u16 size) {
+	u32 abs_ampl = std::abs(ampl);
+
+	INFO("amplitude = %d, size = %d, VLI = %s\n", ampl, size, bit_string(abs_ampl, size).c_str());
 
 	for (int i = int(size) - 1; i >= 0; --i) {
-		uint32_t bit = (abs_amplitude >> i) & 1u;
-		if (amplitude < 0) bit ^= 1u;
+		uint32_t bit = (abs_ampl >> i) & 1u;
+		if (ampl < 0) bit ^= 1u;
+		printf("write bit = %d\n", bit);
 		bs.write_bits(bit, 1);
 	}
 }
@@ -546,19 +551,33 @@ void writeChrominanceDC(BitStream &bs, s32 diff) {
 }
 
 void writeLuminanceAC(BitStream &bs, u32 run, u16 size, s32 amplitude) {
-	DEBUG("run = %llu, size = %llu, ampl = %d\n", run, size, amplitude);
+	INFO("run = %llu, size = %llu, ampl = %d\n", run, size, amplitude);
 	auto &e = LUMINANCE_AC[(run<<4)|size];
-	DEBUG("code = %s / %02x, length = %d\n", bit_string(e.code, e.length).c_str(), e.code, e.length);
+	INFO("LUMINANCE code = %s / %02x, length = %d\n", bit_string(e.code, e.length).c_str(), e.code, e.length);
 	bs.write_bits(e.code, e.length);
 	writeVLI(bs, amplitude, size);
 }
 
+void writeLuminanceAC(BitStream &bs, u32 run, u16 size) {
+	INFO("run = %llu, size = %llu\n", run, size);
+	auto &e = LUMINANCE_AC[(run<<4)|size];
+	INFO("LUMINANCE code = %s / %02x, length = %d\n", bit_string(e.code, e.length).c_str(), e.code, e.length);
+	bs.write_bits(e.code, e.length);
+}
+
 void writeChrominanceAC(BitStream &bs, u32 run, u16 size, s32 amplitude) {
-	DEBUG("run = %llu, size = %llu, ampl = %d\n", run, size, amplitude);
+	INFO("run = %llu, size = %llu, ampl = %d\n", run, size, amplitude);
 	auto &e = CHROMINANCE_AC[(run<<4)|size];
-	INFO("code = %s / %02x, length = %d\n", bit_string(e.code, e.length).c_str(), e.code, e.length);
+	INFO("CHROMINANCE code = %s / %02x, length = %d\n", bit_string(e.code, e.length).c_str(), e.code, e.length);
 	bs.write_bits(e.code, e.length);
 	writeVLI(bs, amplitude, size);
+}
+
+void writeChrominanceAC(BitStream &bs, u32 run, u16 size) {
+	INFO("run = %llu, size = %llu\n", run, size);
+	auto &e = CHROMINANCE_AC[(run<<4)|size];
+	INFO("CHROMINANCE code = %s / %02x, length = %d\n", bit_string(e.code, e.length).c_str(), e.code, e.length);
+	bs.write_bits(e.code, e.length);
 }
 
 namespace enc {
@@ -636,9 +655,9 @@ BitStream entropy_coding(std::vector<ImageChannel<s16>>  Y_MCUs, \
     BitStream bs;
 
 	/* Y */
-    auto first_DC = Y_MCUs[0](0, 0);
+    auto Y_first_DC = Y_MCUs[0](0, 0);
     for (auto& Y_MCU : Y_MCUs) {
-        writeLuminanceDC(bs, Y_MCU(0, 0) - first_DC);
+        writeLuminanceDC(bs, Y_MCU(0, 0) - Y_first_DC);
         auto zigzag_order = enc::zigzag(Y_MCU);
 		printf("ENCODED Y ZIGZAG ORDER\n");
 		for (u64 i = 0; i < 8; i++) {
@@ -651,73 +670,93 @@ BitStream entropy_coding(std::vector<ImageChannel<s16>>  Y_MCUs, \
 		for (u64 i = 0; i < RLE_data.size(); i++)
 			printf("%d ", RLE_data[i]);
 		printf("\n");
-        auto EOB = (RLE_data.size() % 3 == 0) ? false : true;
-        auto size = RLE_data.size() - (EOB ? 2 : 0);
-        for (u64 i = 0; i < size; i += 3) {
+        for (u64 i = 0; i < RLE_data.size(); i += 3) {
             auto run =  RLE_data[i];
             auto size = RLE_data[i+1];
+			if (size == 0 && run == 0) {
+				printf("WRITE EOB\n");
+            	bs.write_bits(0b1010, 4);
+				break;
+			}
+			if (size == 0 && run == 0xF) {
+				writeLuminanceAC(bs, run, size);
+				continue;
+			}
+
             auto ampl = RLE_data[i+2];
-			
             writeLuminanceAC(bs, run, size, ampl);
         }
-        if (EOB) {
-			printf("WRITE EOB\n");
-            bs.write_bits(0b1010, 4);
-        }
-    } 
+    }
 
 	/* Cb */
-    first_DC = Cb_MCUs[0](0, 0);
+	auto Cb_first_DC = Cb_MCUs[0](0, 0);
+	printf("Cb_first_DC = %d\n", Cb_first_DC);
     for (auto& Cb_MCU : Cb_MCUs) {
-        writeChrominanceDC(bs, Cb_MCU(0, 0) - first_DC);
-        auto zigzag_order = zigzag(Cb_MCU);
+        writeChrominanceDC(bs, Cb_MCU(0, 0) - Cb_first_DC);
+        auto zigzag_order = enc::zigzag(Cb_MCU);
 		printf("ENCODED Cb ZIGZAG ORDER\n");
 		for (u64 i = 0; i < 8; i++) {
 			for (u64 j = 0; j < 8; j++)
 				printf("%d ", zigzag_order[i*8+j]);
 			printf("\n");
 		}
-        auto RLE_data = RLE(zigzag_order);
+        auto RLE_data = enc::RLE(zigzag_order);
 		printf("ENCODED Cb RLE DATA\n");
 		for (u64 i = 0; i < RLE_data.size(); i++)
 			printf("%d ", RLE_data[i]);
 		printf("\n");
-        auto EOB = (RLE_data.size() % 3 == 0) ? false : true;
-        auto size = RLE_data.size() - (EOB ? 2 : 0);
-        for (u64 i = 0; i < size; i += 3) {
+        for (u64 i = 0; i < RLE_data.size(); i += 3) {
             auto run =  RLE_data[i];
             auto size = RLE_data[i+1];
+			if (size == 0 && run == 0) {
+				printf("WRITE EOB\n");
+            	writeChrominanceAC(bs, run, size);
+				break;
+			}
+			if (size == 0 && run == 0xF) {
+				writeChrominanceAC(bs, run, size);
+				continue;
+			}
+
             auto ampl = RLE_data[i+2];
-			printf("WRITE Cn AC %d %d\n", run, ampl);
             writeChrominanceAC(bs, run, size, ampl);
         }
-        if (EOB) {
-			printf("WRITE EOB\n");
-            bs.write_bits(0b1010, 4);
-        }
-    } 
+    }
 
 	/* Cr */
-    first_DC = Cr_MCUs[0](0, 0);
+    auto Cr_first_DC = Cr_MCUs[0](0, 0);
+	printf("Cb_first_DC = %d\n", Cr_first_DC);
     for (auto& Cr_MCU : Cr_MCUs) {
-        writeChrominanceDC(bs, Cr_MCU(0, 0) - first_DC);
-        auto zigzag_order = zigzag(Cr_MCU);
-        auto RLE_data = RLE(zigzag_order);
-		// for (u64 i = 0; i < RLE_data.size(); i++)
-		// 	printf("%d ", RLE_data[i]);
-		// printf("\n");
-        auto EOB = (RLE_data.size() % 3 == 0) ? false : true;
-        auto size = RLE_data.size() - (EOB ? 2 : 0);
-        for (u64 i = 0; i < size; i += 3) {
+        writeChrominanceDC(bs, Cr_MCU(0, 0) - Cr_first_DC);
+        auto zigzag_order = enc::zigzag(Cr_MCU);
+		printf("ENCODED Cr ZIGZAG ORDER\n");
+		for (u64 i = 0; i < 8; i++) {
+			for (u64 j = 0; j < 8; j++)
+				printf("%d ", zigzag_order[i*8+j]);
+			printf("\n");
+		}
+        auto RLE_data = enc::RLE(zigzag_order);
+		printf("ENCODED Cr RLE DATA\n");
+		for (u64 i = 0; i < RLE_data.size(); i++)
+			printf("%d ", RLE_data[i]);
+		printf("\n");
+        for (u64 i = 0; i < RLE_data.size(); i += 3) {
             auto run =  RLE_data[i];
             auto size = RLE_data[i+1];
+			if (size == 0 && run == 0) {
+				printf("WRITE EOB\n");
+            	writeChrominanceAC(bs, run, size);
+				break;
+			}
+			if (size == 0 && run == 0xF) {
+				writeChrominanceAC(bs, run, size);
+				continue;
+			}
+
             auto ampl = RLE_data[i+2];
             writeChrominanceAC(bs, run, size, ampl);
         }
-        if (EOB) {
-            bs.write_bits(0b1010, 4);
-        }
-    } 
+    }
 
     return bs;
 }
@@ -790,9 +829,9 @@ std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& bs) {
 	chs_MCUs[2].resize(1);
 	
 	/* Y */
-	s16 first_DC = 0;
+	auto Y_first_DC = 0;
 	for (u64 i = 0; i < 1; i++) {
-		s16 DC = first_DC + decode_dc(bs, LUMINANCE_DC_MAP());
+		s16 DC = Y_first_DC + decode_dc(bs, LUMINANCE_DC_MAP());
 		INFO("DC = %d\n", DC);
 
 		std::vector<s16> RLE_data;
@@ -804,6 +843,7 @@ std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& bs) {
 			RLE_data.push_back(run);
 			RLE_data.push_back(size);
 			if (size == 0 && run == 0) break;
+			if (size == 0 && run == 0xF) continue;
 			s16 ampl = extend_dc_value(size, bs);
 			INFO("run = %d size = %d, ampl = %d\n", run, size, ampl);
 			RLE_data.push_back(ampl);
@@ -813,9 +853,9 @@ std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& bs) {
 	}
 
 	/* Cb */
-	first_DC = 0;
+	auto Cb_first_DC = 0;
 	for (u64 i = 0; i < 1; i++) {
-		s16 DC = first_DC + decode_dc(bs, CHROMINANCE_DC_MAP());
+		s16 DC = Cb_first_DC + decode_dc(bs, CHROMINANCE_DC_MAP());
 		INFO("DC = %d\n", DC);
 
 		std::vector<s16> RLE_data;
@@ -827,18 +867,19 @@ std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& bs) {
 			RLE_data.push_back(run);
 			RLE_data.push_back(size);
 			if (size == 0 && run == 0) break;
+			if (size == 0 && run == 0xF) continue;
 			s16 ampl = extend_dc_value(size, bs);
-			INFO("ampl = %d\n", ampl);
+			INFO("run = %d size = %d, ampl = %d\n", run, size, ampl);
 			RLE_data.push_back(ampl);
 		}
 
 		chs_MCUs[1][i] = dec::zigzag(dec::RLE(DC, RLE_data), 8);
 	}
 
-	/* Cr */
-	first_DC = 0;
+	// /* Cr */
+	auto Cr_first_DC = 0;
 	for (u64 i = 0; i < 1; i++) {
-		s16 DC = first_DC + decode_dc(bs, CHROMINANCE_DC_MAP());
+		s16 DC = Cr_first_DC + decode_dc(bs, CHROMINANCE_DC_MAP());
 		INFO("DC = %d\n", DC);
 
 		std::vector<s16> RLE_data;
@@ -850,14 +891,18 @@ std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& bs) {
 			RLE_data.push_back(run);
 			RLE_data.push_back(size);
 			if (size == 0 && run == 0) break;
+			if (size == 0 && run == 0xF) continue;
 			s16 ampl = extend_dc_value(size, bs);
-			INFO("ampl = %d\n", ampl);
+			INFO("run = %d size = %d, ampl = %d\n", run, size, ampl);
 			RLE_data.push_back(ampl);
 		}
 
 		chs_MCUs[2][i] = dec::zigzag(dec::RLE(DC, RLE_data), 8);
 	}
 	
+	// chs_MCUs[0][0] = chs_MCUs[2][0];
+	// chs_MCUs[1][0] = chs_MCUs[2][0];
+
 	return chs_MCUs;
 }
 

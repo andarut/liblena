@@ -1,5 +1,14 @@
 #include "lena.hpp"
 
+/*
+working
+
+cjpeg -debug -quality 50 -baseline -dct float -outfile test.jpg -sample 1x1,1x1,1x1 8x8.ppm 
+
+4x4, 8x8, 50
+
+*/
+
 namespace enc {
 
 /* ENCODER */
@@ -31,9 +40,9 @@ BitStream JPEG(const std::vector<ImageChannel<u8>>& RGB_data) {
     print_ch(Y_DCT[0]);
 
     /* Quantization */
-    auto Y_quantizated  = enc::quantization(Y_DCT,  50);
-    auto Cb_quantizated = enc::quantization(Cb_DCT, 50);
-    auto Cr_quantizated = enc::quantization(Cr_DCT, 50);
+    auto Y_quantizated  = enc::luminance_quantization(Y_DCT,  50);
+    auto Cb_quantizated = enc::chrominance_quantization(Cb_DCT, 50);
+    auto Cr_quantizated = enc::chrominance_quantization(Cr_DCT, 50);
 
     printf("ENCODED Y_quantizated\n");
     print_ch(Y_quantizated[0]);
@@ -66,9 +75,9 @@ std::vector<ImageChannel<u8>> JPEG(BitStream& bs) {
     printf("DECODED readed Cr_data\n");
     print_ch(Cr_MCUs[0]);
 
-    auto Y_dequantizated_MCUs  = dec::quantization(Y_MCUs, 50);
-    auto Cb_dequantizated_MCUs = dec::quantization(Cb_MCUs, 50);
-    auto Cr_dequantizated_MCUs = dec::quantization(Cr_MCUs, 50);
+    auto Y_dequantizated_MCUs  = dec::luminance_quantization(Y_MCUs, 50);
+    auto Cb_dequantizated_MCUs = dec::chrominance_quantization(Cb_MCUs, 50);
+    auto Cr_dequantizated_MCUs = dec::chrominance_quantization(Cr_MCUs, 50);
 
     printf("DECODED Y_dequantizated_MCUs\n");
     print_ch(Y_dequantizated_MCUs[0]);
@@ -113,7 +122,14 @@ std::vector<ImageChannel<u8>> JPEG(BitStream& bs) {
     // g_visualization.show(Y);
     // g_visualization.show(Cb);
     // g_visualization.show(Cr);
-    g_visualization.show(RGB_data);
+    // g_visualization.show(RGB_data);
+
+    printf("DECODED R_data\n");
+    print_ch(RGB_data[0]);
+    printf("DECODED G_data\n");
+    print_ch(RGB_data[1]);
+    printf("DECODED B_data\n");
+    print_ch(RGB_data[2]);
 
     return RGB_data;
 }

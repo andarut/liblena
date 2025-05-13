@@ -29,7 +29,7 @@ static constexpr std::array<HuffEntry,12> LUMINANCE_DC = {{
 	/* 11 */ { 9, 0b111111110 },
 }};
 
-std::unordered_map<u32, u8> LUMINANCE_DC_MAP() {
+static std::unordered_map<u32, u8> LUMINANCE_DC_MAP() {
     std::unordered_map<u32, u8> dcMap;
     for (uint8_t symbol = 0; symbol < LUMINANCE_DC.size(); ++symbol) {
         auto entry = LUMINANCE_DC[symbol];
@@ -55,7 +55,7 @@ static constexpr std::array<HuffEntry,12> CHROMINANCE_DC = {{
 	/* 11 */ { 11, 0b11111111110 },
 }};
 
-std::unordered_map<u32, u8> CHROMINANCE_DC_MAP() {
+static std::unordered_map<u32, u8> CHROMINANCE_DC_MAP() {
     std::unordered_map<u32, u8> dcMap;
     for (uint8_t symbol = 0; symbol < CHROMINANCE_DC.size(); ++symbol) {
         auto entry = CHROMINANCE_DC[symbol];
@@ -65,7 +65,7 @@ std::unordered_map<u32, u8> CHROMINANCE_DC_MAP() {
     return dcMap;
 }
 
-u16 decode_dc_category(BitStream& bs, const std::unordered_map<u32, u8>& dcMap) {
+static u16 decode_dc_category(BitStream& bs, const std::unordered_map<u32, u8>& dcMap) {
     u16 code = 0;
     for (uint8_t length = 1; length <= 16; ++length) {
         code = (code << 1) | bs.nextBit();
@@ -78,7 +78,7 @@ u16 decode_dc_category(BitStream& bs, const std::unordered_map<u32, u8>& dcMap) 
     throw std::runtime_error("Invalid DC Huffman code");
 }
 
-s16 extend_dc_value(uint16_t S, BitStream& bs) {
+static s16 extend_dc_value(uint16_t S, BitStream& bs) {
     if (S == 0) return 0;
     s16 bits = 0;
     for (u16 i = 0; i < S; ++i) {
@@ -91,7 +91,7 @@ s16 extend_dc_value(uint16_t S, BitStream& bs) {
     return bits;
 }
 
-s16 decode_dc(BitStream& bs, const std::unordered_map<u32, u8>& dcMap) {
+static s16 decode_dc(BitStream& bs, const std::unordered_map<u32, u8>& dcMap) {
     s16 category = decode_dc_category(bs, dcMap);
     return extend_dc_value(category, bs);
 }
@@ -283,7 +283,7 @@ static constexpr std::array<HuffEntry, 16*16> LUMINANCE_AC = [](){
 	return tbl;
 }();
 
-std::unordered_map<u32, u8> LUMINANCE_AC_MAP(){
+static std::unordered_map<u32, u8> LUMINANCE_AC_MAP(){
     std::unordered_map<u32, u8> map{};
     for (uint16_t idx = 0; idx < LUMINANCE_AC.size(); ++idx) {
         auto e = LUMINANCE_AC[idx];
@@ -481,8 +481,7 @@ static constexpr std::array<HuffEntry, 16*16> CHROMINANCE_AC = [](){
 	return tbl;
 }();
 
-
-std::unordered_map<u32, u8> CHROMINANCE_AC_MAP(){
+static std::unordered_map<u32, u8> CHROMINANCE_AC_MAP(){
     std::unordered_map<u32, u8> map{};
     for (uint16_t idx = 0; idx < CHROMINANCE_AC.size(); ++idx) {
         auto e = CHROMINANCE_AC[idx];
@@ -493,8 +492,7 @@ std::unordered_map<u32, u8> CHROMINANCE_AC_MAP(){
     return map;
 }
 
-
-u8 decode_ac_symbol(BitStream& bs,
+static u8 decode_ac_symbol(BitStream& bs,
                          const std::unordered_map<uint32_t,uint8_t>& acMap) {
     uint16_t code = 0;
     for (uint8_t len = 1; len <= 16; ++len) {
@@ -506,8 +504,7 @@ u8 decode_ac_symbol(BitStream& bs,
     throw std::runtime_error("Invalid AC Huffman code");
 }
 
-
-void writeVLI(BitStream &bs, s32 ampl, u16 size) {
+static void writeVLI(BitStream &bs, s32 ampl, u16 size) {
 	u32 abs_ampl = std::abs(ampl);
 
 	INFO("amplitude = %d, size = %d, VLI = %s\n", ampl, size, bit_string(abs_ampl, size).c_str());
@@ -520,15 +517,15 @@ void writeVLI(BitStream &bs, s32 ampl, u16 size) {
 	}
 }
 
-u8 categoryDC(s32 diff) {
+static u8 categoryDC(s32 diff) {
 	u32 abs_amplitude = std::abs(diff);
 	u8 cat = 0;
 	while (abs_amplitude >>= 1) ++cat;
 	return cat;
 }
 
-void writeLuminanceDC(BitStream &bs, s32 diff) {
-	INFO("diff = %llu\n", diff);
+static void writeLuminanceDC(BitStream &bs, s32 diff) {
+	INFO("diff = %d\n", diff);
 	u8 cat = categoryDC(diff);
 	assert(cat >= 0 && cat < 12);
 	auto e = LUMINANCE_DC[cat];
@@ -539,7 +536,7 @@ void writeLuminanceDC(BitStream &bs, s32 diff) {
 		writeVLI(bs, diff, cat);
 }
 
-void writeChrominanceDC(BitStream &bs, s32 diff) {
+static void writeChrominanceDC(BitStream &bs, s32 diff) {
 	u8 cat = categoryDC(diff);
 	assert(cat >= 0 && cat < 12);
 
@@ -550,7 +547,7 @@ void writeChrominanceDC(BitStream &bs, s32 diff) {
 		writeVLI(bs, diff, cat);
 }
 
-void writeLuminanceAC(BitStream &bs, u32 run, u16 size, s32 amplitude) {
+static void writeLuminanceAC(BitStream &bs, u32 run, u16 size, s32 amplitude) {
 	INFO("run = %llu, size = %llu, ampl = %d\n", run, size, amplitude);
 	auto &e = LUMINANCE_AC[(run<<4)|size];
 	INFO("LUMINANCE code = %s / %02x, length = %d\n", bit_string(e.code, e.length).c_str(), e.code, e.length);
@@ -558,14 +555,14 @@ void writeLuminanceAC(BitStream &bs, u32 run, u16 size, s32 amplitude) {
 	writeVLI(bs, amplitude, size);
 }
 
-void writeLuminanceAC(BitStream &bs, u32 run, u16 size) {
+static void writeLuminanceAC(BitStream &bs, u32 run, u16 size) {
 	INFO("run = %llu, size = %llu\n", run, size);
 	auto &e = LUMINANCE_AC[(run<<4)|size];
 	INFO("LUMINANCE code = %s / %02x, length = %d\n", bit_string(e.code, e.length).c_str(), e.code, e.length);
 	bs.write_bits(e.code, e.length);
 }
 
-void writeChrominanceAC(BitStream &bs, u32 run, u16 size, s32 amplitude) {
+static void writeChrominanceAC(BitStream &bs, u32 run, u16 size, s32 amplitude) {
 	INFO("run = %llu, size = %llu, ampl = %d\n", run, size, amplitude);
 	auto &e = CHROMINANCE_AC[(run<<4)|size];
 	INFO("CHROMINANCE code = %s / %02x, length = %d\n", bit_string(e.code, e.length).c_str(), e.code, e.length);
@@ -573,7 +570,7 @@ void writeChrominanceAC(BitStream &bs, u32 run, u16 size, s32 amplitude) {
 	writeVLI(bs, amplitude, size);
 }
 
-void writeChrominanceAC(BitStream &bs, u32 run, u16 size) {
+static void writeChrominanceAC(BitStream &bs, u32 run, u16 size) {
 	INFO("run = %llu, size = %llu\n", run, size);
 	auto &e = CHROMINANCE_AC[(run<<4)|size];
 	INFO("CHROMINANCE code = %s / %02x, length = %d\n", bit_string(e.code, e.length).c_str(), e.code, e.length);
@@ -583,7 +580,7 @@ void writeChrominanceAC(BitStream &bs, u32 run, u16 size) {
 namespace enc {
 
 template<typename T>
-std::vector<T> zigzag(const ImageChannel<T> data) {
+inline std::vector<T> zigzag(const ImageChannel<T> data) {
     std::vector<T> zigzag;
 	zigzag.reserve(data.size());
 
@@ -616,7 +613,7 @@ std::vector<T> zigzag(const ImageChannel<T> data) {
 
 /* NOTE: this is jpeg's RLE (rely on many zeros in data and omitting DC) */
 template<typename T>
-std::vector<T> RLE(const std::vector<T> data) {
+inline std::vector<T> RLE(const std::vector<T> data) {
     std::vector<T> RLE_data;
     RLE_data.reserve(data.size());
 
@@ -649,7 +646,7 @@ std::vector<T> RLE(const std::vector<T> data) {
 }
 
 
-BitStream entropy_coding(std::vector<ImageChannel<s16>>  Y_MCUs, \
+inline BitStream entropy_coding(std::vector<ImageChannel<s16>>  Y_MCUs, \
                          std::vector<ImageChannel<s16>> Cb_MCUs, \
 						 std::vector<ImageChannel<s16>> Cr_MCUs) {
     BitStream bs;
@@ -675,7 +672,7 @@ BitStream entropy_coding(std::vector<ImageChannel<s16>>  Y_MCUs, \
             auto size = RLE_data[i+1];
 			if (size == 0 && run == 0) {
 				printf("WRITE EOB\n");
-            	bs.write_bits(0b1010, 4);
+            	writeLuminanceAC(bs, run, size);
 				break;
 			}
 			if (size == 0 && run == 0xF) {
@@ -766,7 +763,7 @@ BitStream entropy_coding(std::vector<ImageChannel<s16>>  Y_MCUs, \
 namespace dec {
 
 template<typename T>
-ImageChannel<T> zigzag(const std::vector<T> zigzag, u8 w) {
+inline ImageChannel<T> zigzag(const std::vector<T> zigzag, u8 w) {
     ImageChannel<T> data;
 	data.resize(w, zigzag.size()/w);
 
@@ -801,7 +798,7 @@ ImageChannel<T> zigzag(const std::vector<T> zigzag, u8 w) {
 
 /* NOTE: this is jpeg's RLE (rely on many zeros in data and omitting DC) */
 template<typename T>
-std::vector<T> RLE(s16 DC, const std::vector<T> RLE_data) {
+inline std::vector<T> RLE(s16 DC, const std::vector<T> RLE_data) {
     std::vector<T> data(64);
 	data[0] = DC;
 	
@@ -821,7 +818,7 @@ std::vector<T> RLE(s16 DC, const std::vector<T> RLE_data) {
     return data;
 }
 
-std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& bs) {
+inline std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& bs) {
 	std::array<std::vector<ImageChannel<s16>>, 3> chs_MCUs;
 
 	chs_MCUs[0].resize(1);
@@ -842,6 +839,7 @@ std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& bs) {
 			INFO("run = %d size = %d\n", run, size);
 			RLE_data.push_back(run);
 			RLE_data.push_back(size);
+			
 			if (size == 0 && run == 0) break;
 			if (size == 0 && run == 0xF) continue;
 			s16 ampl = extend_dc_value(size, bs);

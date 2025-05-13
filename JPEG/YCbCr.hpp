@@ -11,7 +11,7 @@ JPEG conversion (ITU-T T.871)
 R, G, B   in range [0, 255]
 Y, Cb, Cr in range [0, 255]
 */
-std::vector<ImageChannel<u8>> RGB2YCbCr(const std::vector<ImageChannel<u8>> &RGB_data) {
+inline std::vector<ImageChannel<u8>> RGB2YCbCr(const std::vector<ImageChannel<u8>> &RGB_data) {
     assert(!RGB_data.empty());
 
     INFO("data chs = %zu\n", RGB_data.size());
@@ -66,7 +66,7 @@ JPEG conversion (ITU-T T.871)
 R, G, B   in range [0, 255]
 Y, Cb, Cr in range [0, 255]
 */
-std::vector<ImageChannel<u8>> YCbCr2RGB(const std::vector<ImageChannel<u8>> &YCbCr_data) {
+inline std::vector<ImageChannel<u8>> YCbCr2RGB(const std::vector<ImageChannel<u8>> &YCbCr_data) {
     assert(!YCbCr_data.empty());
 
     INFO("data chs = %zu\n", YCbCr_data.size());

@@ -6,7 +6,7 @@
 #include "Logger.hpp"
 #include "Globals.hpp"
 
-std::vector<ImageChannel<u8>> PPM(std::ifstream &PPM_file) {
+inline std::vector<ImageChannel<u8>> PPM(std::ifstream &PPM_file) {
 
     /* Magic number */
     std::string magic_number;

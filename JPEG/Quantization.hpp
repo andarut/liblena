@@ -33,7 +33,7 @@ inline auto CHROMINANCE_Q_50 = ImageChannel<u8>(8, 8, {
     99,	99,	99,	99,	99,	99,	99,	99,
 });
 
-ImageChannel<u8> LUMINANCE_Q_N(u8 quality) {
+inline ImageChannel<u8> LUMINANCE_Q_N(u8 quality) {
     assert(quality >= 1 && quality <= 100);
     u64 S = (quality < 50) ? (5000 / quality) : (200 - 2*quality);
 
@@ -46,7 +46,7 @@ ImageChannel<u8> LUMINANCE_Q_N(u8 quality) {
     return Q;
 }
 
-ImageChannel<u8> CHROMINANCE_Q_N(u8 quality) {
+inline ImageChannel<u8> CHROMINANCE_Q_N(u8 quality) {
     assert(quality >= 1 && quality <= 100);
     u64 S = (quality < 50) ? (5000 / quality) : (200 - 2*quality);
 
@@ -61,12 +61,12 @@ ImageChannel<u8> CHROMINANCE_Q_N(u8 quality) {
 
 namespace enc {
 
-ImageChannel<s16> luminance_quantization(ImageChannel<f64> ch, u8 quality) {
+inline ImageChannel<s16> luminance_quantization(ImageChannel<f64> ch, u8 quality) {
     assert(ch.width() == 8);
     assert(ch.height() == 8);
     auto Q = LUMINANCE_Q_N(quality);
-    printf("quantization table = ");
-    print_ch(Q);
+    // printf("quantization table = ");
+    // print_ch(Q);
 
     auto quantizated_ch = ImageChannel<s16>(8, 8);
     quantizated_ch.resize(8, 8);
@@ -79,12 +79,12 @@ ImageChannel<s16> luminance_quantization(ImageChannel<f64> ch, u8 quality) {
     return quantizated_ch;
 }
 
-ImageChannel<s16> chrominance_quantization(ImageChannel<f64> ch, u8 quality) {
+inline ImageChannel<s16> chrominance_quantization(ImageChannel<f64> ch, u8 quality) {
     assert(ch.width() == 8);
     assert(ch.height() == 8);
     auto Q = CHROMINANCE_Q_N(quality);
-    printf("quantization table = ");
-    print_ch(Q);
+    // printf("quantization table = ");
+    // print_ch(Q);
 
     auto quantizated_ch = ImageChannel<s16>(8, 8);
     quantizated_ch.resize(8, 8);
@@ -97,7 +97,7 @@ ImageChannel<s16> chrominance_quantization(ImageChannel<f64> ch, u8 quality) {
     return quantizated_ch;
 }
 
-std::vector<ImageChannel<s16>> luminance_quantization(const std::vector<ImageChannel<f64>>& _MCUs, u8 quality) {
+inline std::vector<ImageChannel<s16>> luminance_quantization(const std::vector<ImageChannel<f64>>& _MCUs, u8 quality) {
     g_timers.start("quantization MCUs");
 
     std::vector<ImageChannel<s16>> quantization_MCUs(_MCUs.size());
@@ -114,7 +114,7 @@ std::vector<ImageChannel<s16>> luminance_quantization(const std::vector<ImageCha
     return quantization_MCUs;
 }
 
-std::vector<ImageChannel<s16>> chrominance_quantization(const std::vector<ImageChannel<f64>>& _MCUs, u8 quality) {
+inline std::vector<ImageChannel<s16>> chrominance_quantization(const std::vector<ImageChannel<f64>>& _MCUs, u8 quality) {
     g_timers.start("quantization MCUs");
 
     std::vector<ImageChannel<s16>> quantization_MCUs(_MCUs.size());
@@ -135,7 +135,7 @@ std::vector<ImageChannel<s16>> chrominance_quantization(const std::vector<ImageC
 
 namespace dec {
 
-ImageChannel<s16> luminance_quantization(ImageChannel<s16> ch, u8 quality) {
+inline ImageChannel<s16> luminance_quantization(ImageChannel<s16> ch, u8 quality) {
     auto Q = LUMINANCE_Q_N(quality);
 
     auto decoded_data = ImageChannel<s16>(ch.width(), ch.height());
@@ -149,7 +149,7 @@ ImageChannel<s16> luminance_quantization(ImageChannel<s16> ch, u8 quality) {
     return decoded_data;
 }
 
-ImageChannel<s16> chrominance_quantization(ImageChannel<s16> ch, u8 quality) {
+inline ImageChannel<s16> chrominance_quantization(ImageChannel<s16> ch, u8 quality) {
     auto Q = CHROMINANCE_Q_N(quality);
 
     auto decoded_data = ImageChannel<s16>(ch.width(), ch.height());
@@ -163,7 +163,7 @@ ImageChannel<s16> chrominance_quantization(ImageChannel<s16> ch, u8 quality) {
     return decoded_data;
 }
 
-std::vector<ImageChannel<s16>> luminance_quantization(const std::vector<ImageChannel<s16>>& _MCUs, u8 quality) {
+inline std::vector<ImageChannel<s16>> luminance_quantization(const std::vector<ImageChannel<s16>>& _MCUs, u8 quality) {
     g_timers.start("dequantization MCUs");
 
     std::vector<ImageChannel<s16>> quantization_MCUs(_MCUs.size());
@@ -180,7 +180,7 @@ std::vector<ImageChannel<s16>> luminance_quantization(const std::vector<ImageCha
     return quantization_MCUs;
 }
 
-std::vector<ImageChannel<s16>> chrominance_quantization(const std::vector<ImageChannel<s16>>& _MCUs, u8 quality) {
+inline std::vector<ImageChannel<s16>> chrominance_quantization(const std::vector<ImageChannel<s16>>& _MCUs, u8 quality) {
     g_timers.start("dequantization MCUs");
 
     std::vector<ImageChannel<s16>> quantization_MCUs(_MCUs.size());

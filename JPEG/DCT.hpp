@@ -8,7 +8,7 @@
 
 namespace enc {
 
-ImageChannel<f64> DCT(const ImageChannel<u8>& ch) {
+inline ImageChannel<f64> DCT(const ImageChannel<u8>& ch) {
     ImageChannel<f64> g(ch.width(), ch.height());
     g.resize(ch.width(), ch.height());
 
@@ -35,7 +35,7 @@ ImageChannel<f64> DCT(const ImageChannel<u8>& ch) {
     return G;
 }
 
-std::vector<ImageChannel<f64>> DCT(const std::vector<ImageChannel<u8>>& _MCUs) {
+inline std::vector<ImageChannel<f64>> DCT(const std::vector<ImageChannel<u8>>& _MCUs) {
     g_timers.start("DCT MCUs");
 
     std::vector<ImageChannel<f64>> DCT_MCUs(_MCUs.size());
@@ -57,7 +57,7 @@ std::vector<ImageChannel<f64>> DCT(const std::vector<ImageChannel<u8>>& _MCUs) {
 
 namespace dec {
 
-ImageChannel<u8> DCT(const ImageChannel<s16>& data) {
+inline ImageChannel<u8> DCT(const ImageChannel<s16>& data) {
     
     /* Step 1: Reverse DCT */
     ImageChannel<f64> f(data.width(), data.height());
@@ -89,7 +89,7 @@ ImageChannel<u8> DCT(const ImageChannel<s16>& data) {
     return decoded_data;
 }
 
-std::vector<ImageChannel<u8>> DCT(const std::vector<ImageChannel<s16>>& _MCUs) {
+inline std::vector<ImageChannel<u8>> DCT(const std::vector<ImageChannel<s16>>& _MCUs) {
     g_timers.start("IDCT MCUs");
 
     std::vector<ImageChannel<u8>> DCT_MCUs(_MCUs.size());

@@ -110,6 +110,7 @@ public:
     }
 
 	void rewind() { m_offset = 0; }
+    void set_offset(u64 offset) { m_offset = offset; }
 private:
 	std::vector<u8> m_buf;
 	u64 m_offset;
@@ -124,7 +125,7 @@ inline void print(BitStream& bs) {
             printf(" ");
     }
     printf("\n");
-    bs.rewind();
+    bs.set_offset(totalBits);
 }
 
 

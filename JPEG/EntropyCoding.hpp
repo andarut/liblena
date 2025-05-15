@@ -685,6 +685,9 @@ inline BitStream entropy_coding(std::vector<ImageChannel<s16>>  Y_MCUs, \
         }
     }
 
+	printf("Y bitstream\n");
+	print(bs);
+
 	/* Cb */
 	auto Cb_first_DC = Cb_MCUs[0](0, 0);
 	printf("Cb_first_DC = %d\n", Cb_first_DC);

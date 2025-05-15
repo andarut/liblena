@@ -5,6 +5,10 @@
 
 // cjpeg -debug -quality 50 -baseline -dct float -outfile test.jpg -sample 1x1,1x1,1x1 8x8.ppm 
 
+
+// djpeg -dct float -onepass -verbose -outfile test.ppm test.jpg
+
+
 // 4x4, 8x8, 50
 
 // */

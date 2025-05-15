@@ -5,7 +5,8 @@
 /*
 working
 
-cjpeg -debug -quality 50 -baseline -dct float -outfile test.jpg -sample 1x1,1x1,1x1 8x8.ppm 
+cjpeg -debug -quality 50 -baseline -dct float -outfile test.jpg -sample 1x1,1x1,1x1 8x8.ppm
+djpeg -dct float -verbose -outfile test.ppm test.jpg 
 
 4x4, 8x8, 50
 */
@@ -19,8 +20,10 @@ BitStream JPEG(const std::vector<ImageChannel<u8>>& RGB_data) {
     /* Color Transform */
     auto YCbCr_data = RGB2YCbCr(RGB_data);
 
-    printf("ENCODED Y_data\n");
+    printf("ENCODED YCbCr data\n");
     print_ch(YCbCr_data[0]);
+    print_ch(YCbCr_data[1]);
+    print_ch(YCbCr_data[2]);
 
     /* Downsampling */
     auto Cb_downsampled = enc::downsampling(YCbCr_data[1], {4, 4, 4});
@@ -36,8 +39,13 @@ BitStream JPEG(const std::vector<ImageChannel<u8>>& RGB_data) {
     auto Cb_DCT = enc::DCT(Cb_MCUs);
     auto Cr_DCT = enc::DCT(Cr_MCUs);
 
-    printf("ENCODED Y_DCT\n");
+    printf("ENCODED DCT\n");
+    printf("ENCODED Y DCT\n");
     print_ch(Y_DCT[0]);
+    printf("ENCODED Cb DCT\n");
+    print_ch(Cb_DCT[0]);
+    printf("ENCODED Cr DCT\n");
+    print_ch(Cr_DCT[0]);
 
     /* Quantization */
     auto Y_quantizated  = enc::luminance_quantization(Y_DCT,  50);
@@ -46,6 +54,8 @@ BitStream JPEG(const std::vector<ImageChannel<u8>>& RGB_data) {
 
     printf("ENCODED Y_quantizated\n");
     print_ch(Y_quantizated[0]);
+    print_ch(Cb_quantizated[0]);
+    print_ch(Cr_quantizated[0]);
 
 
     /* Entropy Coding */
@@ -123,7 +133,7 @@ std::vector<ImageChannel<u8>> JPEG(BitStream& bs) {
     // g_visualization.show(Cb);
     // g_visualization.show(Cr);
     printf("bistream size = %d bytes\n", bs.bytes_size());
-    g_visualization.show(RGB_data);
+    // g_visualization.show(RGB_data);
 
     printf("DECODED R_data\n");
     print_ch(RGB_data[0]);
@@ -151,8 +161,10 @@ TEST(TEST_JPEG, JPEG_8x8) {
     dec_bs.fread("JPEG.bs");
     auto decoded_RGB_data = dec::JPEG(dec_bs);
 
+    // g_visualization.show(decoded_RGB_data);
+
     EXPECT_EQ(decoded_RGB_data[0], ImageChannel<u8>(8, 8, {
-        0, 0, 8, 0, 252, 240, 255, 255, // 252 or 253 ???
+        0, 0, 8, 0, 252, 240, 255, 255,
         17, 0, 0, 7, 242, 250, 255, 224,
         0, 9, 252, 245, 10, 0, 238, 255,
         4, 11, 255, 255, 0, 0, 244, 255,

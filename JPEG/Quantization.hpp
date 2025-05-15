@@ -65,6 +65,7 @@ inline ImageChannel<s16> luminance_quantization(ImageChannel<f64> ch, u8 quality
     assert(ch.width() == 8);
     assert(ch.height() == 8);
     auto Q = LUMINANCE_Q_N(quality);
+
     // printf("quantization table = ");
     // print_ch(Q);
 
@@ -73,7 +74,7 @@ inline ImageChannel<s16> luminance_quantization(ImageChannel<f64> ch, u8 quality
 
     for (u64 i = 0; i < 8; i++)
         for (u64 j = 0; j < 8; j++) {
-            quantizated_ch(i, j) = std::round((f64)(ch(i, j))/Q(i, j));
+            quantizated_ch(i, j) = std::round((f64)(ch(i, j))/(f64)(Q(i, j)));
         }
 
     return quantizated_ch;
@@ -83,6 +84,7 @@ inline ImageChannel<s16> chrominance_quantization(ImageChannel<f64> ch, u8 quali
     assert(ch.width() == 8);
     assert(ch.height() == 8);
     auto Q = CHROMINANCE_Q_N(quality);
+    
     // printf("quantization table = ");
     // print_ch(Q);
 
@@ -91,7 +93,7 @@ inline ImageChannel<s16> chrominance_quantization(ImageChannel<f64> ch, u8 quali
 
     for (u64 i = 0; i < 8; i++)
         for (u64 j = 0; j < 8; j++) {
-            quantizated_ch(i, j) = std::round((f64)(ch(i, j))/Q(i, j));
+            quantizated_ch(i, j) = std::round((f64)(ch(i, j))/(f64)(Q(i, j)));
         }
 
     return quantizated_ch;
@@ -135,38 +137,44 @@ inline std::vector<ImageChannel<s16>> chrominance_quantization(const std::vector
 
 namespace dec {
 
-inline ImageChannel<s16> luminance_quantization(ImageChannel<s16> ch, u8 quality) {
+inline ImageChannel<f64> luminance_quantization(ImageChannel<s16> ch, u8 quality) {
     auto Q = LUMINANCE_Q_N(quality);
 
-    auto decoded_data = ImageChannel<s16>(ch.width(), ch.height());
+    // printf("quantization table = ");
+    // print_ch(Q);
+
+    auto decoded_data = ImageChannel<f64>(ch.width(), ch.height());
     decoded_data.resize(ch.width(), ch.height());
 
     for (u64 i = 0; i < ch.height(); i++)
         for (u64 j = 0; j < ch.width(); j++) {
-            decoded_data(i, j) = std::round((f64)(ch(i, j))*Q(i, j));
+            decoded_data(i, j) = (f64)ch(i, j)*(f64)Q(i, j);
         }
 
     return decoded_data;
 }
 
-inline ImageChannel<s16> chrominance_quantization(ImageChannel<s16> ch, u8 quality) {
+inline ImageChannel<f64> chrominance_quantization(ImageChannel<s16> ch, u8 quality) {
     auto Q = CHROMINANCE_Q_N(quality);
 
-    auto decoded_data = ImageChannel<s16>(ch.width(), ch.height());
+    // printf("quantization table = ");
+    // print_ch(Q);
+
+    auto decoded_data = ImageChannel<f64>(ch.width(), ch.height());
     decoded_data.resize(ch.width(), ch.height());
 
     for (u64 i = 0; i < ch.height(); i++)
         for (u64 j = 0; j < ch.width(); j++) {
-            decoded_data(i, j) = std::round((f64)(ch(i, j))*Q(i, j));
+            decoded_data(i, j) = (f64)ch(i, j)*(f64)Q(i, j);
         }
 
     return decoded_data;
 }
 
-inline std::vector<ImageChannel<s16>> luminance_quantization(const std::vector<ImageChannel<s16>>& _MCUs, u8 quality) {
+inline std::vector<ImageChannel<f64>> luminance_quantization(const std::vector<ImageChannel<s16>>& _MCUs, u8 quality) {
     g_timers.start("dequantization MCUs");
 
-    std::vector<ImageChannel<s16>> quantization_MCUs(_MCUs.size());
+    std::vector<ImageChannel<f64>> quantization_MCUs(_MCUs.size());
     for (u64 i = 0; i < _MCUs.size(); i++) {
         quantization_MCUs[i].resize(_MCUs[i].width(), _MCUs[i].height());
         quantization_MCUs[i] = dec::luminance_quantization(_MCUs[i], quality);
@@ -180,10 +188,10 @@ inline std::vector<ImageChannel<s16>> luminance_quantization(const std::vector<I
     return quantization_MCUs;
 }
 
-inline std::vector<ImageChannel<s16>> chrominance_quantization(const std::vector<ImageChannel<s16>>& _MCUs, u8 quality) {
+inline std::vector<ImageChannel<f64>> chrominance_quantization(const std::vector<ImageChannel<s16>>& _MCUs, u8 quality) {
     g_timers.start("dequantization MCUs");
 
-    std::vector<ImageChannel<s16>> quantization_MCUs(_MCUs.size());
+    std::vector<ImageChannel<f64>> quantization_MCUs(_MCUs.size());
     for (u64 i = 0; i < _MCUs.size(); i++) {
         quantization_MCUs[i].resize(_MCUs[i].width(), _MCUs[i].height());
         quantization_MCUs[i] = dec::chrominance_quantization(_MCUs[i], quality);

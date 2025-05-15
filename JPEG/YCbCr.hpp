@@ -42,9 +42,9 @@ inline std::vector<ImageChannel<u8>> RGB2YCbCr(const std::vector<ImageChannel<u8
             u8 Y = \
                 std::clamp(std::round(  0.299 * R +0.587 * G +0.114 * B),             0.0, 255.0);
             u8 Cb = \
-                std::clamp(std::round((-0.299 * R -0.587 * G +0.886 * B)/1.772) +128, 0.0, 255.0);
+                std::clamp(std::round((-0.299 * R -0.587 * G +0.886 * B)/1.772) +128.0, 0.0, 255.0);
             u8 Cr = \
-                std::clamp(std::round(( 0.701 * R -0.587 * G -0.114 * B)/1.402) +128, 0.0, 255.0);
+                std::clamp(std::round(( 0.701 * R -0.587 * G -0.114 * B)/1.402) +128.0, 0.0, 255.0);
         
             (*Y_ch)(i, j)  = Y;
             (*Cb_ch)(i, j) = Cb;

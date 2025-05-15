@@ -15,7 +15,7 @@ inline ImageChannel<f64> DCT(const ImageChannel<u8>& ch) {
     /* Step 1: Recenter around zero */
     for (u64 i = 0; i < ch.height(); i++)
         for (u64 j = 0; j < ch.width(); j++)
-            g(i, j) = (f64)(ch(i, j) - 128);
+            g(i, j) = (f64)(ch(i, j) - 128.0);
 
     ImageChannel<f64> G(ch.width(), ch.height()); 
     G.resize(ch.width(), ch.height()); 
@@ -57,7 +57,7 @@ inline std::vector<ImageChannel<f64>> DCT(const std::vector<ImageChannel<u8>>& _
 
 namespace dec {
 
-inline ImageChannel<u8> DCT(const ImageChannel<s16>& data) {
+inline ImageChannel<u8> DCT(const ImageChannel<f64>& data) {
     
     /* Step 1: Reverse DCT */
     ImageChannel<f64> f(data.width(), data.height());
@@ -66,10 +66,10 @@ inline ImageChannel<u8> DCT(const ImageChannel<s16>& data) {
 
     for (u64 i = 0; i < data.height(); i++)
         for (u64 j = 0; j < data.width(); j++) {
-            f64 sum = 0.0;
+            f64 sum = 0;
             for (u64 u = 0; u < data.height(); u++)
                 for (u64 v = 0; v < data.width(); v++)
-                    sum += alpha(u) * alpha(v) * (f64)data(u, v) * cos((2.0*i+1.0)*u*M_PI/16.0) * cos((2.0*j+1.0)*v*M_PI/16.0);
+                    sum += alpha(u) * alpha(v) * data(u, v) * cos((2.0*i+1.0)*u*M_PI/16.0) * cos((2.0*j+1.0)*v*M_PI/16.0);
             f(i, j) = 0.25 * sum;
         }
     
@@ -78,18 +78,21 @@ inline ImageChannel<u8> DCT(const ImageChannel<s16>& data) {
     decoded_data.resize(data.width(), data.height());
     for (u64 i = 0; i < data.height(); i++)
         for (u64 j = 0; j < data.width(); j++) {
-            f64 _f = f(i, j) + 128.0;
-            s16 r = (s16)std::round(_f);
-            if (0 <= r && r <= 255) decoded_data(i, j) = static_cast<u8>(r);
-            if (r > 255) decoded_data(i, j) = 255;
-            if (r < 0) decoded_data(i, j) = 0;
+            f64 shifted = f(i,j) + 128.0;
+            s16 val = (s16)std::floor(shifted + 0.5);
+            decoded_data(i,j) = (u8)std::min(std::max(val, (s16)0), (s16)255);
+            // f64 _f = f(i, j) + 128.0;
+            // s16 r = (s16)std::round(_f);
+            // if (0 <= r && r <= 255) decoded_data(i, j) = static_cast<u8>(r);
+            // if (r > 255) decoded_data(i, j) = 255;
+            // if (r < 0) decoded_data(i, j) = 0;
         }
             
 
     return decoded_data;
 }
 
-inline std::vector<ImageChannel<u8>> DCT(const std::vector<ImageChannel<s16>>& _MCUs) {
+inline std::vector<ImageChannel<u8>> DCT(const std::vector<ImageChannel<f64>>& _MCUs) {
     g_timers.start("IDCT MCUs");
 
     std::vector<ImageChannel<u8>> DCT_MCUs(_MCUs.size());

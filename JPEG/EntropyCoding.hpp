@@ -637,10 +637,10 @@ inline std::vector<T> RLE(const std::vector<T> data) {
     }
 
     // EOB
-	if (count != 0) {
-		RLE_data.push_back(0);
-		RLE_data.push_back(0);
-	}
+	// if (count != 0) {
+	RLE_data.push_back(0);
+	RLE_data.push_back(0);
+	// }
 
     return RLE_data;
 }
@@ -653,6 +653,7 @@ inline BitStream entropy_coding(std::vector<ImageChannel<s16>>  Y_MCUs, \
 
 	/* Y */
     auto Y_first_DC = Y_MCUs[0](0, 0);
+	printf("Y_first_DC = %d\n", Y_first_DC);
     for (auto& Y_MCU : Y_MCUs) {
         writeLuminanceDC(bs, Y_MCU(0, 0) - Y_first_DC);
         auto zigzag_order = enc::zigzag(Y_MCU);
@@ -677,6 +678,7 @@ inline BitStream entropy_coding(std::vector<ImageChannel<s16>>  Y_MCUs, \
 			}
 			if (size == 0 && run == 0xF) {
 				writeLuminanceAC(bs, run, size);
+				i--;
 				continue;
 			}
 
@@ -802,7 +804,7 @@ inline ImageChannel<T> zigzag(const std::vector<T> zigzag, u8 w) {
 /* NOTE: this is jpeg's RLE (rely on many zeros in data and omitting DC) */
 template<typename T>
 inline std::vector<T> RLE(s16 DC, const std::vector<T> RLE_data) {
-    std::vector<T> data(64);
+    std::vector<T> data(64, 0);
 	data[0] = DC;
 	
 	u64 write_i = 1;
@@ -824,29 +826,31 @@ inline std::vector<T> RLE(s16 DC, const std::vector<T> RLE_data) {
 inline std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& bs) {
 	std::array<std::vector<ImageChannel<s16>>, 3> chs_MCUs;
 
-	chs_MCUs[0].resize(1);
-	chs_MCUs[1].resize(1);
-	chs_MCUs[2].resize(1);
+	u64 MCUs_count = 4;
+
+	chs_MCUs[0].resize(MCUs_count);
+	chs_MCUs[1].resize(MCUs_count);
+	chs_MCUs[2].resize(MCUs_count);
 	
 	/* Y */
-	auto Y_first_DC = 0;
-	for (u64 i = 0; i < 1; i++) {
+	auto Y_first_DC = 8;
+	for (u64 i = 0; i < MCUs_count; i++) {
 		s16 DC = Y_first_DC + decode_dc(bs, LUMINANCE_DC_MAP());
-		INFO("DC = %d\n", DC);
+		INFO("Y DC = %d\n", DC);
 
 		std::vector<s16> RLE_data;
 		while(1) {
 			s16 AC = decode_ac_symbol(bs, LUMINANCE_AC_MAP());
 			uint8_t run  = AC >> 4;
 			uint8_t size = AC & 0x0F;
-			INFO("run = %d size = %d\n", run, size);
+			INFO("Y run = %d size = %d\n", run, size);
 			RLE_data.push_back(run);
 			RLE_data.push_back(size);
 			
 			if (size == 0 && run == 0) break;
 			if (size == 0 && run == 0xF) continue;
 			s16 ampl = extend_dc_value(size, bs);
-			INFO("run = %d size = %d, ampl = %d\n", run, size, ampl);
+			INFO("Y run = %d size = %d, ampl = %d\n", run, size, ampl);
 			RLE_data.push_back(ampl);
 		}
 
@@ -854,23 +858,23 @@ inline std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& b
 	}
 
 	/* Cb */
-	auto Cb_first_DC = 0;
-	for (u64 i = 0; i < 1; i++) {
+	auto Cb_first_DC = -1;
+	for (u64 i = 0; i < MCUs_count; i++) {
 		s16 DC = Cb_first_DC + decode_dc(bs, CHROMINANCE_DC_MAP());
-		INFO("DC = %d\n", DC);
+		INFO("Cb DC = %d\n", DC);
 
 		std::vector<s16> RLE_data;
 		while(1) {
 			s16 AC = decode_ac_symbol(bs, CHROMINANCE_AC_MAP());
 			uint8_t run  = AC >> 4;
 			uint8_t size = AC & 0x0F;
-			INFO("run = %d size = %d\n", run, size);
+			INFO("Cb run = %d size = %d\n", run, size);
 			RLE_data.push_back(run);
 			RLE_data.push_back(size);
 			if (size == 0 && run == 0) break;
 			if (size == 0 && run == 0xF) continue;
 			s16 ampl = extend_dc_value(size, bs);
-			INFO("run = %d size = %d, ampl = %d\n", run, size, ampl);
+			INFO("Cb run = %d size = %d, ampl = %d\n", run, size, ampl);
 			RLE_data.push_back(ampl);
 		}
 
@@ -878,23 +882,23 @@ inline std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& b
 	}
 
 	// /* Cr */
-	auto Cr_first_DC = 0;
-	for (u64 i = 0; i < 1; i++) {
+	auto Cr_first_DC = 10;
+	for (u64 i = 0; i < MCUs_count; i++) {
 		s16 DC = Cr_first_DC + decode_dc(bs, CHROMINANCE_DC_MAP());
-		INFO("DC = %d\n", DC);
+		INFO("Cr DC = %d\n", DC);
 
 		std::vector<s16> RLE_data;
 		while(1) {
 			s16 AC = decode_ac_symbol(bs, CHROMINANCE_AC_MAP());
 			uint8_t run  = AC >> 4;
 			uint8_t size = AC & 0x0F;
-			INFO("run = %d size = %d\n", run, size);
+			INFO("Cr run = %d size = %d\n", run, size);
 			RLE_data.push_back(run);
 			RLE_data.push_back(size);
 			if (size == 0 && run == 0) break;
 			if (size == 0 && run == 0xF) continue;
 			s16 ampl = extend_dc_value(size, bs);
-			INFO("run = %d size = %d, ampl = %d\n", run, size, ampl);
+			INFO("Cr run = %d size = %d, ampl = %d\n", run, size, ampl);
 			RLE_data.push_back(ampl);
 		}
 

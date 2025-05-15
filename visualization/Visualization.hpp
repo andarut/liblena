@@ -110,7 +110,7 @@ public:
 
         assert(chs.size() == 3);
 
-		int scale = 100;
+		int scale = 50;
 
 		printf("show %lld x %lld\n", chs[0].width(), chs[0].height());
 

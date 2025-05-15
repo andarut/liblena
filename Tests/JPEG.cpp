@@ -26,13 +26,14 @@ BitStream JPEG(const std::vector<ImageChannel<u8>>& RGB_data) {
     print_ch(YCbCr_data[2]);
 
     /* Downsampling */
-    auto Cb_downsampled = enc::downsampling(YCbCr_data[1], {4, 4, 4});
-    auto Cr_downsampled = enc::downsampling(YCbCr_data[2], {4, 4, 4});
+    // auto Cb_downsampled = enc::downsampling(YCbCr_data[1], {4, 4, 4});
+    // auto Cr_downsampled = enc::downsampling(YCbCr_data[2], {4, 4, 4});
+
 
     /* MCUs */
     auto Y_MCUs  = enc::MCUs(YCbCr_data[0],  {8, 8});
-    auto Cb_MCUs = enc::MCUs(Cb_downsampled, {8, 8});
-    auto Cr_MCUs = enc::MCUs(Cr_downsampled, {8, 8});
+    auto Cb_MCUs = enc::MCUs(YCbCr_data[1], {8, 8});
+    auto Cr_MCUs = enc::MCUs(YCbCr_data[2], {8, 8});
 
     /* DCT */
     auto Y_DCT  = enc::DCT(Y_MCUs);
@@ -115,32 +116,14 @@ std::vector<ImageChannel<u8>> JPEG(BitStream& bs) {
     auto Cb = dec::MCUs(Cb_IDCT_MCUs, {8, 8});
     auto Cr = dec::MCUs(Cr_IDCT_MCUs, {8, 8});
 
-    auto Cb_resampled = dec::downsampling<u8>(Cb, {4, 4, 4});
-    auto Cr_resampled = dec::downsampling<u8>(Cr, {4, 4, 4});
-
-    printf("DECODED Y_data\n");
-    print_ch(Y);
-
-    printf("DECODED Cb_data\n");
-    print_ch(Cb);
-
-    printf("DECODED Cr_data\n");
-    print_ch(Cr);
-    
-    auto RGB_data = YCbCr2RGB({Y, Cb, Cr});
+    // auto Cb_resampled = dec::downsampling<u8>(Cb, {4, 4, 4});
+    // auto Cr_resampled = dec::downsampling<u8>(Cr, {4, 4, 4});
 
     // g_visualization.show(Y);
     // g_visualization.show(Cb);
     // g_visualization.show(Cr);
-    printf("bistream size = %d bytes\n", bs.bytes_size());
-    // g_visualization.show(RGB_data);
-
-    printf("DECODED R_data\n");
-    print_ch(RGB_data[0]);
-    printf("DECODED G_data\n");
-    print_ch(RGB_data[1]);
-    printf("DECODED B_data\n");
-    print_ch(RGB_data[2]);
+    
+    auto RGB_data = YCbCr2RGB({Y, Cb, Cr});
 
     return RGB_data;
 }
@@ -149,7 +132,9 @@ std::vector<ImageChannel<u8>> JPEG(BitStream& bs) {
 
 TEST(TEST_JPEG, JPEG_8x8) {
     std::filesystem::path resDir(RESOURCE_DIR);
-    std::ifstream ppm_file(resDir / "8x8.ppm");
+    // std::ifstream ppm_file(resDir / "8x8.ppm");
+    std::ifstream ppm_file(resDir / "16x16.ppm");
+    // std::ifstream ppm_file(resDir / "ppm_image.ppm");
     
     auto RGB_data = PPM(ppm_file);
     
@@ -161,7 +146,7 @@ TEST(TEST_JPEG, JPEG_8x8) {
     dec_bs.fread("JPEG.bs");
     auto decoded_RGB_data = dec::JPEG(dec_bs);
 
-    // g_visualization.show(decoded_RGB_data);
+    g_visualization.show(decoded_RGB_data);
 
     EXPECT_EQ(decoded_RGB_data[0], ImageChannel<u8>(8, 8, {
         0, 0, 8, 0, 252, 240, 255, 255,

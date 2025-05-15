@@ -68,11 +68,14 @@ namespace dec {
 
 template <typename T>
 ImageChannel<T> MCUs(std::vector<ImageChannel<T>> MCUs, MCUMode mode) {
-    ImageChannel<T> decoded_data(8, 8);
-    decoded_data.resize(8, 8);
+    ImageChannel<T> decoded_data(16, 16);
+    decoded_data.resize(16, 16);
 
     u64 write_i = 0, write_j = 0;
     for (auto& MCU : MCUs) {
+        INFO("NEW MCU\n");
+        INFO("write_i = %d\n", write_i);
+        INFO("write_j = %d\n", write_j);
         for (u64 read_i = 0; read_i < mode.height; read_i++) {
             for (u64 read_j = 0; read_j < mode.width; read_j++) {
                 decoded_data(write_i+read_i, write_j+read_j) = MCU(read_i, read_j);

@@ -1,5 +1,6 @@
 from PIL import Image
 import numpy as np
+import sys
 
 def print_rgb_matrices(image_path):
     img = Image.open(image_path).convert('RGB')
@@ -12,7 +13,9 @@ def print_rgb_matrices(image_path):
     print(G)
     print(B)
 
+assert(len(sys.argv) > 1)
+
 if __name__ == "__main__":
     # print_rgb_matrices('test.jpg')
-    print_rgb_matrices('test.ppm')
+    print_rgb_matrices(sys.argv[1])
     # print_rgb_matrices('8x8.ppm')

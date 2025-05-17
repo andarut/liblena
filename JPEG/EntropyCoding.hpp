@@ -512,14 +512,15 @@ static void writeVLI(BitStream &bs, s32 ampl, u16 size) {
 	for (int i = int(size) - 1; i >= 0; --i) {
 		uint32_t bit = (abs_ampl >> i) & 1u;
 		if (ampl < 0) bit ^= 1u;
-		printf("write bit = %d\n", bit);
+		DEBUG("write bit = %d\n", bit);
 		bs.write_bits(bit, 1);
 	}
 }
 
 static u8 categoryDC(s32 diff) {
+	if (diff == 0) return 0;
 	u32 abs_amplitude = std::abs(diff);
-	u8 cat = 0;
+	u8 cat = 1;
 	while (abs_amplitude >>= 1) ++cat;
 	return cat;
 }
@@ -636,6 +637,7 @@ inline std::vector<T> RLE(const std::vector<T> data) {
         }
     }
 
+	/* TODO: peak at decoding, EOB should not be explicit */
     // EOB
 	// if (count != 0) {
 	RLE_data.push_back(0);
@@ -646,116 +648,138 @@ inline std::vector<T> RLE(const std::vector<T> data) {
 }
 
 
-inline BitStream entropy_coding(std::vector<ImageChannel<s16>>  Y_MCUs, \
+inline BitStream entropy_coding(BitStream &bs, std::vector<ImageChannel<s16>>  Y_MCUs, \
                          std::vector<ImageChannel<s16>> Cb_MCUs, \
 						 std::vector<ImageChannel<s16>> Cr_MCUs) {
-    BitStream bs;
+	
+	auto Y_first_DC  =  Y_MCUs[0](0, 0);
+	auto Cb_first_DC = Cb_MCUs[0](0, 0);
+	auto Cr_first_DC = Cr_MCUs[0](0, 0);
 
+	INFO("ENCODING Y_first_DC = %d\n", Y_first_DC);
+	INFO("ENCODING Cb_first_DC = %d\n", Cb_first_DC);
+	INFO("ENCODING Cr_first_DC = %d\n", Cr_first_DC);
+
+	writeLuminanceDC(bs, Y_first_DC);
+	writeChrominanceDC(bs, Cb_first_DC);
+	writeChrominanceDC(bs, Cr_first_DC);
+	
 	/* Y */
-    auto Y_first_DC = Y_MCUs[0](0, 0);
-	printf("Y_first_DC = %d\n", Y_first_DC);
     for (auto& Y_MCU : Y_MCUs) {
-        writeLuminanceDC(bs, Y_MCU(0, 0) - Y_first_DC);
+		/* DPCM */
+		s16 DCT_diff = Y_MCU(0, 0) - Y_first_DC;
+		INFO("ENCODING Y DCT_diff = %d\n", DCT_diff);
+        writeLuminanceDC(bs, DCT_diff);
+
+		/* zig-zag */
         auto zigzag_order = enc::zigzag(Y_MCU);
-		printf("ENCODED Y ZIGZAG ORDER\n");
+		INFO("ENCODING Y ZIGZAG ORDER\n");
+		
 		for (u64 i = 0; i < 8; i++) {
-			for (u64 j = 0; j < 8; j++)
+			INFO("");
+			for (u64 j = 0; j < 8; j++) {
 				printf("%d ", zigzag_order[i*8+j]);
+			}
 			printf("\n");
 		}
         auto RLE_data = enc::RLE(zigzag_order);
-		printf("ENCODED Y RLE DATA\n");
-		for (u64 i = 0; i < RLE_data.size(); i++)
-			printf("%d ", RLE_data[i]);
-		printf("\n");
+		INFO("ENCODING Y RLE DATA\n");
+		print_rle(RLE_data);
         for (u64 i = 0; i < RLE_data.size(); i += 3) {
             auto run =  RLE_data[i];
             auto size = RLE_data[i+1];
 			if (size == 0 && run == 0) {
-				printf("WRITE EOB\n");
+				INFO("WRITE EOB\n");
             	writeLuminanceAC(bs, run, size);
 				break;
 			}
 			if (size == 0 && run == 0xF) {
+				INFO("WRITE ZRL\n");
 				writeLuminanceAC(bs, run, size);
 				i--;
 				continue;
 			}
 
             auto ampl = RLE_data[i+2];
+			INFO("ENCODING AC = %d\n", ampl);
             writeLuminanceAC(bs, run, size, ampl);
         }
     }
 
-	printf("Y bitstream\n");
-	print(bs);
-
 	/* Cb */
-	auto Cb_first_DC = Cb_MCUs[0](0, 0);
-	printf("Cb_first_DC = %d\n", Cb_first_DC);
     for (auto& Cb_MCU : Cb_MCUs) {
-        writeChrominanceDC(bs, Cb_MCU(0, 0) - Cb_first_DC);
+		/* DPCM */
+		s16 DCT_diff = Cb_MCU(0, 0) - Cb_first_DC;
+		INFO("ENCODING Cb DCT_diff = %d\n", DCT_diff);
+        writeChrominanceDC(bs, DCT_diff);
+
+		/* zig-zag */
         auto zigzag_order = enc::zigzag(Cb_MCU);
-		printf("ENCODED Cb ZIGZAG ORDER\n");
-		for (u64 i = 0; i < 8; i++) {
-			for (u64 j = 0; j < 8; j++)
-				printf("%d ", zigzag_order[i*8+j]);
-			printf("\n");
-		}
+		INFO("ENCODING Cb ZIGZAG ORDER\n");
+		print_zigzag(zigzag_order);
+
+		/* RLE */
         auto RLE_data = enc::RLE(zigzag_order);
-		printf("ENCODED Cb RLE DATA\n");
-		for (u64 i = 0; i < RLE_data.size(); i++)
-			printf("%d ", RLE_data[i]);
-		printf("\n");
+		INFO("ENCODING Cb RLE DATA\n");
+		print_rle(RLE_data);
+
+		/* Huffman Coding */
         for (u64 i = 0; i < RLE_data.size(); i += 3) {
             auto run =  RLE_data[i];
             auto size = RLE_data[i+1];
 			if (size == 0 && run == 0) {
-				printf("WRITE EOB\n");
+				INFO("WRITE EOB\n");
             	writeChrominanceAC(bs, run, size);
 				break;
 			}
 			if (size == 0 && run == 0xF) {
+				INFO("WRITE ZRL\n");
 				writeChrominanceAC(bs, run, size);
+				i--;
 				continue;
 			}
 
             auto ampl = RLE_data[i+2];
+			INFO("ENCODING AC = %d\n", ampl);
             writeChrominanceAC(bs, run, size, ampl);
         }
     }
 
 	/* Cr */
-    auto Cr_first_DC = Cr_MCUs[0](0, 0);
-	printf("Cb_first_DC = %d\n", Cr_first_DC);
     for (auto& Cr_MCU : Cr_MCUs) {
-        writeChrominanceDC(bs, Cr_MCU(0, 0) - Cr_first_DC);
+		/* DPCM */
+		s16 DCT_diff = Cr_MCU(0, 0) - Cr_first_DC;
+		INFO("ENCODING Cr DCT_diff = %d\n", DCT_diff);
+        writeChrominanceDC(bs, DCT_diff);
+
+		/* zig-zag */
         auto zigzag_order = enc::zigzag(Cr_MCU);
-		printf("ENCODED Cr ZIGZAG ORDER\n");
-		for (u64 i = 0; i < 8; i++) {
-			for (u64 j = 0; j < 8; j++)
-				printf("%d ", zigzag_order[i*8+j]);
-			printf("\n");
-		}
+		INFO("ENCODING Cr ZIGZAG ORDER\n");
+		print_zigzag(zigzag_order);
+
+		/* RLE */
         auto RLE_data = enc::RLE(zigzag_order);
-		printf("ENCODED Cr RLE DATA\n");
-		for (u64 i = 0; i < RLE_data.size(); i++)
-			printf("%d ", RLE_data[i]);
-		printf("\n");
+		INFO("ENCODING Cr RLE DATA\n");
+		print_rle(RLE_data);
+
+		/* Huffman Coding */
         for (u64 i = 0; i < RLE_data.size(); i += 3) {
             auto run =  RLE_data[i];
             auto size = RLE_data[i+1];
 			if (size == 0 && run == 0) {
-				printf("WRITE EOB\n");
+				INFO("WRITE EOB\n");
             	writeChrominanceAC(bs, run, size);
 				break;
 			}
 			if (size == 0 && run == 0xF) {
+				INFO("WRITE ZRL\n");
 				writeChrominanceAC(bs, run, size);
+				i--;
 				continue;
 			}
 
             auto ampl = RLE_data[i+2];
+			INFO("ENCODING AC = %d\n", ampl);
             writeChrominanceAC(bs, run, size, ampl);
         }
     }
@@ -774,6 +798,9 @@ inline ImageChannel<T> zigzag(const std::vector<T> zigzag, u8 w) {
 
 	const u64 width = data.width();
 	const u64 height = data.height();
+
+	INFO("zigzag width = %d\n", width);
+	INFO("zigzag height = %d\n", height);
 
 	u64 idx = 0;
 
@@ -812,10 +839,17 @@ inline std::vector<T> RLE(s16 DC, const std::vector<T> RLE_data) {
 	for (u64 i = 0; i < RLE_data.size(); i += 3) {
 		u8 run  = RLE_data[i];
 		u8 size = RLE_data[i+1];
-		if (size == 0 && run == 0) break;
-		if (size == 0 && run == 0xF) break;
+		if (size == 0 && run == 0) {
+			INFO("DECODED EOB\n");
+			break;
+		}
+		if (size == 0 && run == 0xF) {
+			INFO("DECODED ZRL\n");
+			i--;
+			continue;
+		}
 		s16 ampl = RLE_data[i+2];
-		INFO("run = %d size = %d, ampl = %d\n", run, size, ampl);
+		INFO("DECODED run = %d size = %d, ampl = %d\n", run, size, ampl);
 		write_i += run;
 		data[write_i] = ampl;
 		write_i++;
@@ -823,91 +857,105 @@ inline std::vector<T> RLE(s16 DC, const std::vector<T> RLE_data) {
     return data;
 }
 
-inline std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& bs) {
+inline std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& bs, \
+	u64 Y_MCUs_count, u64 Cb_MCUs_count, u64 Cr_MCUs_count) {
 	std::array<std::vector<ImageChannel<s16>>, 3> chs_MCUs;
 
-	u64 MCUs_count = 4;
+	chs_MCUs[0].resize(Y_MCUs_count);
+	chs_MCUs[1].resize(Cb_MCUs_count);
+	chs_MCUs[2].resize(Cr_MCUs_count);
 
-	chs_MCUs[0].resize(MCUs_count);
-	chs_MCUs[1].resize(MCUs_count);
-	chs_MCUs[2].resize(MCUs_count);
+	auto Y_first_DC  = decode_dc(bs, LUMINANCE_DC_MAP());
+	auto Cb_first_DC = decode_dc(bs, CHROMINANCE_DC_MAP());
+	auto Cr_first_DC = decode_dc(bs, CHROMINANCE_DC_MAP());
+
+	INFO("DECODED Y_first_DC = %d\n", Y_first_DC);
+	INFO("DECODED Cb_first_DC = %d\n", Cb_first_DC);
+	INFO("DECODED Cr_first_DC = %d\n", Cr_first_DC);
 	
 	/* Y */
-	auto Y_first_DC = 8;
-	for (u64 i = 0; i < MCUs_count; i++) {
+	for (u64 i = 0; i < Y_MCUs_count; i++) {
+		
+		/* Reverse DPCM */
 		s16 DC = Y_first_DC + decode_dc(bs, LUMINANCE_DC_MAP());
-		INFO("Y DC = %d\n", DC);
+		INFO("MCU %d Y DC = %d\n", i, DC);
 
+		/* RLE */
 		std::vector<s16> RLE_data;
 		while(1) {
 			s16 AC = decode_ac_symbol(bs, LUMINANCE_AC_MAP());
 			uint8_t run  = AC >> 4;
 			uint8_t size = AC & 0x0F;
-			INFO("Y run = %d size = %d\n", run, size);
 			RLE_data.push_back(run);
 			RLE_data.push_back(size);
 			
 			if (size == 0 && run == 0) break;
 			if (size == 0 && run == 0xF) continue;
 			s16 ampl = extend_dc_value(size, bs);
-			INFO("Y run = %d size = %d, ampl = %d\n", run, size, ampl);
 			RLE_data.push_back(ampl);
 		}
+		INFO("MCU %d RLE_data\n", i);
+		print_rle(RLE_data);
 
 		chs_MCUs[0][i] = dec::zigzag(dec::RLE(DC, RLE_data), 8);
+		INFO("DECODED Y MCU %d\n", i);
+		print_ch(chs_MCUs[0][i]);
 	}
 
 	/* Cb */
-	auto Cb_first_DC = -1;
-	for (u64 i = 0; i < MCUs_count; i++) {
+	for (u64 i = 0; i < Cb_MCUs_count; i++) {
+		
+		/* Reverse DPCM */
 		s16 DC = Cb_first_DC + decode_dc(bs, CHROMINANCE_DC_MAP());
-		INFO("Cb DC = %d\n", DC);
+		INFO("MCU %d Cb DC = %d\n", i, DC);
 
+		/* RLE */
 		std::vector<s16> RLE_data;
 		while(1) {
 			s16 AC = decode_ac_symbol(bs, CHROMINANCE_AC_MAP());
 			uint8_t run  = AC >> 4;
 			uint8_t size = AC & 0x0F;
-			INFO("Cb run = %d size = %d\n", run, size);
 			RLE_data.push_back(run);
 			RLE_data.push_back(size);
+			
 			if (size == 0 && run == 0) break;
 			if (size == 0 && run == 0xF) continue;
 			s16 ampl = extend_dc_value(size, bs);
-			INFO("Cb run = %d size = %d, ampl = %d\n", run, size, ampl);
 			RLE_data.push_back(ampl);
 		}
+		INFO("MCU %d Cb RLE_data\n", i);
+		print_rle(RLE_data);
 
 		chs_MCUs[1][i] = dec::zigzag(dec::RLE(DC, RLE_data), 8);
 	}
 
-	// /* Cr */
-	auto Cr_first_DC = 10;
-	for (u64 i = 0; i < MCUs_count; i++) {
+	/* Cb */
+	for (u64 i = 0; i < Cr_MCUs_count; i++) {
+		
+		/* Reverse DPCM */
 		s16 DC = Cr_first_DC + decode_dc(bs, CHROMINANCE_DC_MAP());
-		INFO("Cr DC = %d\n", DC);
+		INFO("MCU %d Cr DC = %d\n", i, DC);
 
+		/* RLE */
 		std::vector<s16> RLE_data;
 		while(1) {
 			s16 AC = decode_ac_symbol(bs, CHROMINANCE_AC_MAP());
 			uint8_t run  = AC >> 4;
 			uint8_t size = AC & 0x0F;
-			INFO("Cr run = %d size = %d\n", run, size);
 			RLE_data.push_back(run);
 			RLE_data.push_back(size);
+			
 			if (size == 0 && run == 0) break;
 			if (size == 0 && run == 0xF) continue;
 			s16 ampl = extend_dc_value(size, bs);
-			INFO("Cr run = %d size = %d, ampl = %d\n", run, size, ampl);
 			RLE_data.push_back(ampl);
 		}
+		INFO("MCU %d Cr RLE_data\n", i);
+		print_rle(RLE_data);
 
 		chs_MCUs[2][i] = dec::zigzag(dec::RLE(DC, RLE_data), 8);
 	}
 	
-	// chs_MCUs[0][0] = chs_MCUs[2][0];
-	// chs_MCUs[1][0] = chs_MCUs[2][0];
-
 	return chs_MCUs;
 }
 

@@ -35,9 +35,21 @@ inline std::vector<ImageChannel<u8>> PPM(std::ifstream &PPM_file) {
     assert(maxVal <= 255);
 
     /* Data */
-    PPM_file.get();
-    std::vector<char> buffer(width * height * 3);
-    PPM_file.read(buffer.data(), buffer.size());
+    std::vector<u8> buffer(width * height * 3);
+    if (magic_number == "P3") {
+        for (u16 i = 0; i < height; i++) {
+            for (u16 j = 0; j < width; j++) {
+                u32 R, G, B;
+                PPM_file >> R >> G >> B;
+                buffer[(i * width + j) * 3 + 0] = static_cast<u8>(R);
+                buffer[(i * width + j) * 3 + 1] = static_cast<u8>(G);
+                buffer[(i * width + j) * 3 + 2] = static_cast<u8>(B);
+            }
+        }
+    } else if (magic_number == "P6") {
+        PPM_file.get();
+        PPM_file.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
+    }
     
     auto R_ch = ImageChannel<u8>(width, height);
     auto G_ch = ImageChannel<u8>(width, height);

@@ -46,7 +46,7 @@ public:
 	template <typename T>
 	void show(const ImageChannel<T> &ch) {
 
-		int scale = 100;
+		int scale = 1;
 
 		printf("show %lld x %lld\n", ch.width(), ch.height());
 
@@ -110,7 +110,7 @@ public:
 
         assert(chs.size() == 3);
 
-		int scale = 50;
+		int scale = 1;
 
 		printf("show %lld x %lld\n", chs[0].width(), chs[0].height());
 

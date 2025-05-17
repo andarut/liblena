@@ -82,6 +82,36 @@ public:
         return i;
     }
 
+    void write_u64(uint64_t value, uint64_t size = 64) {
+        DEBUG("value = %llu, size = %llu, %llu / %llu\n", value, size, m_offset, m_buf.size());
+        uint64_t final_offset = m_offset + size;
+        uint64_t needed_bytes = (final_offset + 7) >> 3;
+        if (needed_bytes > m_buf.size()) {
+            m_buf.resize(needed_bytes);
+        }
+        while (size--) {
+            size_t byte_idx = m_offset >> 3;
+            uint64_t bit_idx = 7 - (m_offset & 7);
+            m_buf[byte_idx] &= ~(1 << bit_idx); // Clear the bit
+            m_buf[byte_idx] |= ((value >> size) & 1) << bit_idx; // Set the bit
+            ++m_offset;
+        }
+    }
+    uint64_t read_u64(uint64_t size=64) {
+        uint64_t v = 0;
+        while (size--) {
+            if (m_offset >= m_buf.size() * 8) {
+                ERROR("Out of bounds: %lu / %zu\n", m_offset, m_buf.size() * 8);
+            }
+            size_t b = m_offset >> 3;
+            uint64_t i = 7 - (m_offset & 7);
+            v = (v << 1) | ((m_buf[b] >> i) & 1); // Shift and OR the bit
+            ++m_offset;
+        }
+        DEBUG("offset = %lu / %zu, value = %llu\n", m_offset, m_buf.size() * 8, v);
+        return v;
+    }
+
     u32 nextBit() {
         return read_bits(1);
     }

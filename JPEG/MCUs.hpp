@@ -59,6 +59,12 @@ std::vector<ImageChannel<T>> MCUs(ImageChannel<T> ch, MCUMode mode) {
 
     INFO("MCUs duration = %llu ms\n", duration);
 
+    INFO("BEFORE MCUs\n");
+    print_ch(ch);
+
+    INFO("AFTER MCUs\n");
+    print_ch(_MCUs[0]);
+
     return _MCUs;
 }
 
@@ -67,9 +73,9 @@ std::vector<ImageChannel<T>> MCUs(ImageChannel<T> ch, MCUMode mode) {
 namespace dec {
 
 template <typename T>
-ImageChannel<T> MCUs(std::vector<ImageChannel<T>> MCUs, MCUMode mode) {
-    ImageChannel<T> decoded_data(16, 16);
-    decoded_data.resize(16, 16);
+ImageChannel<T> MCUs(std::vector<ImageChannel<T>> MCUs, MCUMode mode, u64 width, u64 height) {
+    ImageChannel<T> decoded_data(width, height);
+    decoded_data.resize(width, height);
 
     u64 write_i = 0, write_j = 0;
     for (auto& MCU : MCUs) {

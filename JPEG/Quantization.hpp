@@ -106,6 +106,10 @@ inline std::vector<ImageChannel<s16>> luminance_quantization(const std::vector<I
     for (u64 i = 0; i < _MCUs.size(); i++) {
         quantization_MCUs[i].resize(_MCUs[i].width(), _MCUs[i].height());
         quantization_MCUs[i] = enc::luminance_quantization(_MCUs[i], quality);
+        INFO("BEFORE QUANTIZATION Y MCU %d\n", i);
+		print_ch(_MCUs[i]);
+        INFO("QUANTIZATED Y MCU %d\n", i);
+		print_ch(quantization_MCUs[i]);
     }
     g_timers.end("quantization MCUs");
 
@@ -178,6 +182,8 @@ inline std::vector<ImageChannel<f64>> luminance_quantization(const std::vector<I
     for (u64 i = 0; i < _MCUs.size(); i++) {
         quantization_MCUs[i].resize(_MCUs[i].width(), _MCUs[i].height());
         quantization_MCUs[i] = dec::luminance_quantization(_MCUs[i], quality);
+        INFO("DEQUANTIZATED Y MCU %d\n", i);
+		print_ch(quantization_MCUs[i]);
     }
     g_timers.end("dequantization MCUs");
 

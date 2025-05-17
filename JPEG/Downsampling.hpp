@@ -105,6 +105,12 @@ ImageChannel<T> downsampling(const ImageChannel<T> &ch, const DownsamplingMode &
         }
     }
 
+    INFO("BEFORE DOWNSAMPLING\n");
+    print_ch(ch);
+
+    INFO("DOWNSAMPLED\n");
+    print_ch(decoded_data);
+
     return decoded_data;
 }
 

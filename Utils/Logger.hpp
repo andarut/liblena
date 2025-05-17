@@ -33,11 +33,11 @@ inline void log(const char* file, const char* func, int line, const char* fmt, .
                         L==LogLevel::INFO  ? GREEN : RESET;
     std::va_list args;
     va_start(args, fmt);
-    std::fprintf(stderr, "%s[%s]%s [%s:%s():%d] ",
+    std::fprintf(stderr, "%s[%s]%s[%s:%d] ",
         color,
         level_names[static_cast<int>(L)],
         RESET,
-        file, func, line);
+        func, line);
     std::vfprintf(stderr, fmt, args);
     std::fprintf(stderr, "%s", RESET);
     va_end(args);

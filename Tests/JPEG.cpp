@@ -201,6 +201,7 @@ TEST(TEST_JPEG, JPEG_ppm_image) {
     dec_bs.fread("ppm_image.bs");
     auto decoded_RGB_data = dec::JPEG(dec_bs);
 
+    /* TODO: write comparator that will be compare by MCUs, so we can find what MCU to debug with */
     EXPECT_EQ(decoded_RGB_data, expected_RGB_data);
 
     g_visualization.show(decoded_RGB_data);

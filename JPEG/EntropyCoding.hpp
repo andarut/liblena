@@ -637,7 +637,7 @@ inline std::vector<T> RLE(const std::vector<T> data) {
         }
     }
 
-	/* TODO: peak at decoding, EOB should not be explicit */
+	/* ! TODO: peak at decoding, EOB should not be explicit ! */
     // EOB
 	// if (count != 0) {
 	RLE_data.push_back(0);

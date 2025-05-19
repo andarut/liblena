@@ -1,4 +1,4 @@
-name: macos
+name: Tests
 
 on:
   push:
@@ -80,3 +80,35 @@ jobs:
       - name: Run tests
         run: |
           make -j$(sysctl -n hw.ncpu) test -C $GITHUB_WORKSPACE/build/Debug/
+
+  linux-x64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y llvm-19 clang-format python3 python3-venv ninja-build
+      - name: Check installed clang
+        run: |
+          which clang++ && clang++ -v
+      - name: Prepare
+        run: |
+          source $GITHUB_WORKSPACE/scripts/prepare_linux_x64.sh
+          echo PATH=${GITHUB_WORKSPACE}/.venv/bin:$PATH >> $GITHUB_ENV
+      - name: Check virtual environment
+        run: |
+          which clang++ && clang++ -v
+          which python3 && python3 -V
+          which conan && conan -v
+          which cmake && cmake --version
+      - name: Configure
+        run: |
+          cmake --preset 'conan-debug'
+      - name: Build
+        run: |
+          ninja -j$(nproc) -C $GITHUB_WORKSPACE/build/Debug/
+      - name: Run tests
+        run: |
+          ninja -j$(nproc) test -C $GITHUB_WORKSPACE/build/Debug/

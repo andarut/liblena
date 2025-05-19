@@ -10,7 +10,9 @@ for experiments with data compression techniques
 <h3>
 </h3>
 
-[![macos](https://github.com/andarut/liblena/actions/workflows/macos.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/macos.yml)
+[![macos_x64](https://github.com/andarut/liblena/actions/workflows/macos.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/macos_x64.yml)
+[![macos_arm](https://github.com/andarut/liblena/actions/workflows/macos.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/macos_arm.yml)
+[![linux_x64](https://github.com/andarut/liblena/actions/workflows/linux.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/linux_x64.yml)
 
 </div>
 
@@ -124,11 +126,13 @@ Run script for your system to **first time** building `<BUILD_TYPE>` version of 
 source ./scripts/prepare_<OS>_<ARCH>_<BUILD_TYPE>.sh
 ```
 
-Example:
+ExampleS:
 ```
 source ./scripts/prepare_macos_x64.sh
 ```
-
+```
+source ./scripts/prepare_macos_arm.sh
+```
 ```
 source ./scripts/prepare_linux_x64.sh
 ```
@@ -158,12 +162,12 @@ or
 make -j$(sysctl -n hw.ncpu) -C build/Release
 ```
 
-## Run tests
+## Run tests (this may a while)
 ```
 make test -j$(nproc) -C build/Debug
 ```
 
-## Run test with visualization
+## Run test with visualization (this may a while)
 ```
 ./build/Debug/liblena_tests
 ```

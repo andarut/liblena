@@ -6,7 +6,7 @@ fi
 
 ROOT_DIR="${SCRIPT_DIR}/.."
 PROFILES_DIR="${ROOT_DIR}/profiles"
-PROFILE_PATH="${PROFILES_DIR}/linux_x64"
+PROFILE_PATH="${PROFILES_DIR}/mac_arm"
 
 VENV_DIR="${ROOT_DIR}/.venv"
 VENV_BIN_DIR="${VENV_DIR}/bin"

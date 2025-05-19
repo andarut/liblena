@@ -119,8 +119,6 @@ Currently library building with `conan` inside **virtualenv**, the only requirem
 
 **IMPORTANT! On Intel Macs you should use `clang` installed from `brew` (to enable support for AddressSanitizer)**
 
-Run script for your system to **first time** building `<BUILD_TYPE>` version of library.
-
 **IMPORTANT! Run with `source` command, so virtualenv can be kept opened.**
 ```
 source ./scripts/prepare_<OS>_<ARCH>_<BUILD_TYPE>.sh

@@ -5,11 +5,97 @@
 /*
 working
 
-cjpeg -debug -quality 50 -baseline -dct float -sample 1x1,1x1,1x1 8x8.ppm
-djpeg -dct float -verbose test.jpg 
+cjpeg -quality 50 -baseline -dct float -sample 1x1,1x1,1x1 
+djpeg -dct float 
 
 4x4, 8x8, 50
 */
+
+template <typename T>
+void _ASSERT_EQ(std::vector<ImageChannel<T>> data1, std::vector<ImageChannel<T>> data2) {
+    auto R_data1_MCUs = enc::MCUs(data1[0], {8, 8});
+    auto G_data1_MCUs = enc::MCUs(data1[1], {8, 8});
+    auto B_data1_MCUs = enc::MCUs(data1[2], {8, 8});
+
+    auto R_data2_MCUs = enc::MCUs(data2[0], {8, 8});
+    auto G_data2_MCUs = enc::MCUs(data2[1], {8, 8});
+    auto B_data2_MCUs = enc::MCUs(data2[2], {8, 8});
+
+    for (u64 i = 0; i < R_data1_MCUs.size(); i++) {
+
+        auto R_data1_MCU = R_data1_MCUs[i];
+        auto G_data1_MCU = G_data1_MCUs[i];
+        auto B_data1_MCU = B_data1_MCUs[i];
+
+        auto R_data2_MCU = R_data2_MCUs[i];
+        auto G_data2_MCU = G_data2_MCUs[i];
+        auto B_data2_MCU = B_data2_MCUs[i];
+
+        auto data1_MCU = std::vector<ImageChannel<T>>({
+            R_data1_MCU, G_data1_MCU, B_data1_MCU
+        });
+
+        auto data2_MCU = std::vector<ImageChannel<T>>({
+            R_data2_MCU, G_data2_MCU, B_data2_MCU
+        });
+
+        f64 _MSE = MSE(data1_MCU, data2_MCU);
+        INFO("COMPARING MCU %d, MSE = %f\n", i, _MSE);
+        
+        
+        if (data1_MCU != data2_MCU) {
+            INFO("NOT EQUAL\n");
+
+            if (data1_MCU[0] != data2_MCU[0]) {
+                INFO("DATA1 R\n");
+                print_ch(data1_MCU[0]);
+                INFO("DATA2 R\n");
+                print_ch(data2_MCU[0]);
+            }
+
+            if (data1_MCU[1] != data2_MCU[1]) {
+                INFO("DATA1 G\n");
+                print_ch(data1_MCU[1]);
+                INFO("DATA2 G\n");
+                print_ch(data2_MCU[1]);
+            }
+
+            if (data1_MCU[2] != data2_MCU[2]) {
+                INFO("DATA1 B\n");
+                print_ch(data1_MCU[2]);
+                INFO("DATA2 B\n");
+                print_ch(data2_MCU[2]);
+            }
+
+            auto data1_MCU_YCbCr = RGB2YCbCr(data1_MCU);
+            auto data2_MCU_YCbCr = RGB2YCbCr(data2_MCU);
+
+            if (data1_MCU_YCbCr[0] != data2_MCU_YCbCr[0]) {
+                INFO("DATA1 Y\n");
+                print_ch(data1_MCU_YCbCr[0]);
+                INFO("DATA2 Y\n");
+                print_ch(data2_MCU_YCbCr[0]);
+            }
+
+            if (data1_MCU_YCbCr[1] != data2_MCU_YCbCr[1]) {
+                INFO("DATA1 Cb\n");
+                print_ch(data1_MCU_YCbCr[1]);
+                INFO("DATA2 Cb\n");
+                print_ch(data2_MCU_YCbCr[1]);
+            }
+
+            if (data1_MCU_YCbCr[2] != data2_MCU_YCbCr[2]) {
+                INFO("DATA1 Cr\n");
+                print_ch(data1_MCU_YCbCr[2]);
+                INFO("DATA2 Cr\n");
+                print_ch(data2_MCU_YCbCr[2]);
+            }
+
+            assert(data1_MCU == data2_MCU);
+            return;
+        }
+    }
+}
 
 namespace enc {
 
@@ -136,11 +222,35 @@ std::vector<ImageChannel<u8>> JPEG(BitStream& bs) {
 //     EXPECT_EQ(decoded_RGB_data, expected_RGB_data);
 // }
 
-// TEST(TEST_JPEG, JPEG_8x8) {
+TEST(TEST_JPEG, JPEG_8x8) {
+    /* INPUT */
+    std::filesystem::path resDir(RESOURCE_DIR);
+
+    std::ifstream expected_ppm_file(resDir / "decoded/_8x8.ppm");
+    ASSERT_TRUE(expected_ppm_file.is_open());
+    auto expected_RGB_data = PPM(expected_ppm_file);
+
+    std::ifstream ppm_file(resDir / "_8x8.ppm");
+
+    auto RGB_data = PPM(ppm_file);
+    
+    /* RUN ENCODING */
+    auto enc_bs = enc::JPEG(RGB_data);
+    enc_bs.fwrite("_8x8.bs");
+
+    /* RUN DECODING */
+    BitStream dec_bs;
+    dec_bs.fread("_8x8.bs");
+    auto decoded_RGB_data = dec::JPEG(dec_bs);
+
+    _ASSERT_EQ(decoded_RGB_data, expected_RGB_data);
+}
+
+// TEST(TEST_JPEG, JPEG_ppm_image) {
 //     /* INPUT */
 //     std::filesystem::path resDir(RESOURCE_DIR);
 
-//     std::ifstream expected_ppm_file(resDir / "decoded/_8x8.ppm");
+//     std::ifstream expected_ppm_file(resDir / "decoded/ppm_image.ppm");
 //     ASSERT_TRUE(expected_ppm_file.is_open());
 //     auto expected_RGB_data = PPM(expected_ppm_file);
 //     auto expected_YCbCr_data = RGB2YCbCr(expected_RGB_data);
@@ -150,7 +260,7 @@ std::vector<ImageChannel<u8>> JPEG(BitStream& bs) {
 //     print_ch(expected_YCbCr_data[1]);
 //     print_ch(expected_YCbCr_data[2]);
 
-//     std::ifstream ppm_file(resDir / "_8x8.ppm");
+//     std::ifstream ppm_file(resDir / "ppm_image.ppm");
 
 //     auto RGB_data = PPM(ppm_file);
 //     printf("INPUT RGB\n");
@@ -160,52 +270,17 @@ std::vector<ImageChannel<u8>> JPEG(BitStream& bs) {
     
 //     /* RUN ENCODING */
 //     auto enc_bs = enc::JPEG(RGB_data);
-//     enc_bs.fwrite("_8x8.bs");
+//     enc_bs.fwrite("ppm_image.bs");
 
 //     /* RUN DECODING */
 //     BitStream dec_bs;
-//     dec_bs.fread("_8x8.bs");
+//     dec_bs.fread("ppm_image.bs");
 //     auto decoded_RGB_data = dec::JPEG(dec_bs);
 
-//     EXPECT_EQ(decoded_RGB_data, expected_RGB_data);
+//     _ASSERT_EQ(decoded_RGB_data, expected_RGB_data);
+
+//     g_visualization.show(decoded_RGB_data);
 // }
-
-TEST(TEST_JPEG, JPEG_ppm_image) {
-    /* INPUT */
-    std::filesystem::path resDir(RESOURCE_DIR);
-
-    std::ifstream expected_ppm_file(resDir / "decoded/ppm_image.ppm");
-    ASSERT_TRUE(expected_ppm_file.is_open());
-    auto expected_RGB_data = PPM(expected_ppm_file);
-    auto expected_YCbCr_data = RGB2YCbCr(expected_RGB_data);
-
-    printf("EXPECTED YCbCr\n");
-    print_ch(expected_YCbCr_data[0]);
-    print_ch(expected_YCbCr_data[1]);
-    print_ch(expected_YCbCr_data[2]);
-
-    std::ifstream ppm_file(resDir / "ppm_image.ppm");
-
-    auto RGB_data = PPM(ppm_file);
-    printf("INPUT RGB\n");
-    print_ch(RGB_data[0]);
-    print_ch(RGB_data[1]);
-    print_ch(RGB_data[2]);
-    
-    /* RUN ENCODING */
-    auto enc_bs = enc::JPEG(RGB_data);
-    enc_bs.fwrite("ppm_image.bs");
-
-    /* RUN DECODING */
-    BitStream dec_bs;
-    dec_bs.fread("ppm_image.bs");
-    auto decoded_RGB_data = dec::JPEG(dec_bs);
-
-    /* TODO: write comparator that will be compare by MCUs, so we can find what MCU to debug with */
-    EXPECT_EQ(decoded_RGB_data, expected_RGB_data);
-
-    g_visualization.show(decoded_RGB_data);
-}
 
 // TEST(TEST_JPEG, JPEG_16x16) {
 //     /* INPUT */

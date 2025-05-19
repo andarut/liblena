@@ -6,6 +6,8 @@
 #include "Logger.hpp"
 #include "Globals.hpp"
 
+/* TODO: expance MCU if there is not enought data (like 1x1 image) */
+
 /*
 Supported modes:
 - 8x8

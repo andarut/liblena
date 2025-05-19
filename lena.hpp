@@ -18,6 +18,6 @@
 #include "EntropyCoding.hpp"
 
 /* Metrics */
-// #include "metrics.hpp"
+#include "Metrics.hpp"
 
 #endif // LENA_H

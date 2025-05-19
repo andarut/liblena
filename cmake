@@ -1,1 +1,0 @@
-/Users/andarut/dev/liblena/scripts/../.venv/bin/cmake

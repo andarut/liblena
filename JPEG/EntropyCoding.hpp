@@ -899,7 +899,7 @@ inline std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& b
 
 		chs_MCUs[0][i] = dec::zigzag(dec::RLE(DC, RLE_data), 8);
 		INFO("DECODED Y MCU %d\n", i);
-		print_ch(chs_MCUs[0][i]);
+		print(chs_MCUs[0][i]);
 	}
 
 	/* Cb */
@@ -928,7 +928,7 @@ inline std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& b
 
 		chs_MCUs[1][i] = dec::zigzag(dec::RLE(DC, RLE_data), 8);
 		INFO("DECODED Cb MCU %d\n", i);
-		print_ch(chs_MCUs[1][i]);
+		print(chs_MCUs[1][i]);
 	}
 
 	/* Cb */
@@ -957,7 +957,7 @@ inline std::array<std::vector<ImageChannel<s16>>, 3> entropy_coding(BitStream& b
 
 		chs_MCUs[2][i] = dec::zigzag(dec::RLE(DC, RLE_data), 8);
 		INFO("DECODED Cr MCU %d\n", i);
-		print_ch(chs_MCUs[2][i]);
+		print(chs_MCUs[2][i]);
 	}
 	
 	return chs_MCUs;

@@ -43,9 +43,9 @@ inline std::vector<ImageChannel<f64>> DCT(const std::vector<ImageChannel<u8>>& _
         DCT_MCUs[i].resize(_MCUs[i].width(), _MCUs[i].height());
         DCT_MCUs[i] = DCT(_MCUs[i]);
         INFO("BEFORE DCT Y MCU %d\n", i);
-		print_ch(_MCUs[i]);
+		print(_MCUs[i]);
         INFO("IDCT Y MCU %d\n", i);
-		print_ch(DCT_MCUs[i]);
+		print(DCT_MCUs[i]);
     }
     g_timers.end("DCT MCUs");
 
@@ -104,9 +104,9 @@ inline std::vector<ImageChannel<u8>> DCT(const std::vector<ImageChannel<f64>>& _
         DCT_MCUs[i].resize(_MCUs[i].width(), _MCUs[i].height());
         DCT_MCUs[i] = dec::DCT(_MCUs[i]);
         INFO("BEFORE IDCT Y MCU %d\n", i);
-		print_ch(_MCUs[i]);
+		print(_MCUs[i]);
         INFO("IDCT Y MCU %d\n", i);
-		print_ch(DCT_MCUs[i]);
+		print(DCT_MCUs[i]);
     }
     g_timers.end("IDCT MCUs");
 

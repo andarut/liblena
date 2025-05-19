@@ -24,13 +24,31 @@ void print_zigzag(const std::vector<s16> zigzag) {
     }
 }
 
-template <typename T>
-void print_ch(const ImageChannel<T>& ch) {
+void print(const ImageChannel<f64>& ch) {
     for (u64 i = 0; i < ch.height(); i++) {
         INFO("");
         for (u64 j = 0; j < ch.width(); j++) {
-            if (std::is_same<T, f64>()) printf("%6.02f ", (f64)ch(i, j));
-            else printf("%3d ", ch(i, j));
+            printf("%6.02f ", ch(i, j));
+        }
+        printf("\n");
+    }
+}
+
+void print(const ImageChannel<s16>& ch) {
+    for (u64 i = 0; i < ch.height(); i++) {
+        INFO("");
+        for (u64 j = 0; j < ch.width(); j++) {
+            printf("%5d ", ch(i, j));
+        }
+        printf("\n");
+    }
+}
+
+void print(const ImageChannel<u8>& ch) {
+    for (u64 i = 0; i < ch.height(); i++) {
+        INFO("");
+        for (u64 j = 0; j < ch.width(); j++) {
+            printf("%3d ", ch(i, j));
         }
         printf("\n");
     }

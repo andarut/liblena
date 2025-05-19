@@ -62,10 +62,10 @@ std::vector<ImageChannel<T>> MCUs(ImageChannel<T> ch, MCUMode mode) {
     INFO("MCUs duration = %llu ms\n", duration);
 
     INFO("BEFORE MCUs\n");
-    print_ch(ch);
+    print(ch);
 
     INFO("AFTER MCUs\n");
-    print_ch(_MCUs[0]);
+    print(_MCUs[0]);
 
     return _MCUs;
 }

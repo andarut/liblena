@@ -23,7 +23,7 @@
 //     auto YCbCr_data = RGB2YCbCr(RGB_data);
 
 //     printf("ENCODED Y_data\n");
-//     print_ch(YCbCr_data[0]);
+//     print(YCbCr_data[0]);
 
 //     /* Downsampling */
 //     auto Cb_downsampled = enc::downsampling(YCbCr_data[1], {4, 4, 4});
@@ -40,7 +40,7 @@
 //     auto Cr_DCT = enc::DCT(Cr_MCUs);
 
 //     printf("ENCODED Y_DCT\n");
-//     print_ch(Y_DCT[0]);
+//     print(Y_DCT[0]);
 
 //     /* Quantization */
 //     auto Y_quantizated  = enc::luminance_quantization(Y_DCT,  50);
@@ -48,7 +48,7 @@
 //     auto Cr_quantizated = enc::chrominance_quantization(Cr_DCT, 50);
 
 //     printf("ENCODED Y_quantizated\n");
-//     print_ch(Y_quantizated[0]);
+//     print(Y_quantizated[0]);
 
 
 //     /* Entropy Coding */
@@ -70,39 +70,39 @@
 //     auto Cr_MCUs = chs_MCUs[2];
 
 //     printf("DECODED readed Y_data\n");
-//     print_ch(Y_MCUs[0]);
+//     print(Y_MCUs[0]);
 
 //     printf("DECODED readed Cb_data\n");
-//     print_ch(Cb_MCUs[0]);
+//     print(Cb_MCUs[0]);
 
 //     printf("DECODED readed Cr_data\n");
-//     print_ch(Cr_MCUs[0]);
+//     print(Cr_MCUs[0]);
 
 //     auto Y_dequantizated_MCUs  = dec::luminance_quantization(Y_MCUs, 50);
 //     auto Cb_dequantizated_MCUs = dec::chrominance_quantization(Cb_MCUs, 50);
 //     auto Cr_dequantizated_MCUs = dec::chrominance_quantization(Cr_MCUs, 50);
 
 //     printf("DECODED Y_dequantizated_MCUs\n");
-//     print_ch(Y_dequantizated_MCUs[0]);
+//     print(Y_dequantizated_MCUs[0]);
 
 //     printf("DECODED Cb_dequantizated_MCUs\n");
-//     print_ch(Cb_dequantizated_MCUs[0]);
+//     print(Cb_dequantizated_MCUs[0]);
 
 //     printf("DECODED Cr_dequantizated_MCUs\n");
-//     print_ch(Cr_dequantizated_MCUs[0]);
+//     print(Cr_dequantizated_MCUs[0]);
 
 //     auto Y_IDCT_MCUs  = dec::DCT(Y_dequantizated_MCUs);
 //     auto Cb_IDCT_MCUs = dec::DCT(Cb_dequantizated_MCUs);
 //     auto Cr_IDCT_MCUs = dec::DCT(Cr_dequantizated_MCUs);
 
 //     printf("DECODED Y_IDCT\n");
-//     print_ch(Y_IDCT_MCUs[0]);
+//     print(Y_IDCT_MCUs[0]);
 
 //     printf("DECODED Cb_IDCT\n");
-//     print_ch(Cb_IDCT_MCUs[0]);
+//     print(Cb_IDCT_MCUs[0]);
 
 //     printf("DECODED Cr_IDCT\n");
-//     print_ch(Cr_IDCT_MCUs[0]);
+//     print(Cr_IDCT_MCUs[0]);
 
 //     auto Y  = dec::MCUs(Y_IDCT_MCUs, {8, 8});
 //     auto Cb = dec::MCUs(Cb_IDCT_MCUs, {8, 8});
@@ -112,13 +112,13 @@
 //     auto Cr_resampled = dec::downsampling<u8>(Cr, {4, 4, 4});
 
 //     printf("DECODED Y_data\n");
-//     print_ch(Y);
+//     print(Y);
 
 //     printf("DECODED Cb_data\n");
-//     print_ch(Cb);
+//     print(Cb);
 
 //     printf("DECODED Cr_data\n");
-//     print_ch(Cr);
+//     print(Cr);
     
 //     auto RGB_data = YCbCr2RGB({Y, Cb, Cr});
 
@@ -129,11 +129,11 @@
 //     g_visualization.show(RGB_data);
 
 //     printf("DECODED R_data\n");
-//     print_ch(RGB_data[0]);
+//     print(RGB_data[0]);
 //     printf("DECODED G_data\n");
-//     print_ch(RGB_data[1]);
+//     print(RGB_data[1]);
 //     printf("DECODED B_data\n");
-//     print_ch(RGB_data[2]);
+//     print(RGB_data[2]);
 
 //     return RGB_data;
 // }

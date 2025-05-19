@@ -67,7 +67,7 @@ inline ImageChannel<s16> luminance_quantization(ImageChannel<f64> ch, u8 quality
     auto Q = LUMINANCE_Q_N(quality);
 
     // printf("quantization table = ");
-    // print_ch(Q);
+    // print(Q);
 
     auto quantizated_ch = ImageChannel<s16>(8, 8);
     quantizated_ch.resize(8, 8);
@@ -86,7 +86,7 @@ inline ImageChannel<s16> chrominance_quantization(ImageChannel<f64> ch, u8 quali
     auto Q = CHROMINANCE_Q_N(quality);
     
     // printf("quantization table = ");
-    // print_ch(Q);
+    // print(Q);
 
     auto quantizated_ch = ImageChannel<s16>(8, 8);
     quantizated_ch.resize(8, 8);
@@ -107,9 +107,9 @@ inline std::vector<ImageChannel<s16>> luminance_quantization(const std::vector<I
         quantization_MCUs[i].resize(_MCUs[i].width(), _MCUs[i].height());
         quantization_MCUs[i] = enc::luminance_quantization(_MCUs[i], quality);
         INFO("BEFORE QUANTIZATION Y MCU %d\n", i);
-		print_ch(_MCUs[i]);
+		print(_MCUs[i]);
         INFO("QUANTIZATED Y MCU %d\n", i);
-		print_ch(quantization_MCUs[i]);
+		print(quantization_MCUs[i]);
     }
     g_timers.end("quantization MCUs");
 
@@ -145,7 +145,7 @@ inline ImageChannel<f64> luminance_quantization(ImageChannel<s16> ch, u8 quality
     auto Q = LUMINANCE_Q_N(quality);
 
     // printf("quantization table = ");
-    // print_ch(Q);
+    // print(Q);
 
     auto decoded_data = ImageChannel<f64>(ch.width(), ch.height());
     decoded_data.resize(ch.width(), ch.height());
@@ -162,7 +162,7 @@ inline ImageChannel<f64> chrominance_quantization(ImageChannel<s16> ch, u8 quali
     auto Q = CHROMINANCE_Q_N(quality);
 
     // printf("quantization table = ");
-    // print_ch(Q);
+    // print(Q);
 
     auto decoded_data = ImageChannel<f64>(ch.width(), ch.height());
     decoded_data.resize(ch.width(), ch.height());
@@ -183,7 +183,7 @@ inline std::vector<ImageChannel<f64>> luminance_quantization(const std::vector<I
         quantization_MCUs[i].resize(_MCUs[i].width(), _MCUs[i].height());
         quantization_MCUs[i] = dec::luminance_quantization(_MCUs[i], quality);
         INFO("DEQUANTIZATED Y MCU %d\n", i);
-		print_ch(quantization_MCUs[i]);
+		print(quantization_MCUs[i]);
     }
     g_timers.end("dequantization MCUs");
 

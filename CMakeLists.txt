@@ -2,70 +2,83 @@ cmake_minimum_required(VERSION 3.23)
 
 project(liblena)
 project(liblena_tests)
+project(liblena_JPEG)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 message(CMAKE_C_COMPILER="${CMAKE_C_COMPILER}")
 message(CMAKE_CXX_COMPILER="${CMAKE_CXX_COMPILER}")
 
-# liblena
-add_library(liblena STATIC
-    src/ppm_image.cpp
-    src/DCT.cpp
-    src/quantization.cpp
-)
-target_compile_features(liblena PRIVATE cxx_std_17)
-target_include_directories(liblena PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-# liblena visualization
+# For Visulization
 find_package(opengl_system)
 find_package(stb)
 find_package(glfw3)
 
-add_executable(liblena_visualization
-    visualization/visualization.cpp
+# liblena
+add_library(liblena INTERFACE)
+target_compile_features(liblena INTERFACE cxx_std_20)
+target_include_directories(liblena INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/
+    ${CMAKE_CURRENT_SOURCE_DIR}/Input
+    ${CMAKE_CURRENT_SOURCE_DIR}/Types
+    ${CMAKE_CURRENT_SOURCE_DIR}/Utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/JPEG
+    ${CMAKE_CURRENT_SOURCE_DIR}/Visualization
 )
-target_include_directories(liblena_visualization PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/visualization/include)
 
-target_link_libraries(liblena_visualization PRIVATE
-    liblena
+target_link_libraries(liblena INTERFACE
+    # Visulization libs
     opengl::opengl
     glfw
     stb::stb
 )
 
-
 # liblena_tests
+
+# For Tests
 find_package(GTest)
 include(GoogleTest)
 enable_testing()
 
-add_executable(liblena_tests 
-    
-    # unit tests
-    # tests/ppm_image_tests.cpp
-    # tests/ycbcr_tests.cpp
-    # tests/subsampling_tests.cpp
-    # tests/blocksplitting_tests.cpp
-
-    # tests/DCT_tests.cpp
-    # tests/quantization_tests.cpp
-    # tests/entropycoding_tests.cpp
-    tests/huffmancoding_tests.cpp
-    
-    # intergration tests
-    # tests/jpeg_tests.cpp
+add_executable(liblena_tests
+    # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/PPM.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/YCbCr.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/Downsampling.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/MCUs.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/DCT.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/Quantization.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/EntropyCoding.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/JPEG.cpp
 )
-
-target_compile_definitions(liblena_tests PRIVATE
-    RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/tests_data"
-)
-
-target_link_libraries(liblena_tests PRIVATE
+target_link_libraries(liblena_tests
     liblena
-    gtest::gtest    
+    # Tests libs
+    gtest::gtest
 )
 
+# For Tests
+target_compile_definitions(liblena_tests PRIVATE
+    RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/TestsData"
+)
 gtest_discover_tests(liblena_tests)
+
+# JPEG
+add_executable(liblena_JPEG
+    ${CMAKE_CURRENT_SOURCE_DIR}/Examples/JPEG.cpp
+)
+target_include_directories(liblena_JPEG PUBLIC
+${CMAKE_CURRENT_SOURCE_DIR}/
+    ${CMAKE_CURRENT_SOURCE_DIR}/Input
+    ${CMAKE_CURRENT_SOURCE_DIR}/Types
+    ${CMAKE_CURRENT_SOURCE_DIR}/Utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/JPEG
+    ${CMAKE_CURRENT_SOURCE_DIR}/Visualization
+)
+target_compile_definitions(liblena_JPEG PRIVATE
+    RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/TestsData"
+)
+target_link_libraries(liblena_JPEG
+    liblena
+)

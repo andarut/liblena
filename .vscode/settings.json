@@ -59,6 +59,7 @@
         "complex": "cpp",
         "execution": "cpp",
         "iostream": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "iterator": "cpp"
     }
 }

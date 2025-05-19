@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <filesystem>
 
 #include "lena.hpp"
 
@@ -23,8 +24,8 @@ BitStream JPEG(const std::vector<ImageChannel<u8>>& RGB_data) {
     auto YCbCr_data = RGB2YCbCr(RGB_data);
 
     /* Downsampling */
-    auto Cb_downsampled = enc::downsampling(YCbCr_data[1], {4, 1, 1});
-    auto Cr_downsampled = enc::downsampling(YCbCr_data[2], {4, 1, 1});
+    auto Cb_downsampled = enc::downsampling(YCbCr_data[1], {4, 2, 2});
+    auto Cr_downsampled = enc::downsampling(YCbCr_data[2], {4, 2, 2});
 
     /* MCUs */
     auto Y_MCUs  = enc::MCUs(YCbCr_data[0], {8, 8});
@@ -89,8 +90,8 @@ std::vector<ImageChannel<u8>> JPEG(BitStream& bs) {
     auto Cr = dec::MCUs(Cr_IDCT_MCUs, {8, 8}, width, height);
     
     /* Resample */
-    auto Cb_resampled = dec::downsampling<u8>(Cb, {4, 1, 1}, width, height);
-    auto Cr_resampled = dec::downsampling<u8>(Cr, {4, 1, 1}, width, height);
+    auto Cb_resampled = dec::downsampling<u8>(Cb, {4, 2, 2}, width, height);
+    auto Cr_resampled = dec::downsampling<u8>(Cr, {4, 2, 2}, width, height);
 
     /* Color Transform */
     auto RGB_data = YCbCr2RGB({Y, Cb_resampled, Cr_resampled});

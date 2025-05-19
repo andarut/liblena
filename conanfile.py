@@ -17,7 +17,7 @@ class LibLenaRecipe(ConanFile):
 		self.test_requires("stb/cci.20240531")
 
 	def generate(self):
-		tc = CMakeToolchain(self, generator="Ninja")
+		tc = CMakeToolchain(self, generator="Unix Makefiles")
 		if self.settings.build_type == "Debug":
 			tc.variables["CMAKE_C_FLAGS"] = "-fsanitize=address,undefined -fno-omit-frame-pointer"
 			tc.variables["CMAKE_CXX_FLAGS"] = "-fsanitize=address,undefined -fno-omit-frame-pointer"

@@ -126,7 +126,11 @@ source ./scripts/prepare_<OS>_<ARCH>_<BUILD_TYPE>.sh
 
 Example:
 ```
-source ./scripts/prepare_macos_x64_debug.sh
+source ./scripts/prepare_macos_x64.sh
+```
+
+```
+source ./scripts/prepare_linux_x64.sh
 ```
 
 This script will install dependencies and link installed `cmake` into `.venv/bin/cmake`.
@@ -134,41 +138,34 @@ This script will install dependencies and link installed `cmake` into `.venv/bin
 ## Configure
 FIRST SEE [Requirements](Requirements) !
 
-From now on you can build with **cmake configs**. `conan-debug` or `conan-release` depending on your build type.
+From now on you can build with **cmake configs**. Main is `conan-debug`.
 
 ```
 cmake --preset 'conan-debug'
 ```
-or
-```
-cmake --preset 'conan-release'
-```
 
 ## Build
 ```
-ninja -j$(nproc) -C build/Debug
-```
-or
-```
-ninja -j$(nproc) -C build/Release
+make -j$(nproc) -C build/Debug
 ```
 
 On macos you can use `sysctl -n hw.ncpu` instead of `nproc`. `nproc` can be installed with `brew install coreutils`. 
 ```
-ninja -j$(sysctl -n hw.ncpu) -C build/Debug
+make -j$(sysctl -n hw.ncpu) -C build/Debug
 ```
 or
 ```
-ninja -j$(sysctl -n hw.ncpu) -C build/Release
+make -j$(sysctl -n hw.ncpu) -C build/Release
 ```
 
 ## Run tests
-Only in **debug** build:
 ```
-ninja test -j$(nproc) -C build/Debug
+make test -j$(nproc) -C build/Debug
 ```
 
-## Goal for v1.0
-Working JPEG (encoder and decoder)
+## Run test with visualization
+```
+./build/Debug/liblena_tests
+```
 
 ## Releases

@@ -10,7 +10,9 @@ for experiments with data compression techniques
 <h3>
 </h3>
 
-[![macos](https://github.com/andarut/liblena/actions/workflows/macos.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/macos.yml)
+[![macos-x64](https://github.com/andarut/liblena/actions/workflows/macos_x64.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/macos_x64.yml)
+[![macos-arm](https://github.com/andarut/liblena/actions/workflows/macos_arm.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/macos_arm.yml)
+[![linux-x64](https://github.com/andarut/liblena/actions/workflows/linux_x64.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/linux_x64.yml)
 
 </div>
 
@@ -124,9 +126,15 @@ Run script for your system to **first time** building `<BUILD_TYPE>` version of 
 source ./scripts/prepare_<OS>_<ARCH>_<BUILD_TYPE>.sh
 ```
 
-Example:
+ExampleS:
 ```
-source ./scripts/prepare_macos_x64_debug.sh
+source ./scripts/prepare_macos_x64.sh
+```
+```
+source ./scripts/prepare_macos_arm.sh
+```
+```
+source ./scripts/prepare_linux_x64.sh
 ```
 
 This script will install dependencies and link installed `cmake` into `.venv/bin/cmake`.
@@ -134,41 +142,34 @@ This script will install dependencies and link installed `cmake` into `.venv/bin
 ## Configure
 FIRST SEE [Requirements](Requirements) !
 
-From now on you can build with **cmake configs**. `conan-debug` or `conan-release` depending on your build type.
+From now on you can build with **cmake configs**. Main is `conan-debug`.
 
 ```
 cmake --preset 'conan-debug'
 ```
-or
-```
-cmake --preset 'conan-release'
-```
 
 ## Build
 ```
-ninja -j$(nproc) -C build/Debug
-```
-or
-```
-ninja -j$(nproc) -C build/Release
+make -j$(nproc) -C build/Debug
 ```
 
 On macos you can use `sysctl -n hw.ncpu` instead of `nproc`. `nproc` can be installed with `brew install coreutils`. 
 ```
-ninja -j$(sysctl -n hw.ncpu) -C build/Debug
+make -j$(sysctl -n hw.ncpu) -C build/Debug
 ```
 or
 ```
-ninja -j$(sysctl -n hw.ncpu) -C build/Release
+make -j$(sysctl -n hw.ncpu) -C build/Release
 ```
 
-## Run tests
-Only in **debug** build:
+## Run tests (this may a while)
 ```
-ninja test -j$(nproc) -C build/Debug
+make test -j$(nproc) -C build/Debug
 ```
 
-## Goal for v1.0
-Working JPEG (encoder and decoder)
+## Run test with visualization (this may a while)
+```
+./build/Debug/liblena_tests
+```
 
 ## Releases

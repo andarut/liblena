@@ -112,7 +112,7 @@ public:
 
 		int scale = 1;
 
-		printf("show %lld x %lld\n", chs[0].width(), chs[0].height());
+		printf("show %lu x %lu\n", chs[0].width(), chs[0].height());
 
 		/* Init window */
 		GLFWwindow* window = glfwCreateWindow(

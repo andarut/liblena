@@ -1,6 +1,6 @@
 [settings]
-arch=x86_64
-build_type=Release
+arch=armv8
+build_type=Debug
 compiler=clang
 compiler.cppstd=gnu17
 compiler.libcxx=libc++
@@ -8,5 +8,5 @@ compiler.version=16
 os=Macos
 
 [buildenv]
-CC=/usr/local/bin/clang
-CXX=/usr/local/bin/clang++
+CC=/opt/homebrew/opt/llvm@19/bin/clang
+CXX=/opt/homebrew/opt/llvm@19/bin/clang++

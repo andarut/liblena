@@ -6,13 +6,13 @@ fi
 
 ROOT_DIR="${SCRIPT_DIR}/.."
 PROFILES_DIR="${ROOT_DIR}/profiles"
-PROFILE_PATH="${PROFILES_DIR}/mac_x64_debug"
+PROFILE_PATH="${PROFILES_DIR}/mac_arm"
 
 VENV_DIR="${ROOT_DIR}/.venv"
 VENV_BIN_DIR="${VENV_DIR}/bin"
 
 # Create venv and install conan
-source ${SCRIPT_DIR}/macos/install_conan.sh
+source ${SCRIPT_DIR}/install_conan.sh
 
 # Activate venv
 source ${ROOT_DIR}/.venv/bin/activate

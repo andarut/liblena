@@ -6,7 +6,7 @@ import sys
 Q = 50
 
 def encode(input_path: str, encoded_path: str):
-    encode_cmd = f"cjpeg -quality {Q} -baseline -dct float -sample 4x1,1x1,1x1  {input_path} > {encoded_path}"
+    encode_cmd = f"cjpeg -quality {Q} -baseline -dct float -sample 2x1,1x1,1x1  {input_path} > {encoded_path}"
     print(f"ENCODE {encode_cmd}")
     os.system(encode_cmd)
              

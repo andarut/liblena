@@ -3,11 +3,13 @@
 
 #include "Utils.hpp"
 
-struct Timer {
-    u64 duration;
-    std::chrono::steady_clock::time_point time_point;
+#include <chrono>
+#include <cstdint>
+using u64 = std::uint64_t;
 
-    Timer() = default;
+struct Timer {
+    u64 duration = 0;
+    std::chrono::high_resolution_clock::time_point time_point;
 
     void start() {
         time_point = std::chrono::high_resolution_clock::now();
@@ -15,9 +17,11 @@ struct Timer {
 
     void end() {
         auto now = std::chrono::high_resolution_clock::now();
-        duration =  std::chrono::duration_cast<std::chrono::milliseconds>(now - time_point).count();
+        duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+                       now - time_point
+                   ).count();
     }
-
 };
+
 
 #endif // TIMER_H

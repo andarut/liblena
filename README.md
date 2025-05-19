@@ -10,9 +10,9 @@ for experiments with data compression techniques
 <h3>
 </h3>
 
-[![macos_x64](https://github.com/andarut/liblena/actions/workflows/macos.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/macos_x64.yml)
-[![macos_arm](https://github.com/andarut/liblena/actions/workflows/macos.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/macos_arm.yml)
-[![linux_x64](https://github.com/andarut/liblena/actions/workflows/linux.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/linux_x64.yml)
+[![macos-x64](https://github.com/andarut/liblena/actions/workflows/macos_x64.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/macos_x64.yml)
+[![macos-arm](https://github.com/andarut/liblena/actions/workflows/macos_arm.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/macos_arm.yml)
+[![linux-x64](https://github.com/andarut/liblena/actions/workflows/linux_x64.yml/badge.svg?branch=main&event=push)](https://github.com/andarut/liblena/actions/workflows/linux_x64.yml)
 
 </div>
 

@@ -74,7 +74,7 @@ inline ImageChannel<s16> luminance_quantization(ImageChannel<f64> ch, u8 quality
 
     for (u64 i = 0; i < 8; i++)
         for (u64 j = 0; j < 8; j++) {
-            quantizated_ch(i, j) = std::round((f64)(ch(i, j))/(f64)(Q(i, j)));
+            quantizated_ch(i, j) = std::round((f64)(ch(i, j)) / (f64)(Q(i, j)));
         }
 
     return quantizated_ch;
@@ -93,7 +93,7 @@ inline ImageChannel<s16> chrominance_quantization(ImageChannel<f64> ch, u8 quali
 
     for (u64 i = 0; i < 8; i++)
         for (u64 j = 0; j < 8; j++) {
-            quantizated_ch(i, j) = std::round((f64)(ch(i, j))/(f64)(Q(i, j)));
+            quantizated_ch(i, j) = std::round((f64)(ch(i, j)) / (f64)(Q(i, j)));
         }
 
     return quantizated_ch;
@@ -152,7 +152,7 @@ inline ImageChannel<f64> luminance_quantization(ImageChannel<s16> ch, u8 quality
 
     for (u64 i = 0; i < ch.height(); i++)
         for (u64 j = 0; j < ch.width(); j++) {
-            decoded_data(i, j) = (f64)ch(i, j)*(f64)Q(i, j);
+            decoded_data(i, j) = (f64)(ch(i, j)) * (f64)(Q(i, j));
         }
 
     return decoded_data;
@@ -169,7 +169,7 @@ inline ImageChannel<f64> chrominance_quantization(ImageChannel<s16> ch, u8 quali
 
     for (u64 i = 0; i < ch.height(); i++)
         for (u64 j = 0; j < ch.width(); j++) {
-            decoded_data(i, j) = (f64)ch(i, j)*(f64)Q(i, j);
+            decoded_data(i, j) = (f64)(ch(i, j)) * (f64)(Q(i, j));
         }
 
     return decoded_data;

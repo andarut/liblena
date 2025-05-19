@@ -3,13 +3,15 @@
 import os
 import sys
 
+Q = 50
+
 def encode(input_path: str, encoded_path: str):
-    encode_cmd = f"cjpeg -quality 50 -baseline -dct float -sample 1x1,1x1,1x1 -rgb {input_path} > {encoded_path}"
+    encode_cmd = f"cjpeg -quality {Q} -baseline -dct float -sample 4x1,1x1,1x1  {input_path} > {encoded_path}"
     print(f"ENCODE {encode_cmd}")
     os.system(encode_cmd)
-
+             
 def decode(encoded_path: str, decoded_path: str):
-    decode_cmd = f"djpeg -dct float -dither none -onepass {encoded_path} > {decoded_path}"
+    decode_cmd = f"djpeg -dct float -dither none -nosmooth -rgb -onepass {encoded_path} > {decoded_path}"
     print(f"DECODE {decode_cmd}")
     os.system(decode_cmd)
 

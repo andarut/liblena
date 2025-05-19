@@ -65,13 +65,13 @@ ImageChannel<T> downsampling(const ImageChannel<T> &ch, const DownsamplingMode &
 
 namespace dec {
 
-/* TODO: think about passing down original sizes */
+/* passing down original sizes because of 4:1:1, etc */
 template <typename T>
-ImageChannel<T> downsampling(const ImageChannel<T> &ch, const DownsamplingMode &mode) {
+ImageChannel<T> downsampling(const ImageChannel<T> &ch, const DownsamplingMode &mode, u64 originl_width, u64 original_height) {
     INFO("mode = %lld:%lld:%lld\n", mode.J, mode.a, mode.b);
 
-    ImageChannel<T> decoded_data(ch.width(), ch.height());
-    decoded_data.resize(ch.width(), ch.height());
+    ImageChannel<T> decoded_data(originl_width, original_height);
+    decoded_data.resize(originl_width, original_height);
 
 
     u64 read_i = 0, read_j = 0;

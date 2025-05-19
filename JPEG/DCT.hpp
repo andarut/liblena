@@ -82,14 +82,14 @@ inline ImageChannel<u8> DCT(const ImageChannel<f64>& data) {
     decoded_data.resize(data.width(), data.height());
     for (u64 i = 0; i < data.height(); i++)
         for (u64 j = 0; j < data.width(); j++) {
-            f64 shifted = f(i,j) + 128.0;
-            s16 val = (s16)std::floor(shifted + 0.5);
-            decoded_data(i,j) = (u8)std::min(std::max(val, (s16)0), (s16)255);
-            // f64 _f = f(i, j) + 128.0;
-            // s16 r = (s16)std::round(_f);
-            // if (0 <= r && r <= 255) decoded_data(i, j) = static_cast<u8>(r);
-            // if (r > 255) decoded_data(i, j) = 255;
-            // if (r < 0) decoded_data(i, j) = 0;
+            // f64 shifted = f(i,j) + 128.0;
+            // s16 val = (s16)std::floor(shifted + 0.5);
+            // decoded_data(i,j) = (u8)std::min(std::max(val, (s16)0), (s16)255);
+            f64 _f = f(i, j) + 128.0;
+            s16 r = (s16)std::round(_f);
+            if (0 <= r && r <= 255) decoded_data(i, j) = static_cast<u8>(r);
+            if (r > 255) decoded_data(i, j) = 255;
+            if (r < 0) decoded_data(i, j) = 0;
         }
             
 

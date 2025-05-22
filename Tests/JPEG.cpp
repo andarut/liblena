@@ -7,7 +7,7 @@ template <typename T>
 void _ASSERT_EQ(std::vector<ImageChannel<T>> data1, std::vector<ImageChannel<T>> data2) {
     f64 _PSNR = PSNR(data1, data2);
     INFO("COMPARING PSNR = %.2f\n", _PSNR);
-    assert(_PSNR > 20.0); // good to acceptable quality 
+    assert(_PSNR > 40.0); // good to acceptable quality 
 }
 
 namespace enc {
@@ -101,25 +101,50 @@ std::vector<ImageChannel<u8>> JPEG(BitStream& bs) {
 
 } // namespace dec
 
-TEST(TEST_JPEG, JPEG_ppm_image) {
+// TEST(TEST_JPEG, JPEG_ppm_image) {
+//     /* INPUT */
+//     std::filesystem::path resDir(RESOURCE_DIR);
+
+//     std::ifstream expected_ppm_file(resDir / "decoded/ppm_image.ppm");
+//     ASSERT_TRUE(expected_ppm_file.is_open());
+//     auto expected_RGB_data = PPM(expected_ppm_file);
+
+//     std::ifstream ppm_file(resDir / "ppm_image.ppm");
+
+//     auto RGB_data = PPM(ppm_file);
+    
+//     /* RUN ENCODING */
+//     auto enc_bs = enc::JPEG(RGB_data);
+//     enc_bs.fwrite("ppm_image.bs");
+
+//     /* RUN DECODING */
+//     BitStream dec_bs;
+//     dec_bs.fread("ppm_image.bs");
+//     auto decoded_RGB_data = dec::JPEG(dec_bs);
+
+//     /* COMPARING WITH LIBJPEG */
+//     _ASSERT_EQ(decoded_RGB_data, expected_RGB_data);
+// }
+
+TEST(TEST_JPEG, JPEG_lena_image) {
     /* INPUT */
     std::filesystem::path resDir(RESOURCE_DIR);
 
-    std::ifstream expected_ppm_file(resDir / "decoded/ppm_image.ppm");
+    std::ifstream expected_ppm_file(resDir / "decoded/Lenna.ppm");
     ASSERT_TRUE(expected_ppm_file.is_open());
     auto expected_RGB_data = PPM(expected_ppm_file);
 
-    std::ifstream ppm_file(resDir / "ppm_image.ppm");
+    std::ifstream ppm_file(resDir / "Lenna.ppm");
 
     auto RGB_data = PPM(ppm_file);
     
     /* RUN ENCODING */
     auto enc_bs = enc::JPEG(RGB_data);
-    enc_bs.fwrite("ppm_image.bs");
+    enc_bs.fwrite("Lenna.bs");
 
     /* RUN DECODING */
     BitStream dec_bs;
-    dec_bs.fread("ppm_image.bs");
+    dec_bs.fread("Lenna.bs");
     auto decoded_RGB_data = dec::JPEG(dec_bs);
 
     g_visualization.show(decoded_RGB_data);

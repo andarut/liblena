@@ -52,7 +52,7 @@ public:
 
 		/* Init window */
 		GLFWwindow* window = glfwCreateWindow(
-			ch.width()*scale, ch.height()*scale, "RawImageData",
+			ch.width()*scale, ch.height()*scale, "liblena",
 			nullptr, nullptr
 		);
 		if (!window) {
@@ -116,7 +116,7 @@ public:
 
 		/* Init window */
 		GLFWwindow* window = glfwCreateWindow(
-			chs[0].width()*scale, chs[0].height()*scale, "RawImageData",
+			chs[0].width()*scale, chs[0].height()*scale, "liblena",
 			nullptr, nullptr
 		);
 		if (!window) {

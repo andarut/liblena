@@ -113,6 +113,10 @@ std::vector<ImageChannel<u8>> JPEG(BitStream& bs) {
 g_visualization.show(decoded_RGB_data);
 ```
 
+<picture>
+  <img alt="liblena demo" src="/docs/demo.png" width="50%" height="50%">
+</picture>
+
 ## Requirements
 
 Currently library building with `conan` inside **virtualenv**, the only requirements are `Python (>= 3.6)` and C++ compiler.
@@ -160,12 +164,7 @@ or
 make -j$(sysctl -n hw.ncpu) -C build/Release
 ```
 
-## Run tests (this may a while)
-```
-make test -j$(nproc) -C build/Debug
-```
-
-## Run test with visualization (this may a while)
+## Demo
 ```
 ./build/Debug/liblena_tests
 ```

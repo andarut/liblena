@@ -169,4 +169,7 @@ make -j$(sysctl -n hw.ncpu) -C build/Release
 ./build/Debug/liblena_tests
 ```
 
+## Validation
+There is `./TestsData/libjpeg.py` which running `cjpeg` and `djpeg` from `libjpeg-turbo` with baseline flags. Comparing my encoder/decoder pipeline with libjpeg i get **PSNR > 40** (not fully equal due to rounding errors)
+
 ## Releases

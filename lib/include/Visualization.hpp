@@ -14,8 +14,8 @@
 #include "Globals.hpp"
 
 /* for text rendering */
-#define STB_EASY_FONT_IMPLEMENTATION
-#include "stb_easy_font.h"
+// #define STB_EASY_FONT_IMPLEMENTATION
+// #include "stb_easy_font.h"
 
 class Visualization {
 public:

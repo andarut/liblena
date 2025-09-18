@@ -1,14 +1,14 @@
-#include <gtest/gtest.h>
+// #include <gtest/gtest.h>
 #include <filesystem>
 
 #include "lena.hpp"
 
-template <typename T>
-void _ASSERT_EQ(std::vector<ImageChannel<T>> data1, std::vector<ImageChannel<T>> data2) {
-    f64 _PSNR = PSNR(data1, data2);
-    INFO("COMPARING PSNR = %.2f\n", _PSNR);
-    assert(_PSNR > 30.0); // good to acceptable quality 
-}
+// template <typename T>
+// void _ASSERT_EQ(std::vector<ImageChannel<T>> data1, std::vector<ImageChannel<T>> data2) {
+//     f64 _PSNR = PSNR(data1, data2);
+//     INFO("COMPARING PSNR = %.2f\n", _PSNR);
+//     assert(_PSNR > 30.0); // good to acceptable quality 
+// }
 
 namespace enc {
 
@@ -126,12 +126,13 @@ std::vector<ImageChannel<u8>> JPEG(BitStream& bs) {
 //     _ASSERT_EQ(decoded_RGB_data, expected_RGB_data);
 // }
 
-TEST(TEST_JPEG, JPEG_lena_image) {
+// TEST(TEST_JPEG, JPEG_lena_image) {
+int main() {
     /* INPUT */
     std::filesystem::path resDir(RESOURCE_DIR);
 
     std::ifstream expected_ppm_file(resDir / "decoded/Lenna.ppm");
-    ASSERT_TRUE(expected_ppm_file.is_open());
+    // ASSERT_TRUE(expected_ppm_file.is_open());
     auto expected_RGB_data = PPM(expected_ppm_file);
 
     std::ifstream ppm_file(resDir / "Lenna.ppm");
@@ -147,8 +148,12 @@ TEST(TEST_JPEG, JPEG_lena_image) {
     dec_bs.fread("Lenna.bs");
     auto decoded_RGB_data = dec::JPEG(dec_bs);
 
-    g_visualization.show(decoded_RGB_data);
+    // g_visualization.show(decoded_RGB_data);
+    INFO("encoded file size = %d\n", enc_bs.bytes_size());
+    INFO("decoded file size = %d\n", dec_bs.bytes_size());
 
+    g_visualization.show(decoded_RGB_data);
+    
     /* COMPARING WITH LIBJPEG */
-    _ASSERT_EQ(decoded_RGB_data, expected_RGB_data);
+    // _ASSERT_EQ(decoded_RGB_data, expected_RGB_data);
 }

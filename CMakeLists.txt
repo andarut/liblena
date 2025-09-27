@@ -18,7 +18,22 @@ message(CMAKE_CXX_COMPILER="${CMAKE_CXX_COMPILER}")
 
 # liblena
 add_library(liblena
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/ycbcr.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/YCbCrConverter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/DCT.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/Quantizator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/HuffmanEncoder.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/include/zigzag.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/include/DPCM.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/include/RLC.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/include/HuffmanTable.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/include/PPM.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/QuantizationTable.cpp
+    
+
+    # types
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/ImageCh.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/Image.cpp
 )
 target_compile_features(liblena PRIVATE cxx_std_20)
 target_include_directories(liblena PRIVATE
@@ -41,12 +56,15 @@ include(GoogleTest)
 enable_testing()
 
 add_executable(liblena_tests
-#     # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/PPM.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_ycbcr.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_PPMReader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_YCbCrConverter.cpp
 #     # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/Downsampling.cpp
 #     # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/MCUs.cpp
-#     # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/DCT.cpp
-#     # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/Quantization.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_DCT.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_Quantizator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_Zigzag.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_RLC.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_HuffmanEncoder.cpp
 #     # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/EntropyCoding.cpp
 #     ${CMAKE_CURRENT_SOURCE_DIR}/Tests/JPEG.cpp
 )
@@ -56,11 +74,12 @@ target_include_directories(liblena_tests PRIVATE
 
 target_link_libraries(liblena_tests
     liblena
-#     # Tests libs
+    
+    # Tests libs
     gtest::gtest
 )
 
-# # # For Tests
+# For Tests
 target_compile_definitions(liblena_tests PRIVATE
     RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/TestsData"
 )

@@ -2,11 +2,9 @@
 #define PPM_H
 
 #include "Utils.hpp"
-#include "Types.hpp"
 #include "Logger.hpp"
-#include "Globals.hpp"
 
-inline std::vector<ImageChannel<u8>> PPM(std::ifstream &PPM_file) {
+inline std::vector<ImageCh<u8>> PPM(std::ifstream &PPM_file) {
 
     /* Magic number */
     std::string magic_number;
@@ -29,7 +27,7 @@ inline std::vector<ImageChannel<u8>> PPM(std::ifstream &PPM_file) {
     
     INFO("height = %d\n", height);
     assert(height > 0);
-    
+
     INFO("maxVal = %d\n", maxVal);
     assert(maxVal > 0);
     assert(maxVal <= 255);
@@ -51,9 +49,9 @@ inline std::vector<ImageChannel<u8>> PPM(std::ifstream &PPM_file) {
         PPM_file.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
     }
     
-    auto R_ch = ImageChannel<u8>(width, height);
-    auto G_ch = ImageChannel<u8>(width, height);
-    auto B_ch = ImageChannel<u8>(width, height);
+    auto R_ch = ImageCh<u8>(width, height);
+    auto G_ch = ImageCh<u8>(width, height);
+    auto B_ch = ImageCh<u8>(width, height);
 
     R_ch.resize(width, height);
     G_ch.resize(width, height);

@@ -1,4 +1,5 @@
 {
+    "editor.inlineSuggest.enabled": true,
     "C_Cpp.errorSquiggles": "enabled",
     "C_Cpp.default.compilerPath": "/usr/local/bin/clang++",
     "files.associations": {
@@ -60,6 +61,31 @@
         "execution": "cpp",
         "iostream": "cpp",
         "algorithm": "cpp",
-        "iterator": "cpp"
+        "iterator": "cpp",
+        "cstddef": "cpp",
+        "osmemory": "cpp",
+        "__config": "cpp",
+        "any": "cpp",
+        "atomic": "cpp",
+        "chrono": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "condition_variable": "cpp",
+        "type_traits": "cpp",
+        "filesystem": "cpp",
+        "format": "cpp",
+        "functional": "cpp",
+        "numeric": "cpp",
+        "ostream": "cpp",
+        "system_error": "cpp",
+        "tuple": "cpp",
+        "utility": "cpp",
+        "bit": "cpp",
+        "cerrno": "cpp",
+        "exception": "cpp",
+        "thread": "cpp",
+        "osutility": "cpp",
+        "random": "cpp",
+        "version": "cpp"
     }
 }

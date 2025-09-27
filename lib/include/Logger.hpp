@@ -57,6 +57,22 @@ inline void log(const char* file, const char* func, int line, const char* fmt, .
 #define  WARN(fmt, ...) log<LogLevel::WARN >(__FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
 #define ERROR(fmt, ...) log<LogLevel::ERROR>(__FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
 
+#define _ERROR(err, fmt, ...) \
+    do { \
+        if (err) { \
+            log<LogLevel::ERROR>(__FILE__, __func__, __LINE__, "ERROR: " fmt "\n", ##__VA_ARGS__); \
+        } else { \
+            log<LogLevel::INFO>(__FILE__, __func__, __LINE__, "SUCCESS: " fmt "\n", ##__VA_ARGS__); \
+        } \
+    } while (0)
+
+#define PRINT(fmt, ...) printf(fmt, ##__VA_ARGS__)
+
+#define PRINT_RED(fmt, ...) printf("\033[31m" fmt "\033[0m", ##__VA_ARGS__)
+#define PRINT_GREEN(fmt, ...) printf("\033[32m" fmt "\033[0m", ##__VA_ARGS__)
+
+#define PREFIX_PRINT(pref, fmt, ...) printf((pref + std::string(fmt)).c_str(), ##__VA_ARGS__)
+
 #else
 
 #define DEBUG(fmt, ...)

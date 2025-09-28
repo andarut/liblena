@@ -18,26 +18,26 @@ message(CMAKE_CXX_COMPILER="${CMAKE_CXX_COMPILER}")
 
 # liblena
 add_library(liblena
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/YCbCrConverter.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/DCT.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/Quantizator.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/HuffmanEncoder.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/YCbCrConverter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/DCT.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Quantizator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HuffmanEncoder.cpp
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/include/zigzag.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/include/DPCM.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/include/RLC.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/include/HuffmanTable.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/include/PPM.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/QuantizationTable.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/libjpeg/Zigzag.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/libjpeg/DPCM.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/libjpeg/RLC.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/libjpeg/HuffmanTable.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/libjpeg/PPM.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/QuantizationTable.cpp
     
 
     # types
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/ImageCh.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/Image.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ImageCh.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Image.cpp
 )
 target_compile_features(liblena PRIVATE cxx_std_20)
 target_include_directories(liblena PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/include/
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/libjpeg
 )
 
 target_link_libraries(liblena PRIVATE
@@ -69,7 +69,7 @@ add_executable(liblena_tests
 #     ${CMAKE_CURRENT_SOURCE_DIR}/Tests/JPEG.cpp
 )
 target_include_directories(liblena_tests PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/include/
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/libjpeg/
 )
 
 target_link_libraries(liblena_tests

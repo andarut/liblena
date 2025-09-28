@@ -1,7 +1,7 @@
 #include "YCbCrConverter.h"
 
 void YCbCrConverter::fromRGB(Image<u8>& rgbData) {
-    g_timers.start("YCbCrConverter::fromRGB");
+    // g_timers.start("YCbCrConverter::fromRGB");
 
     for (u64 i = 0; i < rgbData.height(); i++) {
         for (u64 j = 0; j < rgbData.width(); j++) {
@@ -20,15 +20,15 @@ void YCbCrConverter::fromRGB(Image<u8>& rgbData) {
         }
     }
 
-    g_timers.end("YCbCrConverter::fromRGB");
+    // g_timers.end("YCbCrConverter::fromRGB");
 
-    INFO("YCbCrConverter::fromRGB duration = %f\n", g_timers.duration("YCbCrConverter::fromRGB"));
+    // INFO("YCbCrConverter::fromRGB duration = %f\n", g_timers.duration("YCbCrConverter::fromRGB"));
 }
 
 
 void YCbCrConverter::toRGB(Image<u8>& ycbcrData) {
 
-    g_timers.start("YCbCrConverter::toRGB");
+    // g_timers.start("YCbCrConverter::toRGB");
 
     for (u64 i = 0; i < ycbcrData.height(); i++) {
         for (u64 j = 0; j < ycbcrData.width(); j++) {
@@ -47,5 +47,5 @@ void YCbCrConverter::toRGB(Image<u8>& ycbcrData) {
         }
     }
 
-    g_timers.end("YCbCrConverter::toRGB");
+    // g_timers.end("YCbCrConverter::toRGB");
 }

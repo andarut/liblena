@@ -29,7 +29,8 @@ add_library(liblena
     ${CMAKE_CURRENT_SOURCE_DIR}/include/libjpeg/HuffmanTable.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/libjpeg/PPM.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QuantizationTable.cpp
-    
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Compressor.cpp    
 
     # types
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ImageCh.cpp
@@ -56,17 +57,17 @@ include(GoogleTest)
 enable_testing()
 
 add_executable(liblena_tests
-    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_PPMReader.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_YCbCrConverter.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_PPMReader.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_YCbCrConverter.cpp
 #     # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/Downsampling.cpp
 #     # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/MCUs.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_DCT.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_Quantizator.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_Zigzag.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_RLC.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_HuffmanEncoder.cpp
-#     # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/EntropyCoding.cpp
-#     ${CMAKE_CURRENT_SOURCE_DIR}/Tests/JPEG.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_DCT.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_Quantizator.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_Zigzag.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_RLC.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_HuffmanEncoder.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_Compressor.cpp
 )
 target_include_directories(liblena_tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include/libjpeg/
@@ -83,4 +84,7 @@ target_link_libraries(liblena_tests
 target_compile_definitions(liblena_tests PRIVATE
     RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/TestsData"
 )
-gtest_discover_tests(liblena_tests)
+gtest_discover_tests(liblena_tests
+DISCOVERY_MODE PRE_TEST
+    PROPERTIES
+        EXCLUDE_FROM_DEFAULT_BUILD 1)

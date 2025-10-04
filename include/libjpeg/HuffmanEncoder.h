@@ -18,7 +18,7 @@ enum MCU_Type {
 */
 class HuffmanEncoder {
 public:
-	HuffmanEncoder(BitStream&& stream) : mStream(std::move(stream)) {}
+	HuffmanEncoder(BitStream& stream) : mStream(stream) {}
 	int encodeMCU(MCU_Type type, s16 DC, const std::vector<s16>& ACs);
 private:
 	int writeDC(s32 DC_diff, HuffDCTable& table);
@@ -28,7 +28,7 @@ private:
 private:
 	static u8 categoryDC(s32 diff);
 private:
-	BitStream mStream;
+	BitStream& mStream;
 };
 
 

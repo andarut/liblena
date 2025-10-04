@@ -3,6 +3,7 @@
 
 #include "Utils.hpp"
 #include "Logger.hpp"
+#include "BitStream.hpp"
 
 /*
     TODO: try precompute hash to do O(1) lookup
@@ -393,9 +394,9 @@ constexpr std::array<HuffEntry, 16*16> CHROMINANCE_AC = [](){
 	/* 136 */ set(0xD, 0x5, "1111111111100111");
 	/* 137 */ set(0xD, 0x6, "1111111111101000");
 	/* 138 */ set(0xD, 0x7, "1111111111101001");
-	/* 139 */ set(0xD, 0x8, "1111111111101010");
+	/* 139 */ set(0xD, 0x8, "1111111111101100");
 	/* 140 */ set(0xD, 0x9, "1111111111101011");
-	/* 141 */ set(0xE, 0xA, "1111111111101100");
+	/* 141 */ set(0xD, 0xA, "1111111111101100");
 	/* 142 */ set(0xE, 0x1, "11111111100000");
 	/* 143 */ set(0xE, 0x2, "1111111111101101");
 	/* 144 */ set(0xE, 0x3, "1111111111101110");
@@ -463,5 +464,64 @@ constexpr std::array<KeySymbol, N> make_map(const std::array<HuffEntry, N>& tabl
 typedef const std::array<HuffEntry, 256> HuffACTable;
 typedef const std::array<HuffEntry, 12> HuffDCTable;
 
+inline void write_huffman_table(BitStream& bs, const auto& table, uint8_t table_class, uint8_t dest_id) {
+    // Count actual symbols with non-zero length
+    size_t symbol_count = 0;
+    std::array<uint8_t, 16> code_length_counts = {0};
+    std::vector<std::vector<uint8_t>> values_by_length(16);
+    
+    for (size_t i = 0; i < table.size(); i++) {
+        const HuffEntry& entry = table[i];
+        if (entry.length > 0 && entry.length <= 16) {
+            code_length_counts[entry.length - 1]++;
+            values_by_length[entry.length - 1].push_back(static_cast<uint8_t>(i));
+            symbol_count++;
+        }
+    }
+    
+    // Calculate segment length: 2 + 1 + 16 + symbol_count
+    uint16_t segment_length = 2 + 1 + 16 + symbol_count;
+    
+    // Write DHT marker
+    bs.write_u8(0xFF);
+    bs.write_u8(0xC4);
+    
+    // Write segment length (big-endian)
+    bs.write_u8((segment_length >> 8) & 0xFF);
+    bs.write_u8(segment_length & 0xFF);
+    
+    // Write table info (TC: 0=DC, 1=AC | TH: 0-3)
+    uint8_t table_info = (table_class << 4) | (dest_id & 0x0F);
+    bs.write_u8(table_info);
+    
+    // Write code length counts (16 bytes)
+    for (int i = 0; i < 16; i++) {
+        bs.write_u8(code_length_counts[i]);
+    }
+    
+    // Write Huffman values in order of increasing code length
+    for (int len = 1; len <= 16; len++) {
+        for (uint8_t value : values_by_length[len - 1]) {
+            bs.write_u8(value);
+        }
+    }
+}
+
+// Function to write all 4 standard tables
+inline void write_all_standard_tables(BitStream& bs) {
+    // Table K.3: Luminance DC (class 0, destination 0)
+    write_huffman_table(bs, LUMINANCE_DC, 0, 0);
+    
+
+    // Table K.5: Luminance AC (class 1, destination 0)
+    write_huffman_table(bs, LUMINANCE_AC, 1, 0);
+    
+
+    // Table K.4: Chrominance DC (class 0, destination 1)  
+    write_huffman_table(bs, CHROMINANCE_DC, 0, 1);
+    
+    // Table K.6: Chrominance AC (class 1, destination 1)
+    write_huffman_table(bs, CHROMINANCE_AC, 1, 1);
+}
 
 #endif // HUFFMANTABLE_H

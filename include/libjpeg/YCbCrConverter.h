@@ -22,8 +22,8 @@ Y, Cb, Cr in range [0, 255]
 */
 class YCbCrConverter {
 public:
-    static void fromRGB(Image<u8>& rgbData);
-    static void toRGB(Image<u8>& ycbcrData);
+    static void fromRGB(std::array<ImageCh<u8>, 3>& rgbData);
+    static void toRGB(std::array<ImageCh<u8>, 3>& ycbcrData);
 };
 
 #endif // YCBCR_H

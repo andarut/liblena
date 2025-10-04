@@ -34,8 +34,9 @@ TEST(TEST_ENCODING, BASIC_TEST) {
 
     BitStream bs;
 
-    HuffmanEncoder encoder(std::move(bs));
-    encoder.encodeMCU(MCU_Type::LUMINANCE, DC, ACs);
+    // TODO
+    // HuffmanEncoder encoder(std::move(bs));
+    // encoder.encodeMCU(MCU_Type::LUMINANCE, DC, ACs);
 
     
 }

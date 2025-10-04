@@ -1,10 +1,10 @@
 #include "YCbCrConverter.h"
 
-void YCbCrConverter::fromRGB(Image<u8>& rgbData) {
+void YCbCrConverter::fromRGB(std::array<ImageCh<u8>, 3>& rgbData) {
     // g_timers.start("YCbCrConverter::fromRGB");
 
-    for (u64 i = 0; i < rgbData.height(); i++) {
-        for (u64 j = 0; j < rgbData.width(); j++) {
+    for (u64 i = 0; i < rgbData[0].height(); i++) {
+        for (u64 j = 0; j < rgbData[0].width(); j++) {
             double R = rgbData[0](i, j);
             double G = rgbData[1](i, j);
             double B = rgbData[2](i, j);
@@ -26,12 +26,12 @@ void YCbCrConverter::fromRGB(Image<u8>& rgbData) {
 }
 
 
-void YCbCrConverter::toRGB(Image<u8>& ycbcrData) {
+void YCbCrConverter::toRGB(std::array<ImageCh<u8>, 3>& ycbcrData) {
 
     // g_timers.start("YCbCrConverter::toRGB");
 
-    for (u64 i = 0; i < ycbcrData.height(); i++) {
-        for (u64 j = 0; j < ycbcrData.width(); j++) {
+    for (u64 i = 0; i < ycbcrData[0].height(); i++) {
+        for (u64 j = 0; j < ycbcrData[0].width(); j++) {
             double Y = ycbcrData[0](i, j);
             double Cb = ycbcrData[1](i, j);
             double Cr = ycbcrData[2](i, j);

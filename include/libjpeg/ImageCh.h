@@ -21,6 +21,16 @@ public:
 		m_data(std::move(data)) {
 	}
 
+	template<typename OtherT>
+    ImageCh(ImageCh<OtherT>&& other) {
+		m_width = other.width();
+		m_height = other.height();
+        m_data.reserve(other.size());
+        for (auto& v : other.data()) {
+            m_data.push_back(static_cast<T>(v));
+        }
+    }
+
 	inline u64 size() const   { return m_data.size();  }
 	inline bool empty() const { return m_data.empty(); }
 	

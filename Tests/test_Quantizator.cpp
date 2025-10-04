@@ -23,6 +23,9 @@ TEST(TEST_quantization, quantization) {
 
     QuantizationTable q_table;
     auto res = lumin_q_n(50, q_table);
+
+    print("", q_table);
+
     {
         auto res = Quantizator::quantize(testData, q_table);
     }

@@ -6,8 +6,8 @@
 
 #include "ImageCh.h"
 
-template<typename T>
-inline int zigzag(const ImageCh<T>& data, std::vector<T>& outputData) {
+template<typename T1, typename T2>
+inline int zigzag(const ImageCh<T1>& data, std::vector<T2>& outputData) {
     outputData.reserve(data.size());
 
 	const u64 width = data.width();

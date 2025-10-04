@@ -57,12 +57,11 @@ inline void log(const char* file, const char* func, int line, const char* fmt, .
 #define  WARN(fmt, ...) log<LogLevel::WARN >(__FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
 #define ERROR(fmt, ...) log<LogLevel::ERROR>(__FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
 
-#define _ERROR(err, fmt, ...) \
+#define RETURN_IF_ERROR(err, fmt, ...) \
     do { \
         if (err) { \
             log<LogLevel::ERROR>(__FILE__, __func__, __LINE__, "ERROR: " fmt "\n", ##__VA_ARGS__); \
-        } else { \
-            log<LogLevel::INFO>(__FILE__, __func__, __LINE__, "SUCCESS: " fmt "\n", ##__VA_ARGS__); \
+            return err; \
         } \
     } while (0)
 

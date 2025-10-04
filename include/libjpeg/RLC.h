@@ -8,8 +8,8 @@
 
 /* NOTE: this is jpeg's RLE (rely on many zeros in data and omitting DC) */
 
-template<typename T>
-inline int RLC(const std::vector<T> data, std::vector<T>& RLC_data) {
+template<typename T1, typename T2>
+inline int RLC(const std::vector<T1> data, std::vector<T2>& RLC_data) {
     RLC_data.reserve(data.size());
 
     u64 count = 0;

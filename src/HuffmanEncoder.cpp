@@ -21,7 +21,7 @@ int HuffmanEncoder::encodeMCU(MCU_Type type, s16 DC, const std::vector<s16>& RLC
         INFO("ENCODING AC = %d\n", ampl);
         writeAC(run, size, ampl, type == LUMINANCE ? LUMINANCE_AC : CHROMINANCE_AC);
     }
-    print(mStream);
+    // print(mStream);
     return 0;
 }
 

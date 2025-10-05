@@ -1,6 +1,7 @@
 #ifndef COMPRESSOR_H
 #define COMPRESSOR_H
 
+#include "ImageCh.h"
 #include "Utils.hpp"
 #include "Logger.hpp"
 
@@ -17,6 +18,7 @@
 #include "DPCM.h"
 #include "RLC.h"
 #include "HuffmanEncoder.h"
+#include "MCU.h"
 
 const u8 magic = 0xFF;
 
@@ -33,6 +35,7 @@ public:
     Compressor(BitStream& stream) : mStream(stream) {}
     int compress(PPMImageData& rawData);
 private:
+
     /* Start Of Image */
     void writeSOI();
 

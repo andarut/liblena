@@ -31,6 +31,19 @@ public:
         }
     }
 
+	ImageCh(const ImageCh& other) {
+		m_width = other.m_width;
+		m_height = other.m_height;
+		m_data = other.m_data;
+	}
+
+	ImageCh& operator=(ImageCh<T>&& other) {
+		m_width = other.width();
+		m_height = other.height();
+		m_data = std::move(other.m_data);
+		return *this;
+	}
+
 	inline u64 size() const   { return m_data.size();  }
 	inline bool empty() const { return m_data.empty(); }
 	
@@ -42,6 +55,7 @@ public:
 			   (ch1.m_height == ch2.m_height) && \
 			   (ch1.m_data   == ch2.m_data);
 	}
+
 
 	inline u64 width() const           { return m_width;  }
 	inline u64 height() const          { return m_height; }

@@ -24,7 +24,7 @@ int DCT::FDCT(ImageCh<s32>& ch) {
             G(u, v) = static_cast<s32>(std::round(0.25 * alpha(u) * alpha(v) * sum));
         }
 
-    ch = G;
+    ch = std::move(G);
 
     return 0;
 }

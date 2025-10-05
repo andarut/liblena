@@ -6,6 +6,9 @@
 
 #include "ImageCh.h"
 
+/*
+    NOTE: will reserve space for output data!
+*/
 template<typename T1, typename T2>
 inline int zigzag(const ImageCh<T1>& data, std::vector<T2>& outputData) {
     outputData.reserve(data.size());

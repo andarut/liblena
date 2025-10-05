@@ -1,16 +1,18 @@
 #include "Compressor.h"
 #include "BitStream.hpp"
 #include "DCT.h"
+#include "DPCM.h"
 #include "HuffmanEncoder.h"
 #include "HuffmanTable.h"
+#include "ImageCh.h"
 #include "Logger.hpp"
+#include "MCU.h"
 #include "QuantizationTable.h"
 #include "Quantizator.h"
 #include "RLC.h"
 #include "YCbCrConverter.h"
 #include "Zigzag.h"
 
-/* TODO: MCUs support */
 int Compressor::compress(PPMImageData& rawData) {
 
     QuantizationTable lumin_q;
@@ -26,51 +28,137 @@ int Compressor::compress(PPMImageData& rawData) {
 
     /* YCbCr conversion */
     YCbCrConverter::fromRGB(rawData);
-    
-    /* DCT */
-    ImageCh<s32> Y_data(std::move(rawData[0]));
-    ImageCh<s32> Cb_data(std::move(rawData[1]));
-    ImageCh<s32> Cr_data(std::move(rawData[2]));
-    DCT::FDCT(Y_data);
-    DCT::FDCT(Cb_data);
-    DCT::FDCT(Cr_data);
 
-    /* Quantization */
-    Quantizator::quantize(Y_data, lumin_q);
-    Quantizator::quantize(Cb_data, chrom_q);
-    Quantizator::quantize(Cr_data, chrom_q);
+    /* Split into MCUs */
+    auto Y_MCUs = splitIntoMCUs(rawData[0], {8, 8});
+    auto Cb_MCUs = splitIntoMCUs(rawData[1], {8, 8});
+    auto Cr_MCUs = splitIntoMCUs(rawData[2], {8, 8});
 
-    /* Zigzag */
-    std::array<std::vector<s16>, 3> zigzagData;
+    /* DCT + Quantization + Zigzag for each MCU */
+
+    /* Y */
+    std::vector<std::vector<s16>> Y_zigzagMCUData;
     {
-        auto res = zigzag(Y_data, zigzagData[0]);
-        RETURN_IF_ERROR(res, "Error in zigzag for Y\n");
-    }
-    {
-        auto res = zigzag(Cb_data, zigzagData[1]);
-        RETURN_IF_ERROR(res, "Error in zigzag for Cb\n");
-    }
-    {
-        auto res = zigzag(Cr_data, zigzagData[2]);
-        RETURN_IF_ERROR(res, "Error in zigzag for Cr\n");
+        Y_zigzagMCUData.resize(Y_MCUs.size());
+
+        for (int i = 0; i < Y_MCUs.size(); i++) {
+            ImageCh<s32> s32_MCU(std::move(Y_MCUs[i]));
+
+            /* DCT */
+            DCT::FDCT(s32_MCU);
+            
+            /* Quantization */
+            Quantizator::quantize(s32_MCU, lumin_q);
+
+            std::vector<s16> Y_zigzagMCU;
+            {
+                auto res = zigzag(s32_MCU, Y_zigzagMCU);
+                RETURN_IF_ERROR(res, "Error in zigzag for Y\n");
+            }
+            
+            Y_zigzagMCUData[i] = std::move(Y_zigzagMCU);
+        }
+
+        /* DPCM */
+        DPCM(Y_zigzagMCUData);
     }
 
-    /* DPCM */
-    // skip for 8x8
+    /* Cb */
+    std::vector<std::vector<s16>> Cb_zigzagMCUData;
+    {
+        Cb_zigzagMCUData.resize(Cb_MCUs.size());
 
-    /* RLC */
-    std::array<std::vector<s16>, 3> RLCData;
-    {
-        auto res = RLC(zigzagData[0], RLCData[0]);
-        RETURN_IF_ERROR(res, "Error in RLC for Y\n");
+        for (int i = 0; i < Cb_MCUs.size(); i++) {
+            ImageCh<s32> s32_MCU(std::move(Cb_MCUs[i]));
+
+            /* DCT */
+            DCT::FDCT(s32_MCU);
+            
+            /* Quantization */
+            Quantizator::quantize(s32_MCU, chrom_q);
+
+            std::vector<s16> Cb_zigzagMCU;
+            {
+                auto res = zigzag(s32_MCU, Cb_zigzagMCU);
+                RETURN_IF_ERROR(res, "Error in zigzag for Cb\n");
+            }
+            
+            Cb_zigzagMCUData[i] = std::move(Cb_zigzagMCU);
+        }
+
+        /* DPCM */
+        DPCM(Cb_zigzagMCUData);
     }
+
+    /* Cr */
+    std::vector<std::vector<s16>> Cr_zigzagMCUData;
     {
-        auto res = RLC(zigzagData[1], RLCData[1]);
-        RETURN_IF_ERROR(res, "Error in RLC for Cb\n");
+        Cr_zigzagMCUData.resize(Cr_MCUs.size());
+
+        for (int i = 0; i < Cr_MCUs.size(); i++) {
+            ImageCh<s32> s32_MCU(std::move(Cr_MCUs[i]));
+
+            /* DCT */
+            DCT::FDCT(s32_MCU);
+            
+            /* Quantization */
+            Quantizator::quantize(s32_MCU, chrom_q);
+
+            std::vector<s16> Cr_zigzagMCU;
+            {
+                auto res = zigzag(s32_MCU, Cr_zigzagMCU);
+                RETURN_IF_ERROR(res, "Error in zigzag for Cb\n");
+            }
+            
+            Cr_zigzagMCUData[i] = std::move(Cr_zigzagMCU);
+        }
+
+        /* DPCM */
+        DPCM(Cr_zigzagMCUData);
     }
-    {
-        auto res = RLC(zigzagData[2], RLCData[2]);
-        RETURN_IF_ERROR(res, "Error in RLC for Cr\n");
+
+
+    BitStream bs;
+    HuffmanEncoder encoder(bs);
+
+    /* Note: no subsampling */
+    for (int i = 0; i < Y_zigzagMCUData.size(); i++) {
+
+        /* Encode MCU */
+        std::vector<s16> Y_RLC_data;
+        std::vector<s16> Cb_RLC_data;
+        std::vector<s16> Cr_RLC_data;
+        /* Y RLC */
+        {
+            const auto& zigzagMCU = Y_zigzagMCUData[i];
+            auto res = RLC(zigzagMCU, Y_RLC_data);
+            RETURN_IF_ERROR(res, "Error in RLC for Y\n");
+        }
+        /* Cb RLC */
+        {
+            const auto& zigzagMCU = Cb_zigzagMCUData[i];
+            auto res = RLC(zigzagMCU, Cb_RLC_data);
+            RETURN_IF_ERROR(res, "Error in RLC for Cb\n");
+        }
+        /* Cr RLC */
+        {
+            const auto& zigzagMCU = Cr_zigzagMCUData[i];
+            auto res = RLC(zigzagMCU, Cr_RLC_data);
+            RETURN_IF_ERROR(res, "Error in RLC for Cr\n");
+        }
+        /* Huffman encoding */
+        {
+            auto res = encoder.encodeMCU(MCU_Type::LUMINANCE, Y_zigzagMCUData[i][0], Y_RLC_data);
+            RETURN_IF_ERROR(res, "Error in encodeMCU for Y\n");
+        }
+        {
+            auto res = encoder.encodeMCU(MCU_Type::CHROMINANCE, Cb_zigzagMCUData[i][0], Cb_RLC_data);
+            RETURN_IF_ERROR(res, "Error in encodeMCU for Cb\n");
+        }
+        {
+            auto res = encoder.encodeMCU(MCU_Type::CHROMINANCE, Cr_zigzagMCUData[i][0], Cr_RLC_data);
+            RETURN_IF_ERROR(res, "Error in encodeMCU for Cr\n");
+        }
     }
 
     writeSOI();
@@ -114,23 +202,6 @@ int Compressor::compress(PPMImageData& rawData) {
 
     /* appl bit */
     mStream.write_u8(0x00);
-
-
-    /* Huffman coding */
-    BitStream bs;
-    HuffmanEncoder encoder(bs);
-    {
-        auto res = encoder.encodeMCU(MCU_Type::LUMINANCE, RLCData[0][0], RLCData[0]);
-        RETURN_IF_ERROR(res, "Error in encodeMCU for Y\n");
-    }
-    {
-        auto res = encoder.encodeMCU(MCU_Type::CHROMINANCE, RLCData[1][0], RLCData[1]);
-        RETURN_IF_ERROR(res, "Error in encodeMCU for Cb\n");
-    }
-    {
-        auto res = encoder.encodeMCU(MCU_Type::CHROMINANCE, RLCData[2][0], RLCData[2]);
-        RETURN_IF_ERROR(res, "Error in encodeMCU for Cr\n");
-    }
 
     // writeSOS();
 

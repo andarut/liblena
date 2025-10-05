@@ -1,4 +1,4 @@
-// #include <gtest/gtest.h>
+#include <gtest/gtest.h>
 #include <filesystem>
 
 #include "BitStream.hpp"
@@ -8,18 +8,22 @@
 
 inline std::filesystem::path TESTS_DATA(RESOURCE_DIR);
 
-int main() {
-    
-    std::ifstream PPM_fstream(TESTS_DATA / "8x8.ppm");
+int basicTestCase(const std::string& filename) {
+
+    const std::string& ppmFilename = filename + ".ppm";
+    const std::string& jpegFilename = filename + ".jpeg";
+    const std::string& outputFilename = "my_" + jpegFilename;
+
+    std::ifstream PPM_fstream(TESTS_DATA / ppmFilename);
     if (!PPM_fstream.is_open()) {
         ERROR("Input stream is not opened\n");
+        return 1;
     }
 
     PPMImageData data;
     {
         auto res = readPPM(PPM_fstream, data);
-        INFO("res = %d\n", res);
-        RETURN_IF_ERROR(res, "Error in readPPM, res = %d\n", res);
+        RETURN_IF_ERROR(res, "Error in readPPM\n");
     }
 
     BitStream bs;
@@ -30,20 +34,28 @@ int main() {
         RETURN_IF_ERROR(res, "Error in compress\n");
     }
 
-    print(bs);
-
-    INFO("Writing data into my.jpeg");
-    bs.fwrite("my.jpeg");
+    bs.fwrite(outputFilename);
 
     BitStream orig_bs;
-    orig_bs.fread(TESTS_DATA / "8x8.jpeg");
+    orig_bs.fread(TESTS_DATA / jpegFilename);
 
     if (bs != orig_bs) {
-        ERROR("BITSTREAMS NOT EQUAL!");
+        ERROR("Bitstream not equal\n");
         return 1;
     }
-
-    INFO("EQUAL BITSTREMS!");
-
+    INFO("Equal bitstreams\n");
     return 0;
 }
+
+TEST(TEST_Compressor, test_8x8) {
+    ASSERT_EQ(basicTestCase("8x8"), 0);
+}
+
+
+TEST(TEST_Compressor, 16x16) {
+    ASSERT_EQ(basicTestCase("16x16"), 0);
+}
+
+// TEST(TEST_Compressor, test_512x512) {
+//     ASSERT_EQ(basicTestCase("lenna"), 0);
+// }

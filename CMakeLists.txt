@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.23)
+include(CMakePrintHelpers)
 
 project(liblena)
 project(liblena_tests)
+project(tracing)
 
 find_package(imgui)
 find_package(glfw3)
@@ -88,3 +90,29 @@ gtest_discover_tests(liblena_tests
 DISCOVERY_MODE PRE_TEST
     PROPERTIES
         EXCLUDE_FROM_DEFAULT_BUILD 1)
+
+cmake_print_variables(${imgui_INCLUDE_DIRS})
+
+add_executable(tracing
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Tracing.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Overlay.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ImageView.cpp
+
+    ${imgui_INCLUDE_DIRS}/../res/bindings/imgui_impl_glfw.cpp
+    ${imgui_INCLUDE_DIRS}/../res/bindings/imgui_impl_opengl3.cpp
+)
+target_include_directories(tracing PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/libjpeg/
+    ${imgui_INCLUDE_DIRS}/../res/bindings
+)
+
+
+target_link_libraries(tracing
+    liblena
+
+    opengl::opengl
+    glfw
+    imgui::imgui
+    glad::glad
+)

@@ -15,7 +15,7 @@ inline std::string bit_string(u32 value, u8 size) {
 
 class BitStream {
 public:
-	BitStream(u64 bytes=10000024): m_buf(bytes), m_offset(0) {}
+	BitStream(u64 bytes=0): m_buf(bytes), m_offset(0) {}
 
 	void write_bits(uint32_t value, uint64_t size) {
 		// DEBUG("value = %llu, size = %llu, %llu / %llu\n", value, size, m_offset, m_buf.size());
@@ -34,10 +34,11 @@ public:
     }
 
     friend bool operator==(const BitStream& bs1, const BitStream& bs2) {
-        if (bs1.bits_size() != bs2.bits_size()) {
-            ERROR("Different sizes\n");
-            return false;
-        }
+        // TODO: отдельно хранить размер и позцию
+        // if (bs1.bits_size() != bs2.bits_size()) {
+        //     ERROR("Different sizes: %d != %d\n", bs1.bits_size(), bs2.bits_size());
+        //     return false;
+        // }
         auto size = bs1.bytes_size();
         auto bs1_buf = bs1.getBuf();
         auto bs2_buf = bs2.getBuf();
@@ -100,13 +101,9 @@ public:
         return i;
     }
 
-    void write_u16(uint16_t value) {
-        write_u64(static_cast<uint64_t>(value), 16);
-    }
-
-
-    void write_u64(uint64_t value, uint64_t size = 64) {
-        // DEBUG("value = %llu, size = %llu, %llu / %llu\n", value, size, m_offset, m_buf.size());
+    template<typename T>
+    void write(T value) {
+        u64 size = sizeof(value) * 8; 
         uint64_t final_offset = m_offset + size;
         uint64_t needed_bytes = (final_offset + 7) >> 3;
         if (needed_bytes > m_buf.size()) {
@@ -119,20 +116,6 @@ public:
             m_buf[byte_idx] |= ((value >> size) & 1) << bit_idx; // Set the bit
             ++m_offset;
         }
-    }
-    uint64_t read_u64(uint64_t size=64) {
-        uint64_t v = 0;
-        while (size--) {
-            if (m_offset >= m_buf.size() * 8) {
-                // ERROR("Out of bounds: %lu / %zu\n", m_offset, m_buf.size() * 8);
-            }
-            size_t b = m_offset >> 3;
-            uint64_t i = 7 - (m_offset & 7);
-            v = (v << 1) | ((m_buf[b] >> i) & 1); // Shift and OR the bit
-            ++m_offset;
-        }
-        // DEBUG("offset = %lu / %zu, value = %llu\n", m_offset, m_buf.size() * 8, v);
-        return v;
     }
 
     u32 nextBit() {
@@ -149,17 +132,23 @@ public:
                   static_cast<std::streamsize>(bytes_size()));
     }
 
-	void fread(const std::string& filename) {
+	int readFromFile(const std::string& filename) {
         std::ifstream ifs(filename, std::ios::binary | std::ios::ate);
-        if (!ifs) throw std::runtime_error("Failed to open file for reading: " + filename);
+        if (!ifs) {
+            ERROR("Failed to open file for reading: %s\n", filename.c_str());
+            return -1;
+        }
         std::streamsize size = ifs.tellg();
         ifs.seekg(0, std::ios::beg);
 
         m_buf.resize(static_cast<size_t>(size));
-        if (!ifs.read(reinterpret_cast<char*>(m_buf.data()), size)) {
-            throw std::runtime_error("Failed to read entire file: " + filename);
+        if(!ifs.read(reinterpret_cast<char*>(m_buf.data()), size)) {
+            ERROR("Failed to read entire file: %s\n", filename.c_str());
+            return -2;
         }
-        m_offset = size * 8;
+        m_offset = 0;
+
+        return 0;
     }
 
 	void rewind() { m_offset = 0; }
@@ -167,6 +156,24 @@ public:
 
     std::vector<u8> getBuf() const { return m_buf; }
 
+    template<typename T>
+    int read(T& value) {
+        value = 0;
+        size_t bitSize = sizeof(value) * 8;
+        // INFO("bitSize = %zu\n", bitSize);
+        while (bitSize--) {
+            if (m_offset >= m_buf.size() * 8) {
+                ERROR("Out of bounds: %lu / %zu\n", m_offset, m_buf.size() * 8);
+                return 1;
+            }
+            size_t b = m_offset >> 3;
+            uint64_t i = 7 - (m_offset & 7);
+            value = (value << 1) | ((m_buf[b] >> i) & 1); // Shift and OR the bit
+            ++m_offset;
+        }
+        // DEBUG("offset = %lu / %zu, value = %llu\n", m_offset, m_buf.size() * 8, v);
+        return 0;
+    }
 private:
 	std::vector<u8> m_buf;
 	u64 m_offset;

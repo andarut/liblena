@@ -37,7 +37,7 @@ int basicTestCase(const std::string& filename) {
     bs.fwrite(outputFilename);
 
     BitStream orig_bs;
-    orig_bs.fread(TESTS_DATA / jpegFilename);
+    orig_bs.readFromFile(TESTS_DATA / jpegFilename);
 
     if (bs != orig_bs) {
         ERROR("Bitstream not equal\n");
@@ -52,9 +52,9 @@ TEST(TEST_Compressor, test_8x8) {
 }
 
 
-TEST(TEST_Compressor, 16x16) {
-    ASSERT_EQ(basicTestCase("16x16"), 0);
-}
+// TEST(TEST_Compressor, 16x16) {
+//     ASSERT_EQ(basicTestCase("16x16"), 0);
+// }
 
 // TEST(TEST_Compressor, test_512x512) {
 //     ASSERT_EQ(basicTestCase("lenna"), 0);

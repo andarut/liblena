@@ -15,6 +15,19 @@
 
 int Compressor::compress(PPMImageData& rawData) {
 
+    BitStream tracing;
+
+    tracing.write<u64>(rawData[0].width());
+    tracing.write<u64>(rawData[0].height());
+
+    for(int c = 0; c < 3; c++) {
+        for(u64 i = 0; i < rawData[c].height(); i++) {
+            for(u64 j = 0; j < rawData[c].width(); j++) {
+                tracing.write_u8(rawData[c](i, j));
+            }
+        }
+    }
+
     QuantizationTable lumin_q;
     {
         auto res = lumin_q_n(50, lumin_q);   
@@ -38,6 +51,7 @@ int Compressor::compress(PPMImageData& rawData) {
 
     /* Y */
     std::vector<std::vector<s16>> Y_zigzagMCUData;
+    tracing.write<u64>(Y_MCUs.size());
     {
         Y_zigzagMCUData.resize(Y_MCUs.size());
 
@@ -46,14 +60,31 @@ int Compressor::compress(PPMImageData& rawData) {
 
             /* DCT */
             DCT::FDCT(s32_MCU);
+
+            for(u64 i = 0; i < s32_MCU.height(); i++) {
+                for(u64 j = 0; j < s32_MCU.width(); j++) {
+                    tracing.write<s32>(s32_MCU(i, j));
+                }
+            }
             
+                    
             /* Quantization */
             Quantizator::quantize(s32_MCU, lumin_q);
+
+            for(u64 i = 0; i < s32_MCU.height(); i++) {
+                for(u64 j = 0; j < s32_MCU.width(); j++) {
+                    tracing.write<s32>(s32_MCU(i, j));
+                }
+            }
 
             std::vector<s16> Y_zigzagMCU;
             {
                 auto res = zigzag(s32_MCU, Y_zigzagMCU);
                 RETURN_IF_ERROR(res, "Error in zigzag for Y\n");
+            }
+
+            for(u64 i = 0; i < Y_zigzagMCU.size(); i++) {
+                tracing.write<s16>(Y_zigzagMCU[i]);
             }
             
             Y_zigzagMCUData[i] = std::move(Y_zigzagMCU);
@@ -61,6 +92,7 @@ int Compressor::compress(PPMImageData& rawData) {
 
         /* DPCM */
         DPCM(Y_zigzagMCUData);
+
     }
 
     /* Cb */
@@ -177,7 +209,7 @@ int Compressor::compress(PPMImageData& rawData) {
     mStream.write_u8(SOS);
 
     /* length */
-    mStream.write_u16(12);
+    mStream.write<u16>(12);
 
     /* number of compontnts */
     mStream.write_u8(3);
@@ -227,6 +259,8 @@ int Compressor::compress(PPMImageData& rawData) {
     
     writeEOI();
 
+    tracing.fwrite("tracing.bin");
+
     return 0;
 }
 
@@ -241,7 +275,7 @@ void Compressor::writeAPP0() {
     mStream.write_u8(APP0);
 
     /* length */
-    mStream.write_u16(16);
+    mStream.write<u16>(16);
 
     /* JFIF\0 string */
     mStream.write_u8('J');
@@ -260,10 +294,10 @@ void Compressor::writeAPP0() {
     mStream.write_u8(0x00);
 
     /* densixy x */
-    mStream.write_u16(1);
+    mStream.write<u16>(1);
 
     /* densixy y */
-    mStream.write_u16(1);
+    mStream.write<u16>(1);
 
     /* thumbnail x */
     mStream.write_u8(0);
@@ -278,7 +312,7 @@ void Compressor::writeDQT(const QuantizationTable& qtable, u8 tq) {
     mStream.write_u8(DQT);
 
     /* length */
-    mStream.write_u16(67);
+    mStream.write<u16>(67);
 
     /* precision */
     mStream.write_u8(tq);
@@ -297,16 +331,16 @@ void Compressor::writeSOF0() {
     mStream.write_u8(SOF0);
 
     /* length */
-    mStream.write_u16(17);
+    mStream.write<u16>(17);
 
     /* bit per sample */
     mStream.write_u8(8);
 
     /* image height */
-    mStream.write_u16(8);
+    mStream.write<u16>(8);
     
     /* image width */
-    mStream.write_u16(8);
+    mStream.write<u16>(8);
 
     /* number of components */
     mStream.write_u8(3);

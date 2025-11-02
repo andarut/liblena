@@ -110,10 +110,10 @@ int Tracing::show() {
 
 
     while(1) {
-        // image_view.render();
+        image_view.render();
         DCT_view.render();
-        // Quant_view.render();
-        // Zigzag_view.render();
+        Quant_view.render();
+        Zigzag_view.render();
     }
     return 0;
 }

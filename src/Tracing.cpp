@@ -90,22 +90,22 @@ int Tracing::show() {
     /* For DCT */
     MatrixView<s32> DCT_view(m_trace.mcu.DCT_coeff, (u64)8, (u64)8);
     {
-        auto res = DCT_view.init();
-        RETURN_IF_ERROR(res,, "Failed to init DCT view");
+        auto res = DCT_view.init("DCT coeff");
+        RETURN_IF_ERROR(res, "Failed to init DCT view");
     }
 
     /* For Quantizated values */
     MatrixView<s32> Quant_view(m_trace.mcu.Quant_coeff, (u64)8, (u64)8);
     {
-        auto res = Quant_view.init();
-        RETURN_IF_ERROR(res,, "Failed to init Quant_view view");
+        auto res = Quant_view.init("Quantization coeff");
+        RETURN_IF_ERROR(res, "Failed to init Quant_view view");
     }
 
     /* For Zigzag values */
     MatrixView<s16> Zigzag_view(m_trace.mcu.Zigzag_coeff, (u64)8, (u64)8);
     {
-        auto res = Zigzag_view.init();
-        RETURN_IF_ERROR(res,, "Failed to init Zigzag_view view");
+        auto res = Zigzag_view.init("Zigzag Order");
+        RETURN_IF_ERROR(res, "Failed to init Zigzag_view view");
     }
 
 

@@ -22,8 +22,8 @@ class MatrixView : public Window, public Overlay {
 public:
     MatrixView(const std::array<T, 64>& data, u64 width, u64 height) : m_data(data), m_width(width), m_height(height) {}
 
-    int init() {
-        if (Window::init(800, 800, "MatrixView")) {
+    int init(const std::string& title) {
+        if (Window::init(800, 800, title)) {
             ERROR("Failed to init window inside image view\n");
             return 1;
         }
@@ -73,8 +73,10 @@ private:
                     ImGuiWindowFlags_NoNav);
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
+        draw_list->AddText(ImVec2(10,10), ImColor(255, 255, 255, 255), getTitle().c_str());
+
         u64 start_x = 30;
-        u64 start_y = 30;
+        u64 start_y = 130;
 
         u64 padding_size = 100;
 

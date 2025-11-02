@@ -38,12 +38,15 @@ public:
     GLFWwindow* getGLFWWindow() const {
         return m_window;
     }
+    std::string getTitle() const {
+        return m_title;
+    }
 private:
     void free();
 private:
 
     GLFWwindow* m_window;
-    
+
     size_t m_width;
     size_t m_height;
     std::string m_title;

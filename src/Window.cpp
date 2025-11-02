@@ -1,4 +1,5 @@
 #include "Window.h"
+#include <GLFW/glfw3.h>
 
 Window::~Window() {
     free();
@@ -33,6 +34,12 @@ int Window::init(size_t width, size_t height, const std::string& title) {
         return 1;
     }
 
+    glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+        if(key == GLFW_KEY_Q && action == GLFW_PRESS) {
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
+        }
+    });
+
     glfwMakeContextCurrent(m_window);
     glfwSwapInterval(1); // Enable V-Sync
 
@@ -52,7 +59,6 @@ void Window::free() {
 }
 
 int Window::render() {
-
     glfwPollEvents();
 
     int w, h;

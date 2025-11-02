@@ -66,8 +66,7 @@ int Compressor::compress(PPMImageData& rawData) {
                     tracing.write<s32>(s32_MCU(i, j));
                 }
             }
-            
-                    
+
             /* Quantization */
             Quantizator::quantize(s32_MCU, lumin_q);
 
@@ -166,6 +165,12 @@ int Compressor::compress(PPMImageData& rawData) {
             auto res = RLC(zigzagMCU, Y_RLC_data);
             RETURN_IF_ERROR(res, "Error in RLC for Y\n");
         }
+
+        tracing.write<u64>(Y_RLC_data.size());
+        for(u64 i = 0; i < Y_RLC_data.size(); i++) {
+            tracing.write<s16>(Y_RLC_data[i]);
+        }
+
         /* Cb RLC */
         {
             const auto& zigzagMCU = Cb_zigzagMCUData[i];

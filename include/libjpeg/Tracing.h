@@ -6,7 +6,8 @@ struct Trace {
     struct MCUTrace {
         std::array<s32, 64> DCT_coeff;
         std::array<s32, 64> Quant_coeff;
-        std::array<s16, 64> Zigzag_coeff; 
+        std::array<s16, 64> Zigzag_coeff;
+        std::vector<s16> RLC_coeff; 
     };
     MCUTrace mcu;
 };

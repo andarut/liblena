@@ -9,6 +9,7 @@
 #include "Window.h"
 #include "ImageView.h"
 #include "MatrixView.h"
+#include "TableView.h"
 
 int Tracing::loadFromFile(const std::string& filename) {
     BitStream bs;
@@ -72,6 +73,19 @@ int Tracing::loadFromFile(const std::string& filename) {
         RETURN_IF_ERROR(res, "Failed to read pixel data: i = %lld", i);
     }
 
+    u64 RLC_len = 0;
+    {
+        auto res = bs.read<u64>(RLC_len);
+        RETURN_IF_ERROR(res, "Failedl to read RLE len from %s\n", filename.c_str());
+    }
+
+    m_trace.mcu.RLC_coeff.resize(RLC_len);
+
+    for(u64 i = 0; i < RLC_len; i++) {
+        auto res = bs.read<s16>(m_trace.mcu.RLC_coeff[i]);
+        RETURN_IF_ERROR(res, "Failed to read RLC valus: i = %lld\n", i);
+    }
+
     return 0;
 }
 
@@ -108,12 +122,19 @@ int Tracing::show() {
         RETURN_IF_ERROR(res, "Failed to init Zigzag_view view");
     }
 
+    /* For RLC values */
+    TableView<s16> RLC_view(m_trace.mcu.RLC_coeff, 3);
+    {
+        auto res = RLC_view.init("RLC coeff");
+        RETURN_IF_ERROR(res, "Failed to ini RLC view");
+    }
 
     while(1) {
         image_view.render();
         DCT_view.render();
         Quant_view.render();
         Zigzag_view.render();
+        RLC_view.render();
     }
     return 0;
 }

@@ -50,9 +50,9 @@ int basicTestCase(const std::string& filename) {
 int main() {
     // RETURN_IF_ERROR(basicTestCase("8x8"), "Test 8x8 failed\n");
     RETURN_IF_ERROR(basicTestCase("1"), "Test 1 failed\n");
-    // RETURN_IF_ERROR(basicTestCase("2"), "Test 2 failed\n");
-    // RETURN_IF_ERROR(basicTestCase("3"), "Test 3 failed\n");
-    // RETURN_IF_ERROR(basicTestCase("4"), "Test 4 failed\n");
+    RETURN_IF_ERROR(basicTestCase("2"), "Test 2 failed\n");
+    RETURN_IF_ERROR(basicTestCase("3"), "Test 3 failed\n");
+    RETURN_IF_ERROR(basicTestCase("4"), "Test 4 failed\n");
     // RETURN_IF_ERROR(basicTestCase("16x16"), "Test 16x16 failed\n");
     // RETURN_IF_ERROR(basicTestCase("lenna"), "Test lenna failed\n");
     INFO("All tests passed\n");

@@ -5,6 +5,7 @@ struct Trace {
     PPMImageData sourceImageData;
     PPMImageData colorConvertedImageData;
     struct MCUTrace {
+        std::array<s32, 64> inputData;
         std::array<s32, 64> DCT_coeff;
         std::array<s32, 64> Quant_coeff;
         std::array<s16, 64> Zigzag_coeff;

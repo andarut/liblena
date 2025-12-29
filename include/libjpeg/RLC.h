@@ -17,14 +17,14 @@ inline int RLC(const std::vector<T1> data, std::vector<T2>& RLC_data) {
     for (u64 i = 1; i < data.size(); i++) {
         if (data[i] == 0) {
 			count++;
-			/* ZRL */
-			if (count == 16) {
-				RLC_data.push_back(0xF);
-				RLC_data.push_back(0);
-				count = 0;
-			}
 		}
         else {
+			/* ZRLs */
+			while (count >= 16) {
+				RLC_data.push_back(15);
+				RLC_data.push_back(0);
+				count -= 16;
+			}
             RLC_data.push_back(count);
             RLC_data.push_back(log2(std::abs(data[i]))+1);
             RLC_data.push_back(data[i]);

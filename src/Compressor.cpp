@@ -71,6 +71,13 @@ int Compressor::compress(PPMImageData& rawData) {
         for (int i = 0; i < Y_MCUs.size(); i++) {
             ImageCh<s32> s32_MCU(std::move(Y_MCUs[i]));
 
+            // Write YCbCr MCU to tracing
+            for(u64 i = 0; i < s32_MCU.height(); i++) {
+                for(u64 j = 0; j < s32_MCU.width(); j++) {
+                    tracing.write<s32>(s32_MCU(i, j));
+                }
+            }
+
             /* DCT */
             DCT::FDCT(s32_MCU);
 
@@ -138,6 +145,13 @@ int Compressor::compress(PPMImageData& rawData) {
         for (int i = 0; i < Cb_MCUs.size(); i++) {
             ImageCh<s32> s32_MCU(std::move(Cb_MCUs[i]));
 
+            // Write YCbCr MCU to tracing
+            for(u64 i = 0; i < s32_MCU.height(); i++) {
+                for(u64 j = 0; j < s32_MCU.width(); j++) {
+                    tracing.write<s32>(s32_MCU(i, j));
+                }
+            }
+
             /* DCT */
             DCT::FDCT(s32_MCU);
 
@@ -204,6 +218,13 @@ int Compressor::compress(PPMImageData& rawData) {
 
         for (int i = 0; i < Cr_MCUs.size(); i++) {
             ImageCh<s32> s32_MCU(std::move(Cr_MCUs[i]));
+
+            // Write YCbCr MCU to tracing
+            for(u64 i = 0; i < s32_MCU.height(); i++) {
+                for(u64 j = 0; j < s32_MCU.width(); j++) {
+                    tracing.write<s32>(s32_MCU(i, j));
+                }
+            }
 
             /* DCT */
             DCT::FDCT(s32_MCU);
@@ -427,9 +448,11 @@ void Compressor::writeSOF0() {
 
     /* image height */
     mStream.write<u16>(8);
+    // mStream.write<u16>(16);
     
     /* image width */
     mStream.write<u16>(8);
+    // mStream.write<u16>(16);
 
     /* number of components */
     mStream.write_u8(3);

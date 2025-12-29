@@ -42,6 +42,17 @@ int Compressor::compress(PPMImageData& rawData) {
     /* YCbCr conversion */
     YCbCrConverter::fromRGB(rawData);
 
+    tracing.write<u64>(rawData[0].width());
+    tracing.write<u64>(rawData[0].height());
+
+    for(int c = 0; c < 3; c++) {
+        for(u64 i = 0; i < rawData[c].height(); i++) {
+            for(u64 j = 0; j < rawData[c].width(); j++) {
+                tracing.write_u8(rawData[c](i, j));
+            }
+        }
+    }
+
     /* Split into MCUs */
     auto Y_MCUs = splitIntoMCUs(rawData[0], {8, 8});
     auto Cb_MCUs = splitIntoMCUs(rawData[1], {8, 8});
@@ -51,9 +62,11 @@ int Compressor::compress(PPMImageData& rawData) {
 
     /* Y */
     std::vector<std::vector<s16>> Y_zigzagMCUData;
+    std::vector<std::vector<s16>> Y_RLCMCUData;
     tracing.write<u64>(Y_MCUs.size());
     {
         Y_zigzagMCUData.resize(Y_MCUs.size());
+        Y_RLCMCUData.resize(Y_MCUs.size());
 
         for (int i = 0; i < Y_MCUs.size(); i++) {
             ImageCh<s32> s32_MCU(std::move(Y_MCUs[i]));
@@ -61,6 +74,7 @@ int Compressor::compress(PPMImageData& rawData) {
             /* DCT */
             DCT::FDCT(s32_MCU);
 
+            // Write DCT coeffs to tracing
             for(u64 i = 0; i < s32_MCU.height(); i++) {
                 for(u64 j = 0; j < s32_MCU.width(); j++) {
                     tracing.write<s32>(s32_MCU(i, j));
@@ -70,6 +84,7 @@ int Compressor::compress(PPMImageData& rawData) {
             /* Quantization */
             Quantizator::quantize(s32_MCU, lumin_q);
 
+            // Write quantized coeffs to tracing
             for(u64 i = 0; i < s32_MCU.height(); i++) {
                 for(u64 j = 0; j < s32_MCU.width(); j++) {
                     tracing.write<s32>(s32_MCU(i, j));
@@ -82,6 +97,7 @@ int Compressor::compress(PPMImageData& rawData) {
                 RETURN_IF_ERROR(res, "Error in zigzag for Y\n");
             }
 
+            // Write zigzag coeffs to tracing
             for(u64 i = 0; i < Y_zigzagMCU.size(); i++) {
                 tracing.write<s16>(Y_zigzagMCU[i]);
             }
@@ -92,26 +108,65 @@ int Compressor::compress(PPMImageData& rawData) {
         /* DPCM */
         DPCM(Y_zigzagMCUData);
 
+        // Write DPCM coeffs to tracing
+        for(u64 mcu_idx = 0; mcu_idx < Y_zigzagMCUData.size(); mcu_idx++) {
+            for(u64 i = 0; i < Y_zigzagMCUData[mcu_idx].size(); i++) {
+                tracing.write<s16>(Y_zigzagMCUData[mcu_idx][i]);
+            }
+        }
+
+        /* RLC */
+        for(u64 mcu_idx = 0; mcu_idx < Y_zigzagMCUData.size(); mcu_idx++) {
+            auto res = RLC(Y_zigzagMCUData[mcu_idx], Y_RLCMCUData[mcu_idx]);
+            RETURN_IF_ERROR(res, "Error in RLC for Y\n");
+
+            tracing.write<u64>(Y_RLCMCUData[mcu_idx].size());
+            for(u64 i = 0; i < Y_RLCMCUData[mcu_idx].size(); i++) {
+                tracing.write<s16>(Y_RLCMCUData[mcu_idx][i]);
+            }
+        }
     }
 
     /* Cb */
     std::vector<std::vector<s16>> Cb_zigzagMCUData;
+    std::vector<std::vector<s16>> Cb_RLCMCUData;
+    tracing.write<u64>(Cb_MCUs.size());
     {
         Cb_zigzagMCUData.resize(Cb_MCUs.size());
+        Cb_RLCMCUData.resize(Cb_MCUs.size());
 
         for (int i = 0; i < Cb_MCUs.size(); i++) {
             ImageCh<s32> s32_MCU(std::move(Cb_MCUs[i]));
 
             /* DCT */
             DCT::FDCT(s32_MCU);
+
+            // Write DCT coeffs to tracing
+            for(u64 i = 0; i < s32_MCU.height(); i++) {
+                for(u64 j = 0; j < s32_MCU.width(); j++) {
+                    tracing.write<s32>(s32_MCU(i, j));
+                }
+            }
             
             /* Quantization */
             Quantizator::quantize(s32_MCU, chrom_q);
+
+            // Write quantized coeffs to tracing
+            for(u64 i = 0; i < s32_MCU.height(); i++) {
+                for(u64 j = 0; j < s32_MCU.width(); j++) {
+                    tracing.write<s32>(s32_MCU(i, j));
+                }
+            }
 
             std::vector<s16> Cb_zigzagMCU;
             {
                 auto res = zigzag(s32_MCU, Cb_zigzagMCU);
                 RETURN_IF_ERROR(res, "Error in zigzag for Cb\n");
+            }
+
+            // Write zigzag coeffs to tracing
+            for(u64 i = 0; i < Cb_zigzagMCU.size(); i++) {
+                tracing.write<s16>(Cb_zigzagMCU[i]);
             }
             
             Cb_zigzagMCUData[i] = std::move(Cb_zigzagMCU);
@@ -119,26 +174,66 @@ int Compressor::compress(PPMImageData& rawData) {
 
         /* DPCM */
         DPCM(Cb_zigzagMCUData);
+
+        // Write DPCM coeffs to tracing
+        for(u64 mcu_idx = 0; mcu_idx < Cb_zigzagMCUData.size(); mcu_idx++) {
+            for(u64 i = 0; i < Cb_zigzagMCUData[mcu_idx].size(); i++) {
+                tracing.write<s16>(Cb_zigzagMCUData[mcu_idx][i]);
+            }
+        }
+
+        /* RLC */
+        for(u64 mcu_idx = 0; mcu_idx < Cb_zigzagMCUData.size(); mcu_idx++) {
+            auto res = RLC(Cb_zigzagMCUData[mcu_idx], Cb_RLCMCUData[mcu_idx]);
+            RETURN_IF_ERROR(res, "Error in RLC for Cb\n");
+
+            tracing.write<u64>(Cb_RLCMCUData[mcu_idx].size());
+            for(u64 i = 0; i < Cb_RLCMCUData[mcu_idx].size(); i++) {
+                tracing.write<s16>(Cb_RLCMCUData[mcu_idx][i]);
+            }
+        }
     }
 
     /* Cr */
     std::vector<std::vector<s16>> Cr_zigzagMCUData;
+    std::vector<std::vector<s16>> Cr_RLCMCUData;
+    tracing.write<u64>(Cr_MCUs.size());
     {
         Cr_zigzagMCUData.resize(Cr_MCUs.size());
+        Cr_RLCMCUData.resize(Cr_MCUs.size());
 
         for (int i = 0; i < Cr_MCUs.size(); i++) {
             ImageCh<s32> s32_MCU(std::move(Cr_MCUs[i]));
 
             /* DCT */
             DCT::FDCT(s32_MCU);
+
+            // Write DCT coeffs to tracing
+            for(u64 i = 0; i < s32_MCU.height(); i++) {
+                for(u64 j = 0; j < s32_MCU.width(); j++) {
+                    tracing.write<s32>(s32_MCU(i, j));
+                }
+            }
             
             /* Quantization */
             Quantizator::quantize(s32_MCU, chrom_q);
+
+            // Write quantized coeffs to tracing
+            for(u64 i = 0; i < s32_MCU.height(); i++) {
+                for(u64 j = 0; j < s32_MCU.width(); j++) {
+                    tracing.write<s32>(s32_MCU(i, j));
+                }
+            }
 
             std::vector<s16> Cr_zigzagMCU;
             {
                 auto res = zigzag(s32_MCU, Cr_zigzagMCU);
                 RETURN_IF_ERROR(res, "Error in zigzag for Cb\n");
+            }
+
+            // Write zigzag coeffs to tracing
+            for(u64 i = 0; i < Cr_zigzagMCU.size(); i++) {
+                tracing.write<s16>(Cr_zigzagMCU[i]);
             }
             
             Cr_zigzagMCUData[i] = std::move(Cr_zigzagMCU);
@@ -146,54 +241,43 @@ int Compressor::compress(PPMImageData& rawData) {
 
         /* DPCM */
         DPCM(Cr_zigzagMCUData);
+
+        // Write DPCM coeffs to tracing
+        for(u64 mcu_idx = 0; mcu_idx < Cr_zigzagMCUData.size(); mcu_idx++) {
+            for(u64 i = 0; i < Cr_zigzagMCUData[mcu_idx].size(); i++) {
+                tracing.write<s16>(Cr_zigzagMCUData[mcu_idx][i]);
+            }
+        }
+
+        /* RLC */
+        for(u64 mcu_idx = 0; mcu_idx < Cr_zigzagMCUData.size(); mcu_idx++) {
+            auto res = RLC(Cr_zigzagMCUData[mcu_idx], Cr_RLCMCUData[mcu_idx]);
+            RETURN_IF_ERROR(res, "Error in RLC for Cr\n");
+
+            tracing.write<u64>(Cr_RLCMCUData[mcu_idx].size());
+            for(u64 i = 0; i < Cr_RLCMCUData[mcu_idx].size(); i++) {
+                tracing.write<s16>(Cr_RLCMCUData[mcu_idx][i]);
+            }
+        }
     }
 
 
     BitStream bs;
     HuffmanEncoder encoder(bs);
 
+    /* Huffman encoding */
     /* Note: no subsampling */
     for (int i = 0; i < Y_zigzagMCUData.size(); i++) {
-
-        /* Encode MCU */
-        std::vector<s16> Y_RLC_data;
-        std::vector<s16> Cb_RLC_data;
-        std::vector<s16> Cr_RLC_data;
-        /* Y RLC */
         {
-            const auto& zigzagMCU = Y_zigzagMCUData[i];
-            auto res = RLC(zigzagMCU, Y_RLC_data);
-            RETURN_IF_ERROR(res, "Error in RLC for Y\n");
-        }
-
-        tracing.write<u64>(Y_RLC_data.size());
-        for(u64 i = 0; i < Y_RLC_data.size(); i++) {
-            tracing.write<s16>(Y_RLC_data[i]);
-        }
-
-        /* Cb RLC */
-        {
-            const auto& zigzagMCU = Cb_zigzagMCUData[i];
-            auto res = RLC(zigzagMCU, Cb_RLC_data);
-            RETURN_IF_ERROR(res, "Error in RLC for Cb\n");
-        }
-        /* Cr RLC */
-        {
-            const auto& zigzagMCU = Cr_zigzagMCUData[i];
-            auto res = RLC(zigzagMCU, Cr_RLC_data);
-            RETURN_IF_ERROR(res, "Error in RLC for Cr\n");
-        }
-        /* Huffman encoding */
-        {
-            auto res = encoder.encodeMCU(MCU_Type::LUMINANCE, Y_zigzagMCUData[i][0], Y_RLC_data);
+            auto res = encoder.encodeMCU(MCU_Type::LUMINANCE, Y_zigzagMCUData[i][0], Y_RLCMCUData[i]);
             RETURN_IF_ERROR(res, "Error in encodeMCU for Y\n");
         }
         {
-            auto res = encoder.encodeMCU(MCU_Type::CHROMINANCE, Cb_zigzagMCUData[i][0], Cb_RLC_data);
+            auto res = encoder.encodeMCU(MCU_Type::CHROMINANCE, Cb_zigzagMCUData[i][0], Cb_RLCMCUData[i]);
             RETURN_IF_ERROR(res, "Error in encodeMCU for Cb\n");
         }
         {
-            auto res = encoder.encodeMCU(MCU_Type::CHROMINANCE, Cr_zigzagMCUData[i][0], Cr_RLC_data);
+            auto res = encoder.encodeMCU(MCU_Type::CHROMINANCE, Cr_zigzagMCUData[i][0], Cr_RLCMCUData[i]);
             RETURN_IF_ERROR(res, "Error in encodeMCU for Cr\n");
         }
     }

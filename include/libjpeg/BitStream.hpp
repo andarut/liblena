@@ -171,7 +171,7 @@ public:
             value = (value << 1) | ((m_buf[b] >> i) & 1); // Shift and OR the bit
             ++m_offset;
         }
-        // DEBUG("offset = %lu / %zu, value = %llu\n", m_offset, m_buf.size() * 8, v);
+        INFO("offset = %lu / %zu\n", m_offset, m_buf.size() * 8);
         return 0;
     }
 private:

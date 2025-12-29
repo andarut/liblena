@@ -8,5 +8,5 @@ compiler.version=16
 os=Macos
 
 [buildenv]
-CC=/usr/local/bin/clang
-CXX=/usr/local/bin/clang++
+CC=/usr/local/opt/llvm/bin/clang
+CXX=/usr/local/opt/llvm/bin/clang++

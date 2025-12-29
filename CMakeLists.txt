@@ -55,8 +55,8 @@ target_link_libraries(liblena PRIVATE
 
 # For Tests
 # find_package(GTest)
-include(GoogleTest)
-enable_testing()
+# include(GoogleTest)
+# enable_testing()
 
 add_executable(liblena_tests
     # ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_PPMReader.cpp
@@ -79,17 +79,17 @@ target_link_libraries(liblena_tests
     liblena
     
     # Tests libs
-    gtest::gtest
+    # gtest::gtest
 )
 
 # For Tests
 target_compile_definitions(liblena_tests PRIVATE
     RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/TestsData"
 )
-gtest_discover_tests(liblena_tests
-DISCOVERY_MODE PRE_TEST
-    PROPERTIES
-        EXCLUDE_FROM_DEFAULT_BUILD 1)
+# gtest_discover_tests(liblena_tests
+# DISCOVERY_MODE PRE_TEST
+#     PROPERTIES
+#         EXCLUDE_FROM_DEFAULT_BUILD 1)
 
 cmake_print_variables(${imgui_INCLUDE_DIRS})
 

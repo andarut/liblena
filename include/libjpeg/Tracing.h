@@ -3,13 +3,17 @@
 
 struct Trace {
     PPMImageData sourceImageData;
+    PPMImageData colorConvertedImageData;
     struct MCUTrace {
         std::array<s32, 64> DCT_coeff;
         std::array<s32, 64> Quant_coeff;
         std::array<s16, 64> Zigzag_coeff;
+        std::array<s16, 64> DPCM_coeff;
         std::vector<s16> RLC_coeff; 
     };
-    MCUTrace mcu;
+    std::vector<MCUTrace> Y_MCUs;
+    std::vector<MCUTrace> Cb_MCUs;
+    std::vector<MCUTrace> Cr_MCUs;
 };
 
 class Tracing {

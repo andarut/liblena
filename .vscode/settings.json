@@ -87,5 +87,10 @@
         "osutility": "cpp",
         "random": "cpp",
         "version": "cpp"
-    }
+    },
+    "editor.fontFamily": "CaskaydiaMono Nerd Font",
+    "editor.fontSize": 12,
+    "cmake.buildTask": true,
+    "cmake.revealLog": "error",
+    "cmake.outputLogEncoding": "error"
 }

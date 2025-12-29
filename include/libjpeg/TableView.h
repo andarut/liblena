@@ -23,7 +23,7 @@ public:
     TableView(const std::vector<T>& data, u64 cols) : m_data(data), m_cols(cols) {}
 
     int init(const std::string& title) {
-        if (Window::init(800, 800, title)) {
+        if (Window::init(400, 400, title)) {
             ERROR("Failed to init window inside image view\n");
             return 1;
         }
@@ -31,7 +31,7 @@ public:
             ERROR("Failed to init overlay inside image view\n");
             return 1;
         }
-        set_font("../../Fonts/CascadiaMono/CaskaydiaMonoNerdFontPropo-Regular.ttf", 24);
+        set_font("../../Fonts/CascadiaMono/CaskaydiaMonoNerdFontPropo-Regular.ttf", 14);
 
         m_rows = std::round(static_cast<float>(m_data.size()) / static_cast<float>(m_cols));
 

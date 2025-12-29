@@ -23,7 +23,7 @@ public:
     MatrixView(const std::array<T, 64>& data, u64 width, u64 height) : m_data(data), m_width(width), m_height(height) {}
 
     int init(const std::string& title) {
-        if (Window::init(800, 800, title)) {
+        if (Window::init(400, 400, title)) {
             ERROR("Failed to init window inside image view\n");
             return 1;
         }
@@ -31,7 +31,7 @@ public:
             ERROR("Failed to init overlay inside image view\n");
             return 1;
         }
-        set_font("../../Fonts/CascadiaMono/CaskaydiaMonoNerdFontPropo-Regular.ttf", 24);
+        set_font("../../Fonts/CascadiaMono/CaskaydiaMonoNerdFontPropo-Regular.ttf", 14);
 
         for(u64 i = 0; i < m_height; i++) {
             for(u64 j = 0; j < m_width; j++) {
@@ -76,9 +76,9 @@ private:
         draw_list->AddText(ImVec2(10,10), ImColor(255, 255, 255, 255), getTitle().c_str());
 
         u64 start_x = 30;
-        u64 start_y = 130;
+        u64 start_y = 60;
 
-        u64 padding_size = 100;
+        u64 padding_size = 40;
 
         u64 cur_x = start_x;
         u64 cur_y = start_y;

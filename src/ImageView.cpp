@@ -3,7 +3,7 @@
 #include "PPMReader.h"
 #include <imgui.h>
 
-ImageView::ImageView(const PPMImageData& image, u8 pixelSize) : m_image(image), m_pixelSize(pixelSize) {}
+ImageView::ImageView(const PPMImageData& image, const std::string& windowTitle, u8 pixelSize) : m_image(image), m_windowTitle(windowTitle), m_pixelSize(pixelSize) {}
 
 int ImageView::init() {
 
@@ -13,7 +13,7 @@ int ImageView::init() {
     u64 scaled_width = imageWidth * m_pixelSize;
     u64 scaled_height = imageHeight * m_pixelSize;
 
-    if (Window::init(scaled_width, scaled_height, "ImageView")) {
+    if (Window::init(scaled_width, scaled_height, m_windowTitle.c_str())) {
         ERROR("Failed to init window inside image view\n");
         return 1;
     }
@@ -139,25 +139,25 @@ void ImageView::overlay() {
     ImVec2 windowPos = ImGui::GetWindowPos();
     ImVec2 windowSize = ImGui::GetWindowSize();
 
-    bool isMouseInWindow = mousePos.x >= windowPos.x &&
-                       mousePos.x <= windowPos.x + windowSize.x &&
-                       mousePos.y >= windowPos.y &&
-                       mousePos.y <= windowPos.y + windowSize.y;
+    // bool isMouseInWindow = mousePos.x >= windowPos.x &&
+    //                    mousePos.x <= windowPos.x + windowSize.x &&
+    //                    mousePos.y >= windowPos.y &&
+    //                    mousePos.y <= windowPos.y + windowSize.y;
 
-    if(!isMouseInWindow) {
-        return;
-    }
+    // if(!isMouseInWindow) {
+    //     return;
+    // }
 
-    ImVec2 mouse_local = ImVec2(mousePos.x - windowPos.x, mousePos.y - windowPos.y);
+    // ImVec2 mouse_local = ImVec2(mousePos.x - windowPos.x, mousePos.y - windowPos.y);
 
-    u64 pixel_i_cord = std::trunc((static_cast<float>(mouse_local.x) / static_cast<float>(m_pixelSize)));
-    u64 pixel_j_cord = std::trunc((static_cast<float>(mouse_local.y) / static_cast<float>(m_pixelSize)));
+    // u64 pixel_i_cord = std::trunc((static_cast<float>(mouse_local.x) / static_cast<float>(m_pixelSize)));
+    // u64 pixel_j_cord = std::trunc((static_cast<float>(mouse_local.y) / static_cast<float>(m_pixelSize)));
 
-    u64 pixel_i_center = pixel_i_cord * m_pixelSize;
-    u64 pixel_j_center = pixel_j_cord * m_pixelSize;
+    // u64 pixel_i_center = pixel_i_cord * m_pixelSize;
+    // u64 pixel_j_center = pixel_j_cord * m_pixelSize;
     
-    ImVec2 p_min(pixel_i_center, pixel_j_center);
-    ImVec2 p_max(pixel_i_center + m_pixelSize, pixel_j_center + m_pixelSize);
+    // ImVec2 p_min(pixel_i_center, pixel_j_center);
+    // ImVec2 p_max(pixel_i_center + m_pixelSize, pixel_j_center + m_pixelSize);
 
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
@@ -175,13 +175,38 @@ void ImageView::overlay() {
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     // ImGui::setw
 
-    ImGui::Text("X: %lu", pixel_i_cord);
-    ImGui::Text("Y: %lu", pixel_j_cord);
-    ImGui::Text("R: %d", m_image[0](pixel_j_cord, pixel_i_cord));
-    ImGui::Text("G: %d", m_image[1](pixel_j_cord, pixel_i_cord));
-    ImGui::Text("B: %d", m_image[2](pixel_j_cord, pixel_i_cord));
+    // ImGui::Text("X: %lu", pixel_i_cord);
+    // ImGui::Text("Y: %lu", pixel_j_cord);
+    // ImGui::Text("R: %d", m_image[0](pixel_j_cord, pixel_i_cord));
+    // ImGui::Text("G: %d", m_image[1](pixel_j_cord, pixel_i_cord));
+    // ImGui::Text("B: %d", m_image[2](pixel_j_cord, pixel_i_cord));
 
-    draw_list->AddRect(p_min, p_max, IM_COL32(255, 0, 0, 255), 0.0f, 0, 3.0f);
+    // Draw RGB values on top of the every pixel
+
+    u64 imageWidth = m_image[0].width();
+    u64 imageHeight = m_image[0].height();
+
+    u64 scaled_width = imageWidth * m_pixelSize;
+    u64 scaled_height = imageHeight * m_pixelSize;
+
+    for(u64 i = 0; i < scaled_height; i += m_pixelSize) {
+        for(u64 j = 0; j < scaled_width; j += m_pixelSize) {
+            u64 pixel_i_cord = j / m_pixelSize;
+            u64 pixel_j_cord = i / m_pixelSize;
+
+            u8 r = m_image[0](pixel_j_cord, pixel_i_cord);
+            u8 g = m_image[1](pixel_j_cord, pixel_i_cord);
+            u8 b = m_image[2](pixel_j_cord, pixel_i_cord);
+
+            ImVec2 pixel_pos(j, i);
+            char color_text[64];
+            snprintf(color_text, sizeof(color_text), "R:%2d\nG:%2d\nB:%2d", r, g, b);
+            // INFO("Drawing text at pixel (%llu, %llu): %s\n", pixel_i_cord, pixel_j_cord, color_text);
+            // INFO("R = %d, G = %d, B = %d\n", r, g, b);
+            draw_list->AddText(ImVec2(pixel_pos.x + 2, pixel_pos.y + 2), ImColor(255, 255, 255, 255), color_text);
+        }
+    }
+    // draw_list->AddRect(p_min, p_max, IM_COL32(255, 0, 0, 255), 0.0f, 0, 3.0f);
 
     // TODO: draw pixel value text on pixel?
     // draw_list->AddText(ImVec2(pixel_i_center, pixel_j_center), ImColor(255, 255, 255, 255), "R");
@@ -190,6 +215,8 @@ void ImageView::overlay() {
 }
 
 int ImageView::render() {
+
+    // INFO("Rendering ImageView\n");
     
     glfwMakeContextCurrent(getGLFWWindow());
 

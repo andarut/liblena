@@ -10,7 +10,7 @@
 
 class ImageView : public Window, public Overlay {
 public:
-    ImageView(const PPMImageData& image, u8 pixelSize=1);
+    ImageView(const PPMImageData& image, const std::string& windowTitle, u8 pixelSize=1);
 
     int init();
     int render() override;
@@ -19,10 +19,12 @@ private:
     void overlay() override;
 private:
 
+    std::string m_windowTitle;
+
     // Данные изобрежния
     PPMImageData m_image;
 
-    // Масшаб в пикселях
+    // Масштаб в пикселях
     u8 m_pixelSize;
 
     // Данные которые отображаем (RGB)

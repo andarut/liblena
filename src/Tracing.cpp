@@ -5,6 +5,7 @@
 #include "ImageCh.h"
 
 #include <algorithm>
+#include <utility>
 
 #include "Window.h"
 #include "ImageView.h"
@@ -309,47 +310,72 @@ int Tracing::show() {
     }
 
     std::vector<std::unique_ptr<Window>> Y_MCUs_windows(m_trace.Y_MCUs.size() * 5);
+
+    size_t winPosX = 0;
+    size_t winPosY = 50;
+
+    auto updateWindowsPositions = [&](std::pair<int, int> size) {
+        winPosX += size.first;
+        if (winPosX + size.first > 2560) {
+            winPosX = 0;
+            winPosY += size.second + 30;
+        }
+    };
+
     for(u64 mcu_i = 0; mcu_i < m_trace.Y_MCUs.size(); mcu_i++) {
         /* For DCT */
         auto DCT_view = std::make_unique<MatrixView<s32>>(m_trace.Y_MCUs[mcu_i].DCT_coeff, (u64)8, (u64)8);
         {
-            auto res = DCT_view->init("FDCT");
+            auto res = DCT_view->init(std::format("FDCT MCU {}", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init DCT view");
+            DCT_view->setPos(winPosX, winPosY);
+            updateWindowsPositions(DCT_view->renderSize());
         }
         Y_MCUs_windows[mcu_i] = std::move(DCT_view);
 
         /* For Quantizated values */
         auto Quant_view = std::make_unique<MatrixView<s32>>(m_trace.Y_MCUs[mcu_i].Quant_coeff, (u64)8, (u64)8);
         {
-            auto res = Quant_view->init("Quantization");
+            auto res = Quant_view->init(std::format("Quantization MCU {}", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init Quant_view view");
+            Quant_view->setPos(winPosX, winPosY);
+            updateWindowsPositions(Quant_view->renderSize());
         }
         Y_MCUs_windows[mcu_i + 1] = std::move(Quant_view);
 
         /* For Zigzag values */
         auto Zigzag_view = std::make_unique<MatrixView<s16>>(m_trace.Y_MCUs[mcu_i].Zigzag_coeff, (u64)8, (u64)8);
         {
-            auto res = Zigzag_view->init("Zigzag");
+            auto res = Zigzag_view->init(std::format("Zigzag MCU %llu", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init Zigzag_view view");
+            Zigzag_view->setPos(winPosX, winPosY);
+            updateWindowsPositions(Zigzag_view->renderSize());
         }
         Y_MCUs_windows[mcu_i + 2] = std::move(Zigzag_view);
 
         /* For DPCM values */
         auto DPCM_view = std::make_unique<MatrixView<s16>>(m_trace.Y_MCUs[mcu_i].DPCM_coeff, (u64)8, (u64)8);
         {
-            auto res = DPCM_view->init("DPCM");
+            auto res = DPCM_view->init(std::format("DPCM MCU %llu", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init DPCM view");
+            DPCM_view->setPos(winPosX, winPosY);
+            updateWindowsPositions(DPCM_view->renderSize());
         }
         Y_MCUs_windows[mcu_i + 3] = std::move(DPCM_view);
 
         /* For RLC values */
         auto RLC_view = std::make_unique<TableView<s16>>(m_trace.Y_MCUs[mcu_i].RLC_coeff, 3);
         {
-            auto res = RLC_view->init("RLC");
+            auto res = RLC_view->init(std::format("RLC MCU %llu", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init RLC view");
+            RLC_view->setPos(winPosX, winPosY);
+            updateWindowsPositions(RLC_view->renderSize());
         }
         Y_MCUs_windows[mcu_i + 4] = std::move(RLC_view);
     }
+
+    winPosX = 0;
+    winPosY += 430;
 
     std::vector<std::unique_ptr<Window>> Cb_MCUs_windows(m_trace.Cb_MCUs.size() * 5);
     for(u64 mcu_i = 0; mcu_i < m_trace.Cb_MCUs.size(); mcu_i++) {
@@ -358,6 +384,8 @@ int Tracing::show() {
         {
             auto res = DCT_view->init("FDCT");
             RETURN_IF_ERROR(res, "Failed to init DCT view");
+            DCT_view->setPos(winPosX, winPosY);
+            updateWindowsPositions(DCT_view->renderSize());
         }
         Cb_MCUs_windows[mcu_i] = std::move(DCT_view);
 
@@ -366,6 +394,8 @@ int Tracing::show() {
         {
             auto res = Quant_view->init("Quantization");
             RETURN_IF_ERROR(res, "Failed to init Quant_view view");
+            Quant_view->setPos(winPosX, winPosY);
+            updateWindowsPositions(Quant_view->renderSize());
         }
         Cb_MCUs_windows[mcu_i + 1] = std::move(Quant_view);
 
@@ -374,6 +404,8 @@ int Tracing::show() {
         {
             auto res = Zigzag_view->init("Zigzag");
             RETURN_IF_ERROR(res, "Failed to init Zigzag_view view");
+            Zigzag_view->setPos(winPosX, winPosY);
+            updateWindowsPositions(Zigzag_view->renderSize());
         }
         Cb_MCUs_windows[mcu_i + 2] = std::move(Zigzag_view);
 
@@ -382,6 +414,8 @@ int Tracing::show() {
         {
             auto res = DPCM_view->init("DPCM");
             RETURN_IF_ERROR(res, "Failed to init DPCM view");
+            DPCM_view->setPos(winPosX, winPosY);
+            updateWindowsPositions(DPCM_view->renderSize());
         }
         Cb_MCUs_windows[mcu_i + 3] = std::move(DPCM_view);
 
@@ -390,9 +424,14 @@ int Tracing::show() {
         {
             auto res = RLC_view->init("RLC");
             RETURN_IF_ERROR(res, "Failed to init RLC view");
+            RLC_view->setPos(winPosX, winPosY);
+            updateWindowsPositions(RLC_view->renderSize());
         }
         Cb_MCUs_windows[mcu_i + 4] = std::move(RLC_view);
     }
+
+    winPosX = 0;
+    winPosY += 430;
 
     std::vector<std::unique_ptr<Window>> Cr_MCUs_windows(m_trace.Cr_MCUs.size() * 5);
     for(u64 mcu_i = 0; mcu_i < m_trace.Cr_MCUs.size(); mcu_i++) {
@@ -401,6 +440,8 @@ int Tracing::show() {
         {
             auto res = DCT_view->init("FDCT");
             RETURN_IF_ERROR(res, "Failed to init DCT view");
+            DCT_view->setPos(winPosX, winPosY);
+            updateWindowsPositions(DCT_view->renderSize());
         }
         Cr_MCUs_windows[mcu_i] = std::move(DCT_view);
 
@@ -409,6 +450,8 @@ int Tracing::show() {
         {
             auto res = Quant_view->init("Quantization");
             RETURN_IF_ERROR(res, "Failed to init Quant_view view");
+            Quant_view->setPos(winPosX, winPosY);
+            updateWindowsPositions(Quant_view->renderSize());
         }
         Cr_MCUs_windows[mcu_i + 1] = std::move(Quant_view);
 
@@ -417,6 +460,8 @@ int Tracing::show() {
         {
             auto res = Zigzag_view->init("Zigzag");
             RETURN_IF_ERROR(res, "Failed to init Zigzag_view view");
+            Zigzag_view->setPos(winPosX, winPosY);
+            updateWindowsPositions(Zigzag_view->renderSize());
         }
         Cr_MCUs_windows[mcu_i + 2] = std::move(Zigzag_view);
 
@@ -425,6 +470,8 @@ int Tracing::show() {
         {
             auto res = DPCM_view->init("DPCM");
             RETURN_IF_ERROR(res, "Failed to init DPCM view");
+            DPCM_view->setPos(winPosX, winPosY);
+            updateWindowsPositions(DPCM_view->renderSize());
         }
         Cr_MCUs_windows[mcu_i + 3] = std::move(DPCM_view);
 
@@ -433,6 +480,8 @@ int Tracing::show() {
         {
             auto res = RLC_view->init("RLC");
             RETURN_IF_ERROR(res, "Failed to init RLC view");
+            RLC_view->setPos(winPosX, winPosY);
+            updateWindowsPositions(RLC_view->renderSize());
         }
         Cr_MCUs_windows[mcu_i + 4] = std::move(RLC_view);
     }

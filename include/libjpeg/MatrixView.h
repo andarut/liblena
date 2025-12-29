@@ -31,7 +31,7 @@ public:
             ERROR("Failed to init overlay inside image view\n");
             return 1;
         }
-        set_font("../../Fonts/CascadiaMono/CaskaydiaMonoNerdFontPropo-Regular.ttf", 14);
+        set_font("../../Fonts/CascadiaMono/CaskaydiaMonoNerdFontPropo-Regular.ttf", 20);
 
         for(u64 i = 0; i < m_height; i++) {
             for(u64 j = 0; j < m_width; j++) {

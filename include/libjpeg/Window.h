@@ -1,6 +1,7 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include <cstddef>
 #define GLFW_INCLUDE_NONE
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -26,6 +27,11 @@ public:
     int init(size_t width=800, size_t height=600, const std::string& title="Window");
 
     virtual int render();
+
+    // TODO: think about
+    void setPos(size_t x, size_t y) {
+        glfwSetWindowPos(m_window, static_cast<int>(x), static_cast<int>(y));
+    }
 
     bool shouldClose() const {
         return glfwWindowShouldClose(m_window);

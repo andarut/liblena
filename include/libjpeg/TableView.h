@@ -31,7 +31,7 @@ public:
             ERROR("Failed to init overlay inside image view\n");
             return 1;
         }
-        set_font("../../Fonts/CascadiaMono/CaskaydiaMonoNerdFontPropo-Regular.ttf", 14);
+        set_font("../../Fonts/CascadiaMono/CaskaydiaMonoNerdFontPropo-Regular.ttf", 20);
 
         m_rows = std::round(static_cast<float>(m_data.size()) / static_cast<float>(m_cols));
 

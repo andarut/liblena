@@ -10,6 +10,7 @@
 #include "QuantizationTable.h"
 #include "Quantizator.h"
 #include "RLC.h"
+#include "Utils.hpp"
 #include "YCbCrConverter.h"
 #include "Zigzag.h"
 
@@ -113,7 +114,9 @@ int Compressor::compress(PPMImageData& rawData) {
         }
 
         /* DPCM */
-        DPCM(Y_zigzagMCUData);
+        std::vector<std::vector<s16>> Y_DPCMData = Y_zigzagMCUData; 
+        DPCM(Y_zigzagMCUData, Y_DPCMData);
+        Y_zigzagMCUData = Y_DPCMData;
 
         // Write DPCM coeffs to tracing
         for(u64 mcu_idx = 0; mcu_idx < Y_zigzagMCUData.size(); mcu_idx++) {
@@ -187,7 +190,9 @@ int Compressor::compress(PPMImageData& rawData) {
         }
 
         /* DPCM */
-        DPCM(Cb_zigzagMCUData);
+        std::vector<std::vector<s16>> Cb_DPCMData = Cb_zigzagMCUData; 
+        DPCM(Cb_zigzagMCUData, Cb_DPCMData);
+        Cb_zigzagMCUData = Cb_DPCMData;
 
         // Write DPCM coeffs to tracing
         for(u64 mcu_idx = 0; mcu_idx < Cb_zigzagMCUData.size(); mcu_idx++) {
@@ -261,7 +266,9 @@ int Compressor::compress(PPMImageData& rawData) {
         }
 
         /* DPCM */
-        DPCM(Cr_zigzagMCUData);
+        std::vector<std::vector<s16>> Cr_DPCMData = Cr_zigzagMCUData;
+        DPCM(Cr_zigzagMCUData, Cr_DPCMData);
+        Cr_zigzagMCUData = Cr_DPCMData;
 
         // Write DPCM coeffs to tracing
         for(u64 mcu_idx = 0; mcu_idx < Cr_zigzagMCUData.size(); mcu_idx++) {
@@ -448,11 +455,13 @@ void Compressor::writeSOF0() {
 
     /* image height */
     mStream.write<u16>(8);
-    // mStream.write<u16>(16);
+    //mStream.write<u16>(16);
+    //mStream.write<u16>(512);
     
     /* image width */
     mStream.write<u16>(8);
-    // mStream.write<u16>(16);
+    //mStream.write<u16>(16);
+    //mStream.write<u16>(512);
 
     /* number of components */
     mStream.write_u8(3);

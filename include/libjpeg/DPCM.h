@@ -10,10 +10,15 @@ inline T& DC(std::vector<T>& MCU) {
 }
 
 template<typename T>
-void DPCM(std::vector<std::vector<T>>& MCUs) {
-    T& DC_ref = DC(MCUs[0]);
+inline T DC(const std::vector<T>& MCU) {
+    return MCU[0];
+}
+
+template<typename T>
+void DPCM(const std::vector<std::vector<T>>& MCUs, std::vector<std::vector<T>>& resultMCUs) {
     for (u64 i = 1; i < MCUs.size(); i++) {
-        DC(MCUs[i]) -= DC_ref;
+        DEBUG("%d - %d\n", DC(resultMCUs[i]), DC(MCUs[i-1]));
+        DC(resultMCUs[i]) -= DC(MCUs[i-1]);
     }
 }
 

@@ -19,6 +19,7 @@ public:
 
 	void write_bits(uint32_t value, uint64_t size) {
 		// DEBUG("value = %llu, size = %llu, %llu / %llu\n", value, size, m_offset, m_buf.size());
+        DEBUG("value = %s\n", bit_string(value, size).c_str());
         uint64_t final_offset = m_offset + size;
         uint64_t needed_bytes = (final_offset + 7) >> 3;
         if (needed_bytes > m_buf.size()) {

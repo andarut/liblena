@@ -464,7 +464,7 @@ constexpr std::array<KeySymbol, N> make_map(const std::array<HuffEntry, N>& tabl
 typedef const std::array<HuffEntry, 256> HuffACTable;
 typedef const std::array<HuffEntry, 12> HuffDCTable;
 
-inline void write_huffman_table(BitStream& bs, const auto& table, uint8_t table_class, uint8_t dest_id) {
+inline void writeHuffmanTable(BitStream& bs, const auto& table, uint8_t table_class, uint8_t dest_id) {
     // Count actual symbols with non-zero length
     size_t symbol_count = 0;
     std::array<uint8_t, 16> code_length_counts = {0};
@@ -508,20 +508,20 @@ inline void write_huffman_table(BitStream& bs, const auto& table, uint8_t table_
 }
 
 // Function to write all 4 standard tables
-inline void write_all_standard_tables(BitStream& bs) {
+inline void writeStandardHuffmanTables(BitStream& bs) {
     // Table K.3: Luminance DC (class 0, destination 0)
-    write_huffman_table(bs, LUMINANCE_DC, 0, 0);
+    writeHuffmanTable(bs, LUMINANCE_DC, 0, 0);
     
 
     // Table K.5: Luminance AC (class 1, destination 0)
-    write_huffman_table(bs, LUMINANCE_AC, 1, 0);
+    writeHuffmanTable(bs, LUMINANCE_AC, 1, 0);
     
 
     // Table K.4: Chrominance DC (class 0, destination 1)  
-    write_huffman_table(bs, CHROMINANCE_DC, 0, 1);
+    writeHuffmanTable(bs, CHROMINANCE_DC, 0, 1);
     
     // Table K.6: Chrominance AC (class 1, destination 1)
-    write_huffman_table(bs, CHROMINANCE_AC, 1, 1);
+    writeHuffmanTable(bs, CHROMINANCE_AC, 1, 1);
 }
 
 #endif // HUFFMANTABLE_H

@@ -4,6 +4,7 @@ include(CMakePrintHelpers)
 project(liblena)
 project(liblena_tests)
 project(tracing)
+project(sandbox)
 
 find_package(imgui)
 find_package(glfw3)
@@ -115,4 +116,18 @@ target_link_libraries(tracing
     glfw
     imgui::imgui
     glad::glad
+)
+
+
+add_executable(sandbox
+  ${CMAKE_CURRENT_SOURCE_DIR}/sandbox/sandbox.cpp
+)
+
+target_include_directories(sandbox PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/libjpeg/
+)
+
+
+target_link_libraries(sandbox
+  liblena
 )

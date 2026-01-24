@@ -16,7 +16,10 @@ for experiments with data compression techniques
 
 </div>
 
+
 ---
+
+JPEGVisualRepairTool helps debug
 
 This is library for experiments with different compression techniques.
 

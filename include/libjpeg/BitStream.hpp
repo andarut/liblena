@@ -23,6 +23,7 @@ public:
         uint64_t final_offset = m_offset + size;
         uint64_t needed_bytes = (final_offset + 7) >> 3;
         if (needed_bytes > m_buf.size()) {
+            WARN("resizing bit stream buffer: old size: %lld, new sizes: %lld\n", m_buf.size(), needed_bytes); 
             m_buf.resize(needed_bytes);
         }
         while (size--) {
@@ -81,8 +82,8 @@ public:
 	}
 
 	void write_u8(u8 byte) {
-        write_bits(byte, 8);
-    }
+      write_bits(byte, 8);
+  }
 
     void write_bytes(const u8* data, size_t count) {
         for (size_t i = 0; i < count; ++i) {

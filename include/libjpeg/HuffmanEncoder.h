@@ -20,7 +20,7 @@ class HuffmanEncoder {
 public:
 	HuffmanEncoder(BitStream& stream) : mStream(stream) {}
 	int encodeMCU(MCU_Type type, s16 DC, const std::vector<s16>& ACs);
-private:
+//private:
 	int writeDC(s32 DC_diff, HuffDCTable& table);
 	void writeAC(u32 run, u16 size, s32 ampl, HuffACTable& table);
 	void writeAC(u32 run, u16 size, HuffACTable& table);

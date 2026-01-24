@@ -7,7 +7,6 @@
 #include "ImageCh.h"
 #include "Logger.hpp"
 #include "MCU.h"
-#include "QuantizationTable.h"
 #include "Quantizator.h"
 #include "RLC.h"
 #include "Utils.hpp"
@@ -316,10 +315,10 @@ int Compressor::compress(PPMImageData& rawData) {
     writeDQT(lumin_q, 0x00);
     writeDQT(chrom_q, 0x01);
 
-    writeSOF0();
+    writeSOF0(rawData[0].width(), rawData[0].height());
 
     // writeDHT();
-    write_all_standard_tables(mStream);
+    writeStandardHuffmanTables(mStream);
     
     /* TODO: writeSOS */
     mStream.write_u8(magic);
@@ -366,7 +365,7 @@ int Compressor::compress(PPMImageData& rawData) {
     INFO("Entropy data size = %d\n", size);
     /* byte padding */
     for (int i = 0; i < size; i++) {
-        auto b = entropyData[i];
+        const auto& b = entropyData[i];
         INFO("byte = %02X\n", b);
         mStream.write_u8(b);
         if (b == 0xFF) {
@@ -442,7 +441,7 @@ void Compressor::writeDQT(const QuantizationTable& qtable, u8 tq) {
     }
 }
 
-void Compressor::writeSOF0() {
+void Compressor::writeSOF0(u16 imageWidth, u16 imageHeight) {
     /* marker */
     mStream.write_u8(magic);
     mStream.write_u8(SOF0);
@@ -454,14 +453,10 @@ void Compressor::writeSOF0() {
     mStream.write_u8(8);
 
     /* image height */
-    mStream.write<u16>(8);
-    //mStream.write<u16>(16);
-    //mStream.write<u16>(512);
+    mStream.write<u16>(imageHeight);
     
     /* image width */
-    mStream.write<u16>(8);
-    //mStream.write<u16>(16);
-    //mStream.write<u16>(512);
+    mStream.write<u16>(imageWidth);
 
     /* number of components */
     mStream.write_u8(3);

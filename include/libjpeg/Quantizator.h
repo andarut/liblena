@@ -8,7 +8,7 @@
 
 class Quantizator {
 public:
-    static int quantize(ImageCh<s32>& block, const QuantizationTable& q_table);
+    static int quantize(ImageCh<f64>& block, const QuantizationTable& q_table);
     static int dequantize(ImageCh<s32>& block, const QuantizationTable& q_table);
 };
 

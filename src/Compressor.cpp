@@ -79,7 +79,8 @@ int Compressor::compress(PPMImageData& rawData) {
             }
 
             /* DCT */
-            DCT::FDCT(s32_MCU);
+            ImageCh<f64> dctMCU(s32_MCU.width(), s32_MCU.height());
+            DCT::FDCT(s32_MCU, dctMCU);
 
             // Write DCT coeffs to tracing
             for(u64 i = 0; i < s32_MCU.height(); i++) {
@@ -89,7 +90,7 @@ int Compressor::compress(PPMImageData& rawData) {
             }
 
             /* Quantization */
-            Quantizator::quantize(s32_MCU, lumin_q);
+            Quantizator::quantize(dctMCU, lumin_q);
 
             // Write quantized coeffs to tracing
             for(u64 i = 0; i < s32_MCU.height(); i++) {
@@ -100,7 +101,7 @@ int Compressor::compress(PPMImageData& rawData) {
 
             std::vector<s16> Y_zigzagMCU;
             {
-                auto res = zigzag(s32_MCU, Y_zigzagMCU);
+                auto res = zigzag(dctMCU, Y_zigzagMCU);
                 RETURN_IF_ERROR(res, "Error in zigzag for Y\n");
             }
 
@@ -155,7 +156,8 @@ int Compressor::compress(PPMImageData& rawData) {
             }
 
             /* DCT */
-            DCT::FDCT(s32_MCU);
+            ImageCh<f64> dctMCU(s32_MCU.width(), s32_MCU.height());
+            DCT::FDCT(s32_MCU, dctMCU);
 
             // Write DCT coeffs to tracing
             for(u64 i = 0; i < s32_MCU.height(); i++) {
@@ -165,7 +167,7 @@ int Compressor::compress(PPMImageData& rawData) {
             }
             
             /* Quantization */
-            Quantizator::quantize(s32_MCU, chrom_q);
+            Quantizator::quantize(dctMCU, chrom_q);
 
             // Write quantized coeffs to tracing
             for(u64 i = 0; i < s32_MCU.height(); i++) {
@@ -176,7 +178,7 @@ int Compressor::compress(PPMImageData& rawData) {
 
             std::vector<s16> Cb_zigzagMCU;
             {
-                auto res = zigzag(s32_MCU, Cb_zigzagMCU);
+                auto res = zigzag(dctMCU, Cb_zigzagMCU);
                 RETURN_IF_ERROR(res, "Error in zigzag for Cb\n");
             }
 
@@ -231,7 +233,8 @@ int Compressor::compress(PPMImageData& rawData) {
             }
 
             /* DCT */
-            DCT::FDCT(s32_MCU);
+            ImageCh<f64> dctMCU(s32_MCU.width(), s32_MCU.height());
+            DCT::FDCT(s32_MCU, dctMCU);
 
             // Write DCT coeffs to tracing
             for(u64 i = 0; i < s32_MCU.height(); i++) {
@@ -241,7 +244,7 @@ int Compressor::compress(PPMImageData& rawData) {
             }
             
             /* Quantization */
-            Quantizator::quantize(s32_MCU, chrom_q);
+            Quantizator::quantize(dctMCU, chrom_q);
 
             // Write quantized coeffs to tracing
             for(u64 i = 0; i < s32_MCU.height(); i++) {
@@ -252,7 +255,7 @@ int Compressor::compress(PPMImageData& rawData) {
 
             std::vector<s16> Cr_zigzagMCU;
             {
-                auto res = zigzag(s32_MCU, Cr_zigzagMCU);
+                auto res = zigzag(dctMCU, Cr_zigzagMCU);
                 RETURN_IF_ERROR(res, "Error in zigzag for Cb\n");
             }
 

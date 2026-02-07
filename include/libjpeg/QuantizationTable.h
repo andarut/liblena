@@ -22,7 +22,7 @@ inline auto LUMINANCE_Q_50 = QuantizationTable(8, 8, {
 
 /* Table K.2 */
 inline auto CHROMINANCE_Q_50 = QuantizationTable(8, 8, {
-    16,	18,	24,	47,	99,	99,	99,	99,
+    17,	18,	24,	47,	99,	99,	99,	99,
     18,	21,	26,	66,	99,	99,	99,	99,
     24,	26,	56,	99,	99,	99,	99,	99,
     47,	66,	99,	99,	99,	99,	99,	99,

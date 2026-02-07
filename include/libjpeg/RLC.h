@@ -48,7 +48,7 @@ inline int decodeRLE(const std::vector<T> RLC_data, std::vector<T>& data) {
 	
 	u64 write_i = 1;
 
-	for (u64 i = 0; i < RLC_data.size(); i += 3) {
+	for (u64 i = 0; i < RLC_data.size(); ) {
 		u8 run  = RLC_data[i];
 		u8 size = RLC_data[i+1];
 		if (size == 0 && run == 0) {
@@ -57,7 +57,8 @@ inline int decodeRLE(const std::vector<T> RLC_data, std::vector<T>& data) {
 		}
 		if (size == 0 && run == 0xF) {
 			INFO("DECODED ZRL\n");
-			i--;
+			write_i += 16;
+			i += 2;
 			continue;
 		}
 		s16 ampl = RLC_data[i+2];
@@ -65,6 +66,7 @@ inline int decodeRLE(const std::vector<T> RLC_data, std::vector<T>& data) {
 		write_i += run;
 		data[write_i] = ampl;
 		write_i++;
+		i += 3;
 	}
     return 0;
 }

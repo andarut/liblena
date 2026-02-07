@@ -336,7 +336,7 @@ int Tracing::show() {
         winPosX += size.first;
         if (winPosX + size.first > 2560) {
             winPosX = 0;
-            winPosY += size.second + 30;
+            winPosY += size.second;
         }
     };
 

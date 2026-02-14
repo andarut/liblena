@@ -6,7 +6,7 @@
 #include <utility>
 #include <cstdarg>
 
-#define TRUEDEBUG
+//#define TRUEDEBUG
 
 enum class LogLevel : int { DEBUG=0, INFO, WARN, ERROR };
 

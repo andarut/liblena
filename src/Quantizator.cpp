@@ -2,13 +2,13 @@
 
 int Quantizator::quantize(ImageCh<f64>& block, const QuantizationTable& q_table) {
     if (block.width() != q_table.width() || block.height() != q_table.height()) {
-        ERROR("dimensions differ");
-        return 1;
+      ERROR("dimensions differ");
+      return 1;
     }
     for (u64 i = 0; i < block.height(); i++) {
-        for (u64 j = 0; j < block.width(); j++) {
-            block(i, j) = std::round(block(i, j) / static_cast<f64>(q_table(i, j)));
-        }
+      for (u64 j = 0; j < block.width(); j++) {
+          block(i, j) = std::round(block(i, j) / static_cast<f64>(q_table(i, j)));
+      }
     }
     return 0;
 }

@@ -29,16 +29,16 @@ int HuffmanEncoder::writeDC(s32 DC_diff, HuffDCTable& table) {
 	INFO("DC_diff = %d\n", DC_diff);
 	u8 cat = categoryDC(DC_diff);
 	if (cat < 0 || cat > 12) {
-        return 1;
-    }
+    return 1;
+  }
 	auto &e = table[cat];
 	INFO("cat = %llu, code = %llu, length = %d\n", cat, e.code, e.length);
 	mStream.write_bits(e.code, e.length);
 
 	if (cat > 0) {
 		writeVLI(DC_diff, cat);
-    }
-    return 0;
+  }
+  return 0;
 }
 
 u8 HuffmanEncoder::categoryDC(s32 diff) {
@@ -65,7 +65,7 @@ void HuffmanEncoder::writeVLI(s32 ampl, u16 size) {
 void HuffmanEncoder::writeAC(u32 run, u16 size, HuffACTable& table) {
 	INFO("run = %llu, size = %llu\n", run, size);
 	auto &e = table[(run<<4)|size];
-	INFO("LUMINANCE code = %s / %02x, length = %d\n", bit_string(e.code, e.length).c_str(), e.code, e.length);
+	INFO("code = %s / %02x, length = %d\n", bit_string(e.code, e.length).c_str(), e.code, e.length);
 	mStream.write_bits(e.code, e.length);
 }
 

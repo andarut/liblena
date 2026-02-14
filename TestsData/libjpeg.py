@@ -6,13 +6,13 @@ import sys
 Q = 50
 
 def encode(input_path: str, encoded_path: str):
-    encode_cmd = f"cjpeg -quality {Q} -baseline -dct int -sample 1x1,1x1,1x1 -outfile {encoded_path} {input_path}"
-    print(f"ENCODE {encoded_path}")
+    encode_cmd = f"cjpeg -quality {Q} -baseline -dct float -sample 1x1,1x1,1x1 -outfile {encoded_path} {input_path}"
+    print(f"ENCODE {encode_cmd}")
     os.system(encode_cmd)
              
 def decode(encoded_path: str, decoded_path: str):
-    decode_cmd = f"djpeg -dct int -dither none -nosmooth -rgb -onepass -outfile {decoded_path} {encoded_path}"
-    print(f"DECODE {decoded_path}")
+    decode_cmd = f"djpeg -dct float -dither none -nosmooth -rgb -onepass -outfile {decoded_path} {encoded_path}"
+    print(f"DECODE {decode_cmd}")
     os.system(decode_cmd)
 
 TEST_CASES = [

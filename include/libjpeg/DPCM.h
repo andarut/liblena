@@ -16,10 +16,13 @@ inline T DC(const std::vector<T>& MCU) {
 
 template<typename T>
 void DPCM(const std::vector<std::vector<T>>& MCUs, std::vector<std::vector<T>>& resultMCUs) {
-    for (u64 i = 1; i < MCUs.size(); i++) {
-        DEBUG("%d - %d\n", DC(resultMCUs[i]), DC(MCUs[i-1]));
-        DC(resultMCUs[i]) -= DC(MCUs[i-1]);
-    }
+  DEBUG("START DPCM\n");
+  resultMCUs = MCUs;
+  for (u64 i = 1; i < MCUs.size(); i++) {
+    T newDC = DC(resultMCUs[i]) - DC(MCUs[i-1]);
+    DEBUG("%d - %d = %d\n", DC(resultMCUs[i]), DC(MCUs[i-1]), newDC);
+    DC(resultMCUs[i]) = newDC;
+  }
 }
 
 #endif // DPCM_H

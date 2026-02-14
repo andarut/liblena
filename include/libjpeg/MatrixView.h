@@ -17,13 +17,13 @@ TODO
 - авто высчитывание отступом (через ImGui::CalcTextSize)
 
 */
-template<typename T>
+template<typename T, size_t N>
 class MatrixView : public Window, public Overlay {
 public:
-    MatrixView(const std::array<T, 64>& data, u64 width, u64 height) : m_data(data), m_width(width), m_height(height) {}
+    MatrixView(const std::array<T, N>& data, u64 width, u64 height) : m_data(data), m_width(width), m_height(height) {}
 
     int init(const std::string& title) {
-        if (Window::init(400, 400, title)) {
+        if (Window::init(450, 450, title)) {
             ERROR("Failed to init window inside image view\n");
             return 1;
         }
@@ -31,7 +31,7 @@ public:
             ERROR("Failed to init overlay inside image view\n");
             return 1;
         }
-        set_font("../../Fonts/CascadiaMono/CaskaydiaMonoNerdFontPropo-Regular.ttf", 20);
+        set_font("../../Fonts/CascadiaMono/CaskaydiaMonoNerdFontPropo-Regular.ttf", 12);
 
         for(u64 i = 0; i < m_height; i++) {
             for(u64 j = 0; j < m_width; j++) {
@@ -41,6 +41,7 @@ public:
         }
         return 0;
     }
+
 
     int render() override {
         glfwMakeContextCurrent(getGLFWWindow());
@@ -78,13 +79,18 @@ private:
         u64 start_x = 30;
         u64 start_y = 60;
 
-        u64 padding_size = 40;
+        u64 padding_size = 50;
 
         u64 cur_x = start_x;
         u64 cur_y = start_y;
         for(u64 i = 0; i < 8; i++) {
             for(u64 j = 0; j < 8; j++) {
-                std::string num = std::format("{}", m_data[i * 8 + j]);
+              std::string num;
+                if constexpr (std::is_same_v<T, float> || std::is_same_v<T, double>) {
+                    num = std::format("{:.2f}", m_data[i * 8 + j]);
+                } else {
+                    num = std::format("{}", m_data[i * 8 + j]);
+                }
                 draw_list->AddText(ImVec2(cur_x,cur_y), ImColor(255, 255, 255, 255), num.c_str());
                 cur_x += padding_size;
             }

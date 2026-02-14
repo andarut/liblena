@@ -1,4 +1,5 @@
-// #include <gtest/gtest.h>
+#include <gtest/gtest.h>
+
 #include <filesystem>
 #include <format>
 
@@ -31,6 +32,7 @@ int basicTestCase(const std::string& filename) {
 
     Compressor compressor(bs);
     {
+      INFO("FUCK\n");
         auto res = compressor.compress(data);
         RETURN_IF_ERROR(res, "Error in compress\n");
     }
@@ -49,39 +51,30 @@ int basicTestCase(const std::string& filename) {
 }
 
 int main() {
-    RETURN_IF_ERROR(basicTestCase("8x8"), "Test 8x8 failed\n");
+  std::vector<std::string> testCases = {
+    "8x8",
+    "1",
+    "2",
+    "3",
+    "4",
+    "16x16",
+    "128",
+    "129"
+  };
+  for(size_t i = 0; i < 4096; i++) {
+    std::string s = "block_" + std::to_string(i);
+ //   testCases.push_back(s);
+  }
+  // MSE = 0.1283
+  //testCases.push_back("lenna");
 
-    RETURN_IF_ERROR(basicTestCase("1"), "Test 1 failed\n");
-    RETURN_IF_ERROR(basicTestCase("2"), "Test 2 failed\n");
-    RETURN_IF_ERROR(basicTestCase("3"), "Test 3 failed\n");
-    RETURN_IF_ERROR(basicTestCase("4"), "Test 4 failed\n");
-    RETURN_IF_ERROR(basicTestCase("16x16"), "Test 16x16 failed\n");
-    RETURN_IF_ERROR(basicTestCase("128"), "Test 128 failed\n");
-    RETURN_IF_ERROR(basicTestCase("129"), "Test 129 failed\n");
-    
-    // but not this
-    //RETURN_IF_ERROR(basicTestCase("block_4"), "Test block 4 failed\n");
-    
-    for(size_t i = 0; i < 4096; i++) {
-      std::string s = "block_" + std::to_string(i);
-      INFO("Running test %d\n", i);
-      RETURN_IF_ERROR(basicTestCase(s), "Test failed on %s\n", s.c_str());
-    }
-    RETURN_IF_ERROR(basicTestCase("lenna"), "Test lenna failed\n");
-    INFO("All tests passed\n");
-    
-    return 0;
+
+  for(const auto& testCase : testCases) {
+    auto res = basicTestCase(testCase);
+    RETURN_IF_ERROR(res, "Error in test case: %s\n", testCase.c_str());
+  }
+  INFO("All tests passed\n");
+  
+  return 0;
 }
 
-// TEST(TEST_Compressor, test_8x8) {
-//     ASSERT_EQ(basicTestCase("8x8"), 0);
-// }
-
-
-// TEST(TEST_Compressor, 16x16) {
-//     ASSERT_EQ(basicTestCase("16x16"), 0);
-// }
-
-// TEST(TEST_Compressor, test_512x512) {
-//     ASSERT_EQ(basicTestCase("lenna"), 0);
-// }

@@ -25,7 +25,7 @@ int Tracing::loadFromFile(const std::string& filename) {
 
     u64 width = 0;
     {
-        auto res = bs.read<u64>(width);
+        auto res = bs.read(width);
         if(res) {
             ERROR("Failed to read source image width from: %s\n", filename.c_str());
             return -2;
@@ -35,7 +35,7 @@ int Tracing::loadFromFile(const std::string& filename) {
 
     u64 height = 0;
     {
-        auto res = bs.read<u64>(height);
+        auto res = bs.read(height);
         if(res) {
             ERROR("Failed to read source image height from: %s\n", filename.c_str());
             return -3;
@@ -47,7 +47,7 @@ int Tracing::loadFromFile(const std::string& filename) {
         image_data[k] = ImageCh<u8>(width, height);
         for(u64 i = 0; i < height; i++) {
             for(u64 j = 0; j < width; j++) {
-                auto res = bs.read<u8>(image_data[k](i, j));
+                auto res = bs.read(image_data[k](i, j));
                 if(res) {
                     ERROR("Failed to read pixel data: i = %lld, j = %lld\n", i, j);
                     return -4;
@@ -64,7 +64,7 @@ int Tracing::loadFromFile(const std::string& filename) {
 
         u64 width = 0;
         {
-            auto res = bs.read<u64>(width);
+            auto res = bs.read(width);
             if(res) {
                 ERROR("Failed to read source image width from: %s\n", filename.c_str());
                 return -2;
@@ -94,7 +94,7 @@ int Tracing::loadFromFile(const std::string& filename) {
                 }
             }
         }
-        INFO("Loaded source image data\n");
+        INFO("Loaded color converted image data\n");
 
         m_trace.colorConvertedImageData = std::move(colorConvertedImageData);
     }
@@ -114,25 +114,25 @@ int Tracing::loadFromFile(const std::string& filename) {
             INFO("Reading MCU %llu/%llu\n", mcu_i + 1, MCUsCount);
 
             for(u64 i = 0; i < width * height; i++) {
-                auto res = bs.read<s32>(m_trace.Y_MCUs[mcu_i].inputData[i]);
+                auto res = bs.read(m_trace.Y_MCUs[mcu_i].inputData[i]);
                 RETURN_IF_ERROR(res, "Failed to read pixel data: i = %lld", i);
                 INFO("Input coeff[%llu] = %d\n", i, m_trace.Y_MCUs[mcu_i].inputData[i]);
             }
 
             for(u64 i = 0; i < width * height; i++) {
-                auto res = bs.read<s32>(m_trace.Y_MCUs[mcu_i].DCT_coeff[i]);
+                auto res = bs.read(m_trace.Y_MCUs[mcu_i].DCT_coeff[i]);
                 RETURN_IF_ERROR(res, "Failed to read pixel data: i = %lld", i);
                 INFO("DCT coeff[%llu] = %d\n", i, m_trace.Y_MCUs[mcu_i].DCT_coeff[i]);
             }
 
             for(u64 i = 0; i < width * height; i++) {
-                auto res = bs.read<s32>(m_trace.Y_MCUs[mcu_i].Quant_coeff[i]);
+                auto res = bs.read(m_trace.Y_MCUs[mcu_i].Quant_coeff[i]);
                 RETURN_IF_ERROR(res, "Failed to read pixel data: i = %lld", i);
                 INFO("Quant coeff[%llu] = %d\n", i, m_trace.Y_MCUs[mcu_i].Quant_coeff[i]);
             }
 
             for(u64 i = 0; i < width * height; i++) {
-                auto res = bs.read<s16>(m_trace.Y_MCUs[mcu_i].Zigzag_coeff[i]);
+                auto res = bs.read(m_trace.Y_MCUs[mcu_i].Zigzag_coeff[i]);
                 RETURN_IF_ERROR(res, "Failed to read pixel data: i = %lld", i);
                 INFO("Zigzag coeff[%llu] = %d\n", i, m_trace.Y_MCUs[mcu_i].Zigzag_coeff[i]);
             }
@@ -142,7 +142,7 @@ int Tracing::loadFromFile(const std::string& filename) {
         for (u64 mcu_i = 0; mcu_i < MCUsCount; mcu_i++) {
             INFO("Reading DPCM data for MCU %llu/%llu\n", mcu_i + 1, MCUsCount);
             for(u64 i = 0; i < width * height; i++) {
-                auto res = bs.read<s16>(m_trace.Y_MCUs[mcu_i].DPCM_coeff[i]);
+                auto res = bs.read(m_trace.Y_MCUs[mcu_i].DPCM_coeff[i]);
                 RETURN_IF_ERROR(res, "Failed to read pixel data: i = %lld", i);
                 INFO("DPCM coeff[%llu] = %d\n", i, m_trace.Y_MCUs[mcu_i].DPCM_coeff[i]);
             }
@@ -181,19 +181,19 @@ int Tracing::loadFromFile(const std::string& filename) {
             INFO("Reading MCU %llu/%llu\n", mcu_i + 1, MCUsCount);
 
             for(u64 i = 0; i < width * height; i++) {
-                auto res = bs.read<s32>(m_trace.Cb_MCUs[mcu_i].inputData[i]);
+                auto res = bs.read(m_trace.Cb_MCUs[mcu_i].inputData[i]);
                 RETURN_IF_ERROR(res, "Failed to read pixel data: i = %lld", i);
                 INFO("Input coeff[%llu] = %d\n", i, m_trace.Cb_MCUs[mcu_i].inputData[i]);
             }
 
             for(u64 i = 0; i < width * height; i++) {
-                auto res = bs.read<s32>(m_trace.Cb_MCUs[mcu_i].DCT_coeff[i]);
+                auto res = bs.read(m_trace.Cb_MCUs[mcu_i].DCT_coeff[i]);
                 RETURN_IF_ERROR(res, "Failed to read pixel data: i = %lld", i);
                 INFO("DCT coeff[%llu] = %d\n", i, m_trace.Cb_MCUs[mcu_i].DCT_coeff[i]);
             }
 
             for(u64 i = 0; i < width * height; i++) {
-                auto res = bs.read<s32>(m_trace.Cb_MCUs[mcu_i].Quant_coeff[i]);
+                auto res = bs.read(m_trace.Cb_MCUs[mcu_i].Quant_coeff[i]);
                 RETURN_IF_ERROR(res, "Failed to read pixel data: i = %lld", i);
                 INFO("Quant coeff[%llu] = %d\n", i, m_trace.Cb_MCUs[mcu_i].Quant_coeff[i]);
             }
@@ -249,19 +249,19 @@ int Tracing::loadFromFile(const std::string& filename) {
             INFO("Reading MCU %llu/%llu\n", mcu_i + 1, MCUsCount);
 
             for(u64 i = 0; i < width * height; i++) {
-                auto res = bs.read<s32>(m_trace.Cr_MCUs[mcu_i].inputData[i]);
+                auto res = bs.read(m_trace.Cr_MCUs[mcu_i].inputData[i]);
                 RETURN_IF_ERROR(res, "Failed to read pixel data: i = %lld", i);
                 INFO("Input coeff[%llu] = %d\n", i, m_trace.Cr_MCUs[mcu_i].inputData[i]);
             }
 
             for(u64 i = 0; i < width * height; i++) {
-                auto res = bs.read<s32>(m_trace.Cr_MCUs[mcu_i].DCT_coeff[i]);
+                auto res = bs.read(m_trace.Cr_MCUs[mcu_i].DCT_coeff[i]);
                 RETURN_IF_ERROR(res, "Failed to read pixel data: i = %lld", i);
                 INFO("DCT coeff[%llu] = %d\n", i, m_trace.Cr_MCUs[mcu_i].DCT_coeff[i]);
             }
 
             for(u64 i = 0; i < width * height; i++) {
-                auto res = bs.read<s32>(m_trace.Cr_MCUs[mcu_i].Quant_coeff[i]);
+                auto res = bs.read(m_trace.Cr_MCUs[mcu_i].Quant_coeff[i]);
                 RETURN_IF_ERROR(res, "Failed to read pixel data: i = %lld", i);
                 INFO("Quant coeff[%llu] = %d\n", i, m_trace.Cr_MCUs[mcu_i].Quant_coeff[i]);
             }
@@ -340,9 +340,15 @@ int Tracing::show() {
         }
     };
 
+    // TODO: put in matrix view
+    auto make_matrix_view = []<typename T, size_t N>(std::array<T, N> arr, u64 width, u64 height) {
+      return std::make_unique<MatrixView<T, N>>(std::move(arr), width, height);
+    };
+
+
     for(u64 mcu_i = 0; mcu_i < m_trace.Y_MCUs.size(); mcu_i++) {
         /* For input */
-        auto input_view = std::make_unique<MatrixView<s32>>(m_trace.Y_MCUs[mcu_i].inputData, (u64)8, (u64)8);
+        auto input_view = make_matrix_view(m_trace.Y_MCUs[mcu_i].inputData, (u64)8, (u64)8);
         {
             auto res = input_view->init(std::format("Input MCU {}", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init Input view");
@@ -352,7 +358,7 @@ int Tracing::show() {
         Y_MCUs_windows[mcu_i] = std::move(input_view);
 
         /* For DCT */
-        auto DCT_view = std::make_unique<MatrixView<s32>>(m_trace.Y_MCUs[mcu_i].DCT_coeff, (u64)8, (u64)8);
+        auto DCT_view = make_matrix_view(m_trace.Y_MCUs[mcu_i].DCT_coeff, (u64)8, (u64)8);
         {
             auto res = DCT_view->init(std::format("FDCT MCU {}", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init DCT view");
@@ -362,7 +368,7 @@ int Tracing::show() {
         Y_MCUs_windows[mcu_i + 1] = std::move(DCT_view);
 
         /* For Quantizated values */
-        auto Quant_view = std::make_unique<MatrixView<s32>>(m_trace.Y_MCUs[mcu_i].Quant_coeff, (u64)8, (u64)8);
+        auto Quant_view = make_matrix_view(m_trace.Y_MCUs[mcu_i].Quant_coeff, (u64)8, (u64)8);
         {
             auto res = Quant_view->init(std::format("Quantization MCU {}", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init Quant_view view");
@@ -372,7 +378,7 @@ int Tracing::show() {
         Y_MCUs_windows[mcu_i + 2] = std::move(Quant_view);
 
         /* For Zigzag values */
-        auto Zigzag_view = std::make_unique<MatrixView<s16>>(m_trace.Y_MCUs[mcu_i].Zigzag_coeff, (u64)8, (u64)8);
+        auto Zigzag_view = make_matrix_view(m_trace.Y_MCUs[mcu_i].Zigzag_coeff, (u64)8, (u64)8);
         {
             auto res = Zigzag_view->init(std::format("Zigzag MCU %llu", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init Zigzag_view view");
@@ -382,7 +388,7 @@ int Tracing::show() {
         Y_MCUs_windows[mcu_i + 3] = std::move(Zigzag_view);
 
         /* For DPCM values */
-        auto DPCM_view = std::make_unique<MatrixView<s16>>(m_trace.Y_MCUs[mcu_i].DPCM_coeff, (u64)8, (u64)8);
+        auto DPCM_view = make_matrix_view(m_trace.Y_MCUs[mcu_i].DPCM_coeff, (u64)8, (u64)8);
         {
             auto res = DPCM_view->init(std::format("DPCM MCU %llu", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init DPCM view");
@@ -408,7 +414,7 @@ int Tracing::show() {
     std::vector<std::unique_ptr<Window>> Cb_MCUs_windows(m_trace.Cb_MCUs.size() * 6);
     for(u64 mcu_i = 0; mcu_i < m_trace.Cb_MCUs.size(); mcu_i++) {
         /* For input */
-        auto input_view = std::make_unique<MatrixView<s32>>(m_trace.Cb_MCUs[mcu_i].inputData, (u64)8, (u64)8);
+        auto input_view = make_matrix_view(m_trace.Cb_MCUs[mcu_i].inputData, (u64)8, (u64)8);
         {
             auto res = input_view->init(std::format("Input MCU {}", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init Input view");
@@ -417,7 +423,7 @@ int Tracing::show() {
         }
         Cb_MCUs_windows[mcu_i] = std::move(input_view);
         /* For DCT */
-        auto DCT_view = std::make_unique<MatrixView<s32>>(m_trace.Cb_MCUs[mcu_i].DCT_coeff, (u64)8, (u64)8);
+        auto DCT_view = make_matrix_view(m_trace.Cb_MCUs[mcu_i].DCT_coeff, (u64)8, (u64)8);
         {
             auto res = DCT_view->init(std::format("FDCT MCU {}", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init DCT view");
@@ -427,7 +433,7 @@ int Tracing::show() {
         Cb_MCUs_windows[mcu_i + 1] = std::move(DCT_view);
 
         /* For Quantizated values */
-        auto Quant_view = std::make_unique<MatrixView<s32>>(m_trace.Cb_MCUs[mcu_i].Quant_coeff, (u64)8, (u64)8);
+        auto Quant_view = make_matrix_view(m_trace.Cb_MCUs[mcu_i].Quant_coeff, (u64)8, (u64)8);
         {
             auto res = Quant_view->init(std::format("Quantization MCU {}", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init Quant_view view");
@@ -437,7 +443,7 @@ int Tracing::show() {
         Cb_MCUs_windows[mcu_i + 2] = std::move(Quant_view);
 
         /* For Zigzag values */
-        auto Zigzag_view = std::make_unique<MatrixView<s16>>(m_trace.Cb_MCUs[mcu_i].Zigzag_coeff, (u64)8, (u64)8);
+        auto Zigzag_view = make_matrix_view(m_trace.Cb_MCUs[mcu_i].Zigzag_coeff, (u64)8, (u64)8);
         {
             auto res = Zigzag_view->init(std::format("Zigzag MCU {}", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init Zigzag_view view");
@@ -447,7 +453,7 @@ int Tracing::show() {
         Cb_MCUs_windows[mcu_i + 3] = std::move(Zigzag_view);
 
         /* For DPCM values */
-        auto DPCM_view = std::make_unique<MatrixView<s16>>(m_trace.Cb_MCUs[mcu_i].DPCM_coeff, (u64)8, (u64)8);
+        auto DPCM_view = make_matrix_view(m_trace.Cb_MCUs[mcu_i].DPCM_coeff, (u64)8, (u64)8);
         {
             auto res = DPCM_view->init(std::format("DPCM MCU {}", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init DPCM view");
@@ -473,7 +479,7 @@ int Tracing::show() {
     std::vector<std::unique_ptr<Window>> Cr_MCUs_windows(m_trace.Cr_MCUs.size() * 6);
     for(u64 mcu_i = 0; mcu_i < m_trace.Cr_MCUs.size(); mcu_i++) {
         /* For input */
-        auto input_view = std::make_unique<MatrixView<s32>>(m_trace.Cr_MCUs[mcu_i].inputData, (u64)8, (u64)8);
+        auto input_view = make_matrix_view(m_trace.Cr_MCUs[mcu_i].inputData, (u64)8, (u64)8);
         {
             auto res = input_view->init(std::format("Input MCU {}", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init Input view");
@@ -482,7 +488,7 @@ int Tracing::show() {
         }
         Cr_MCUs_windows[mcu_i] = std::move(input_view);
         /* For DCT */
-        auto DCT_view = std::make_unique<MatrixView<s32>>(m_trace.Cr_MCUs[mcu_i].DCT_coeff, (u64)8, (u64)8);
+        auto DCT_view = make_matrix_view(m_trace.Cr_MCUs[mcu_i].DCT_coeff, (u64)8, (u64)8);
         {
             auto res = DCT_view->init(std::format("FDCT MCU {}", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init DCT view");
@@ -492,7 +498,7 @@ int Tracing::show() {
         Cr_MCUs_windows[mcu_i + 1] = std::move(DCT_view);
 
         /* For Quantizated values */
-        auto Quant_view = std::make_unique<MatrixView<s32>>(m_trace.Cr_MCUs[mcu_i].Quant_coeff, (u64)8, (u64)8);
+        auto Quant_view = make_matrix_view(m_trace.Cr_MCUs[mcu_i].Quant_coeff, (u64)8, (u64)8);
         {
             auto res = Quant_view->init(std::format("Quantization MCU {}", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init Quant_view view");
@@ -502,7 +508,7 @@ int Tracing::show() {
         Cr_MCUs_windows[mcu_i + 2] = std::move(Quant_view);
 
         /* For Zigzag values */
-        auto Zigzag_view = std::make_unique<MatrixView<s16>>(m_trace.Cr_MCUs[mcu_i].Zigzag_coeff, (u64)8, (u64)8);
+        auto Zigzag_view = make_matrix_view(m_trace.Cr_MCUs[mcu_i].Zigzag_coeff, (u64)8, (u64)8);
         {
             auto res = Zigzag_view->init(std::format("Zigzag MCU {}", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init Zigzag_view view");
@@ -512,7 +518,7 @@ int Tracing::show() {
         Cr_MCUs_windows[mcu_i + 3] = std::move(Zigzag_view);
 
         /* For DPCM values */
-        auto DPCM_view = std::make_unique<MatrixView<s16>>(m_trace.Cr_MCUs[mcu_i].DPCM_coeff, (u64)8, (u64)8);
+        auto DPCM_view = make_matrix_view(m_trace.Cr_MCUs[mcu_i].DPCM_coeff, (u64)8, (u64)8);
         {
             auto res = DPCM_view->init(std::format("DPCM MCU {}", mcu_i));
             RETURN_IF_ERROR(res, "Failed to init DPCM view");

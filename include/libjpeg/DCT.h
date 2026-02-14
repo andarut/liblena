@@ -8,8 +8,7 @@
 
 class DCT {
 public:
-    static int FDCT(const ImageCh<s32>& ch, ImageCh<f64>& dctCh);
-    static int FDCT_int(const ImageCh<s32>& ch, ImageCh<f64>& dctCh);
+    static int FDCT(const ImageCh<u8>& ch, ImageCh<f64>& dctCh);
     static int IDCT(ImageCh<u8>& ch);
 };
 

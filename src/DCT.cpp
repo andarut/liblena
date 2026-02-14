@@ -4,7 +4,7 @@
 /*
     TODO: inplace?
 */
-int DCT::FDCT(const ImageCh<s32>& ch, ImageCh<f64>& dctCh) {
+int DCT::FDCT(const ImageCh<u8>& ch, ImageCh<f64>& dctCh) {
 
     ImageCh<s32> G(ch.width(), ch.height());
 
@@ -20,34 +20,6 @@ int DCT::FDCT(const ImageCh<s32>& ch, ImageCh<f64>& dctCh) {
     for (u64 u = 0; u < G.height(); u++) {
         for (u64 v = 0; v < G.width(); v++) {
             f64 sum = 0.0;
-            for (u64 i = 0; i < G.height(); i++) {
-                for (u64 j = 0; j < G.width(); j++) {
-                    sum += G(i, j) * cos((2.0*i+1.0)*u*M_PI/16.0) * cos((2.0*j+1.0)*v*M_PI/16.0);
-                }
-            }
-            dctCh(u, v) = 0.25 * alpha(u) * alpha(v) * sum;
-        }
-    }
-
-    return 0;
-}
-
-int DCT::FDCT_int(const ImageCh<s32>& ch, ImageCh<f64>& dctCh) {
-
-    ImageCh<s32> G(ch.width(), ch.height());
-
-    /* Step 1: Recenter around zero */
-    for (u64 i = 0; i < ch.height(); i++)
-        for (u64 j = 0; j < ch.width(); j++)
-            G(i, j) = ch(i, j) - 128;
-
-
-    auto alpha = [](u64 x) { return (x == 0) ? 1.0 / sqrt(2) : 1.0; };
-
-    /* Step 2: Calculate the DCT Coefficients */
-    for (u64 u = 0; u < G.height(); u++) {
-        for (u64 v = 0; v < G.width(); v++) {
-            s32 sum = 0.0;
             for (u64 i = 0; i < G.height(); i++) {
                 for (u64 j = 0; j < G.width(); j++) {
                     sum += G(i, j) * cos((2.0*i+1.0)*u*M_PI/16.0) * cos((2.0*j+1.0)*v*M_PI/16.0);

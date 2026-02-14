@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 
-class LibLenaRecipe(ConanFile):
+class LibJpegRecipe(ConanFile):
 	name = "liblena"
 	version = "0.1"
 	settings = "os", "compiler", "build_type", "arch"
@@ -12,15 +12,18 @@ class LibLenaRecipe(ConanFile):
 	def build_requirements(self):
 		self.tool_requires("cmake/3.23.5")
 		self.test_requires("gtest/1.13.0")
-		self.test_requires("opengl/system")
-		self.test_requires("glfw/3.4")
-		self.test_requires("stb/cci.20240531")
+		self.requires("opengl/system")
+		self.requires("glfw/3.4")
+		self.requires("imgui/1.92.2b")
+		self.requires("glad/0.1.36")
 
 	def generate(self):
 		tc = CMakeToolchain(self, generator="Unix Makefiles")
-		if self.settings.build_type == "Debug":
-			tc.variables["CMAKE_C_FLAGS"] = "-fsanitize=address,undefined -fno-omit-frame-pointer"
-			tc.variables["CMAKE_CXX_FLAGS"] = "-fsanitize=address,undefined -fno-omit-frame-pointer"
+
+		# sanitizers don't like imgui
+		# if self.settings.build_type == "Debug":
+		# 	tc.variables["CMAKE_C_FLAGS"] = "-fsanitize=address,undefined -fno-omit-frame-pointer"
+		# 	tc.variables["CMAKE_CXX_FLAGS"] = "-fsanitize=address,undefined -fno-omit-frame-pointer"
 		tc.generate()
 		deps = CMakeDeps(self)
 		deps.generate()

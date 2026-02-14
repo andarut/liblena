@@ -17,6 +17,7 @@ def decode(encoded_path: str, decoded_path: str):
 
 TEST_CASES = [
   "8x8",
+  "9x9",
   "1",
   "2",
   "3",

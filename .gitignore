@@ -4,3 +4,5 @@ CMakeUserPresets.json
 .DS_Store
 cmake
 .cache/
+TestsData/*.jpeg
+TestsData/decoded_*.ppm
